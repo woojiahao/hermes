@@ -20,4 +20,6 @@ func main() {
 	}
 
 	db.CreateUser("johndoe", "johndoe@gmail.com", "1234")
+	user, _ := db.GetUser("johndoe")
+	fmt.Println(user.Email)
 }

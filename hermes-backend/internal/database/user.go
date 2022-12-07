@@ -41,14 +41,36 @@ func (d *Database) CreateUser(
 	}
 
 	if len(users) != 1 {
-		return dummyUser, errors.New("Invalid INSERT on user")
+		return dummyUser, errors.New("invalid INSERT on user")
 	}
 
 	return users[0], nil
 }
 
 func (d *Database) GetUser(username string) (User, error) {
-	return User{"", "", ""}, nil
+	users, err := query(
+		d,
+		"SELECT username, email, password_hash FROM \"user\" WHERE username = $1",
+		generate_params(username),
+		func(r *sql.Rows) (User, error) {
+			var user User
+			err := r.Scan(&user.Username, &user.Email, &user.PasswordHash)
+			return user, err
+		},
+	)
+
+	if err != nil {
+		return dummyUser, err
+	}
+
+	switch len(users) {
+	case 0:
+		return dummyUser, errors.New("unable to find user")
+	case 1:
+		return users[0], nil
+	default:
+		return dummyUser, errors.New("user should be unique by username")
+	}
 }
 
 func (d *Database) GetUsers() ([]User, error) {
