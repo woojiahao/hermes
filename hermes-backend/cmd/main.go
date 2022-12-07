@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 
 	"woojiahao.com/hermes/internal/database"
 )
@@ -10,22 +9,34 @@ import (
 func main() {
 	databaseConfiguration := database.LoadConfiguration()
 	db := database.Initialize(databaseConfiguration)
-	roles, err := db.GetRoles()
+
+	db.CreateUser("johndoe", "johndoe@gmail.com", "1234", database.ADMIN)
+	_, err := db.CreateUser("maryanne", "maryanne@gmail.com", "helloworld", database.USER)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 	}
-
-	for _, role := range roles {
-		fmt.Println(role.Title)
-	}
-
-	db.CreateUser("johndoe", "johndoe@gmail.com", "1234")
-	db.CreateUser("maryanne", "maryanne@gmail.com", "helloworld")
 	user, _ := db.GetUser("johndoe")
+	mary, _ := db.GetUser("maryanne")
 	fmt.Println(user.Email)
 
 	users, _ := db.GetUsers()
 	for _, user := range users {
 		fmt.Printf("username: %s, email: %s", user.Username, user.Email)
 	}
+
+	thread, err := db.CreateThread(user.Id, "something", "afoqwefj")
+	if err != nil {
+		fmt.Println(err)
+	}
+	_, err = db.DeleteThread(mary.Id, thread.Id)
+	if err != nil {
+		fmt.Println(mary.Id)
+		fmt.Println(thread.Id)
+		fmt.Println(err)
+	}
+
+	maryThread, _ := db.CreateThread(mary.Id, "foo", "bar")
+	db.DeleteThread(user.Id, maryThread.Id)
+
+	db.EditThread(user.Id, maryThread.Id, "wfqoei", "sfqewf", false, false)
 }

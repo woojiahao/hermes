@@ -7,17 +7,34 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type User struct {
-	Username     string
-	Email        string
-	PasswordHash string
-}
+type (
+	Role string
 
-var dummyUser = User{"", "", ""}
+	User struct {
+		Id           string
+		Username     string
+		Email        string
+		PasswordHash string
+		Role
+	}
+)
+
+const (
+	ADMIN Role = "ADMIN"
+	USER  Role = "USER"
+)
+
+var dummyUser = User{"", "", "", "", ""}
 
 func parseUserRows(rows *sql.Rows) (User, error) {
 	var user User
-	err := rows.Scan(&user.Username, &user.Email, &user.PasswordHash)
+	err := rows.Scan(
+		&user.Id,
+		&user.Username,
+		&user.Email,
+		&user.PasswordHash,
+		&user.Role,
+	)
 	return user, err
 }
 
@@ -25,6 +42,7 @@ func (d *Database) CreateUser(
 	username string,
 	email string,
 	password string,
+	role Role,
 ) (User, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
 	if err != nil {
@@ -33,8 +51,12 @@ func (d *Database) CreateUser(
 
 	users, err := query(
 		d,
-		"INSERT INTO \"user\"(username, email, password_hash) VALUES ($1, $2, $3) RETURNING *;",
-		generate_params(username, email, string(hash)),
+		`
+			INSERT INTO "user"(username, email, password_hash, role)
+			VALUES ($1, $2, $3, $4::text::"role")
+			RETURNING *;
+		`,
+		generate_params(username, email, string(hash), role),
 		parseUserRows,
 	)
 
@@ -49,10 +71,43 @@ func (d *Database) CreateUser(
 	return users[0], nil
 }
 
+// TODO: Add promote/demote user function
+
+// TODO: Refactor this
+func (d *Database) GetUserById(userId string) (User, error) {
+	users, err := query(
+		d,
+		`
+			SELECT *
+			FROM "user"
+			WHERE id = $1;
+		`,
+		generate_params(userId),
+		parseUserRows,
+	)
+
+	if err != nil {
+		return dummyUser, err
+	}
+
+	switch len(users) {
+	case 0:
+		return dummyUser, errors.New("unable to find user")
+	case 1:
+		return users[0], nil
+	default:
+		return dummyUser, errors.New("user should be unique by id")
+	}
+}
+
 func (d *Database) GetUser(username string) (User, error) {
 	users, err := query(
 		d,
-		"SELECT username, email, password_hash FROM \"user\" WHERE username = $1;",
+		`
+			SELECT *
+			FROM "user"
+			WHERE username = $1;
+		`,
 		generate_params(username),
 		parseUserRows,
 	)
@@ -74,7 +129,7 @@ func (d *Database) GetUser(username string) (User, error) {
 func (d *Database) GetUsers() ([]User, error) {
 	return query(
 		d,
-		"SELECT username, email, password_hash FROM \"user\";",
+		"SELECT * FROM user;",
 		generate_params(),
 		parseUserRows,
 	)
