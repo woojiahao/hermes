@@ -63,3 +63,32 @@ func Initialize(c *DatabaseConfiguration) *Database {
 
 	return &Database{c, db}
 }
+
+func query[T any](
+	db *Database,
+	query string,
+	params []any,
+	perRow func(*sql.Rows) (T, error),
+) ([]T, error) {
+	rows, err := db.db.Query(query, params...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var items []T
+
+	for rows.Next() {
+		item, err := perRow(rows)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return items, nil
+}
