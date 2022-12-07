@@ -18,4 +18,6 @@ func main() {
 	for _, role := range roles {
 		fmt.Println(role.Title)
 	}
+
+	db.CreateUser("johndoe", "johndoe@gmail.com", "1234")
 }

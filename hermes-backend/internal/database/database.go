@@ -92,3 +92,7 @@ func query[T any](
 
 	return items, nil
 }
+
+func generate_params(values ...any) []any {
+	return values
+}

@@ -7,17 +7,6 @@ type Tag struct {
 	HexCode string
 }
 
-type Role struct {
-	Title       string
-	Permissions string
-}
-
-type User struct {
-	Username     string
-	Email        string
-	PasswordHash string
-}
-
 type Thread struct {
 	IsPublished bool
 	IsOpen      bool
