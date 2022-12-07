@@ -1,6 +1,7 @@
 package database
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log"
@@ -10,6 +11,8 @@ import (
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
+
+type perRow[T any] func(*sql.Rows) (T, error)
 
 type DatabaseConfiguration struct {
 	Username string
@@ -64,33 +67,53 @@ func Initialize(c *DatabaseConfiguration) *Database {
 	return &Database{c, db}
 }
 
-func query[T any](
-	db *Database,
-	query string,
-	params []any,
-	perRow func(*sql.Rows) (T, error),
-) ([]T, error) {
-	rows, err := db.db.Query(query, params...)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
+func parseResults[T any](rows *sql.Rows, fn perRow[T]) ([]T, error) {
 	var items []T
 
 	for rows.Next() {
-		item, err := perRow(rows)
+		item, err := fn(rows)
 		if err != nil {
 			return nil, err
 		}
 		items = append(items, item)
 	}
 
-	if err = rows.Err(); err != nil {
+	if err := rows.Err(); err != nil {
 		return nil, err
 	}
 
 	return items, nil
+}
+
+func query[T any](db *Database, query string, params []any, fn perRow[T]) ([]T, error) {
+	rows, err := db.db.Query(query, params...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return parseResults[T](rows, fn)
+}
+
+func transaction[T any](db *Database, fn func(*sql.Tx) (T, error)) (T, error) {
+	tx, err := db.db.BeginTx(context.TODO(), nil)
+	if err != nil {
+		return *new(T), err
+	}
+
+	defer tx.Rollback()
+
+	return fn(tx)
+}
+
+func transactionQuery[T any](tx *sql.Tx, query string, params []any, fn perRow[T]) ([]T, error) {
+	rows, err := tx.Query(query, params...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return parseResults[T](rows, fn)
 }
 
 func generate_params(values ...any) []any {
