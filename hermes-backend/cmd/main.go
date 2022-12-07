@@ -20,6 +20,12 @@ func main() {
 	}
 
 	db.CreateUser("johndoe", "johndoe@gmail.com", "1234")
+	db.CreateUser("maryanne", "maryanne@gmail.com", "helloworld")
 	user, _ := db.GetUser("johndoe")
 	fmt.Println(user.Email)
+
+	users, _ := db.GetUsers()
+	for _, user := range users {
+		fmt.Printf("username: %s, email: %s", user.Username, user.Email)
+	}
 }

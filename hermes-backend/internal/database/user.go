@@ -15,6 +15,12 @@ type User struct {
 
 var dummyUser = User{"", "", ""}
 
+func parseUserRows(rows *sql.Rows) (User, error) {
+	var user User
+	err := rows.Scan(&user.Username, &user.Email, &user.PasswordHash)
+	return user, err
+}
+
 func (d *Database) CreateUser(
 	username string,
 	email string,
@@ -27,13 +33,9 @@ func (d *Database) CreateUser(
 
 	users, err := query(
 		d,
-		"INSERT INTO \"user\"(username, email, password_hash) VALUES ($1, $2, $3) RETURNING *",
+		"INSERT INTO \"user\"(username, email, password_hash) VALUES ($1, $2, $3) RETURNING *;",
 		generate_params(username, email, string(hash)),
-		func(r *sql.Rows) (User, error) {
-			var user User
-			err := r.Scan(&user.Username, &user.Email, &user.PasswordHash)
-			return user, err
-		},
+		parseUserRows,
 	)
 
 	if err != nil {
@@ -50,13 +52,9 @@ func (d *Database) CreateUser(
 func (d *Database) GetUser(username string) (User, error) {
 	users, err := query(
 		d,
-		"SELECT username, email, password_hash FROM \"user\" WHERE username = $1",
+		"SELECT username, email, password_hash FROM \"user\" WHERE username = $1;",
 		generate_params(username),
-		func(r *sql.Rows) (User, error) {
-			var user User
-			err := r.Scan(&user.Username, &user.Email, &user.PasswordHash)
-			return user, err
-		},
+		parseUserRows,
 	)
 
 	if err != nil {
@@ -74,5 +72,10 @@ func (d *Database) GetUser(username string) (User, error) {
 }
 
 func (d *Database) GetUsers() ([]User, error) {
-	return make([]User, 0), nil
+	return query(
+		d,
+		"SELECT username, email, password_hash FROM \"user\";",
+		generate_params(),
+		parseUserRows,
+	)
 }
