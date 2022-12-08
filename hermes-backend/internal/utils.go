@@ -48,6 +48,16 @@ func Map[T any, R any](input []T, transform func(T) R) []R {
 	return mapped
 }
 
+func Flatten[T any](input [][]T) []T {
+	var flattened []T
+
+	for _, l := range input {
+		flattened = append(flattened, l...)
+	}
+
+	return flattened
+}
+
 func IsUUID(u string) bool {
 	_, err := uuid.Parse(u)
 	return err == nil

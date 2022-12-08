@@ -62,8 +62,12 @@ func Start(c *ServerConfiguration, db *database.Database) {
 
 // Loading all routes into the server instance
 func (s *Server) loadRoutes() {
-	s.routes = append(s.routes, healthRoutes...)
-	s.routes = append(s.routes, userRoutes...)
+	s.routes = internal.Flatten(
+		[][]route{
+			healthRoutes,
+			userRoutes,
+			threadRoutes,
+		})
 }
 
 func (s *Server) addRoutes() {
