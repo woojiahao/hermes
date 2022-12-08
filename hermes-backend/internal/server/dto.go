@@ -31,3 +31,26 @@ type (
 		Role         string `json:"role"`
 	}
 )
+
+type (
+	Tag struct {
+		Content string `json:"content" binding:"required"`
+		HexCode string `json:"hex_code" binding:"required"`
+	}
+
+	CreateThread struct {
+		UserId  string `json:"user_id" binding:"required,uuid"`
+		Title   string `json:"title" binding:"required,min=5"`
+		Content string `json:"content" binding:"required,min=30"`
+		Tags    []Tag  `json:"tags"`
+	}
+
+	Thread struct {
+		Id          string `json:"id"`
+		IsPublished bool   `json:"is_published"`
+		IsOpen      bool   `json:"is_open"`
+		Title       string `json:"title"`
+		Content     string `json:"content"`
+		Tags        []Tag  `json:"tags"`
+	}
+)

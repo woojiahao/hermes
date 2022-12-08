@@ -168,8 +168,9 @@ func (d *Database) GetThreads() ([]Thread, error) {
 			`
 				SELECT t.id, tag.id, tag."content", tag.hex_code
 				FROM tag
-								INNER JOIN thread_tag tt on tag.id = tt.tag_id
-								INNER JOIN thread t on t.id = tt.thread_id;
+					INNER JOIN thread_tag tt on tag.id = tt.tag_id
+					INNER JOIN thread t on t.id = tt.thread_id
+				WHERE t.deleted_at IS NULL;
 			`,
 			generateParams(),
 			func(r *sql.Rows) (string, error) {
@@ -187,11 +188,14 @@ func (d *Database) GetThreads() ([]Thread, error) {
 			return nil, &i.DatabaseError{Custom: "failed to retrieve all tags related to all threads", Base: err}
 		}
 
+		var finalThreads []Thread
 		for _, thread := range threads {
-			thread.Tags = threadTags[thread.Id]
+			copyThread := thread
+			copyThread.Tags = threadTags[thread.Id]
+			finalThreads = append(finalThreads, copyThread)
 		}
 
-		return threads, nil
+		return finalThreads, nil
 	})
 }
 

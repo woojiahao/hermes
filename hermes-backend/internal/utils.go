@@ -39,7 +39,7 @@ func HasDuplicates[T comparable](arr []T) bool {
 }
 
 func Map[T any, R any](input []T, transform func(T) R) []R {
-	var mapped []R
+	mapped := make([]R, 0)
 
 	for _, el := range input {
 		mapped = append(mapped, transform(el))
