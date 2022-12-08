@@ -4,20 +4,24 @@ import "fmt"
 
 // Database error that occurs during query
 type DatabaseError struct {
-	base   error
-	custom string
+	Custom string
+	Base   error
 }
 
 func (dbe *DatabaseError) Error() string {
-	return fmt.Sprintf("database error occurred: %s, base: %s", dbe.custom, dbe.base.Error())
+	return fmt.Sprintf("database error occurred: %s, base: %s", dbe.Custom, dbe.Base.Error())
 }
 
 // Generic server error
 type ServerError struct {
-	base   error
-	custom string
+	Custom string
+	Base   error
 }
 
 func (se *ServerError) Error() string {
-	return fmt.Sprintf("generic server error occurred: %s, base: %s", se.custom, se.base.Error())
+	base := ""
+	if se.Base != nil {
+		base = fmt.Sprintf(", base: %s", se.Base.Error())
+	}
+	return fmt.Sprintf("generic server error occurred: %s%s", se.Custom, base)
 }
