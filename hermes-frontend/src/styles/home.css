@@ -1,0 +1,17 @@
+.content {
+  h1 {
+    margin-bottom: 2rem;
+    position: relative;
+
+  }
+
+  h1::before {
+    content: '';
+    position: absolute;
+    width: 4px;
+    top: 10px;
+    bottom: 10px;
+    left: -10px;
+    background-color: #000;
+  }
+}

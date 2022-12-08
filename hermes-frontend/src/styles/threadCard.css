@@ -1,0 +1,14 @@
+.thread-card {
+  padding: 1rem;
+  background-color: #F5F5F5;
+  border-radius: 5px;
+  box-shadow: #e6e6e6 1px 1px 5px;
+
+  :hover {
+    cursor: pointer;
+  }
+
+  .subtitle {
+    color: #757575;
+  }
+}

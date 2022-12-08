@@ -1,1 +1,48 @@
-@import './App.css';
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+
+@import './home.css';
+@import './threadList.css';
+@import './threadCard.css';
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+}
+
+.container {
+  width: 70%;
+  margin: 3rem auto;
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    nav {
+      display: flex;
+      column-gap: 2rem;
+
+      a {
+        text-decoration: none;
+        color: #000;
+      }
+    }
+  }
+
+  .content {
+    width: 70%;
+    margin: 2rem auto;
+  }
+
+  footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+}

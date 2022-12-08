@@ -5,7 +5,8 @@
     "sourceMap": true,
     "allowSyntheticDefaultImports": true,
     "jsx": "react",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "lib": ["DOM"]
   },
   "include": ["src/**/*", "./.d.ts"],
   "exclude": ["node_modules"]
