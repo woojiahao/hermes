@@ -46,7 +46,7 @@ func (d *Database) CreateUser(
 ) (User, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
 	if err != nil {
-		return dummyUser, &i.ServerError{"failed to generate hash for password", err}
+		return dummyUser, &i.ServerError{Custom: "failed to generate hash for password", Base: err}
 	}
 
 	users, err := query(
@@ -126,7 +126,7 @@ func (d *Database) GetUser(username string) (User, error) {
 func (d *Database) GetUsers() ([]User, error) {
 	users, err := query(
 		d,
-		"SELECT * FROM user;",
+		`SELECT * FROM "user";`,
 		generateParams(),
 		parseUserRows,
 	)

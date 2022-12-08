@@ -1,5 +1,7 @@
 package internal
 
+import "github.com/google/uuid"
+
 func Contains[T comparable](arr []T, target T) bool {
 	for _, el := range arr {
 		if el == target {
@@ -34,4 +36,19 @@ func HasDuplicates[T comparable](arr []T) bool {
 	}
 
 	return false
+}
+
+func Map[T any, R any](input []T, transform func(T) R) []R {
+	var mapped []R
+
+	for _, el := range input {
+		mapped = append(mapped, transform(el))
+	}
+
+	return mapped
+}
+
+func IsUUID(u string) bool {
+	_, err := uuid.Parse(u)
+	return err == nil
 }
