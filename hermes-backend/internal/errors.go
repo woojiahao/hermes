@@ -25,3 +25,16 @@ func (se *ServerError) Error() string {
 	}
 	return fmt.Sprintf("generic server error occurred: %s%s", se.Custom, base)
 }
+
+// Handles when a result set should exactly one result
+func ExactlyOneResultError[T any](arr []T) *ServerError {
+	if len(arr) == 0 {
+		return &ServerError{"unable to find intended result", nil}
+	}
+
+	if len(arr) > 1 {
+		return &ServerError{"result returned should only be one", nil}
+	}
+
+	return nil
+}
