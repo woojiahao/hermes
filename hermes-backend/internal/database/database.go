@@ -8,7 +8,6 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
@@ -22,14 +21,7 @@ type DatabaseConfiguration struct {
 	Port     int
 }
 
-// Loads the database configuration from .env
-// TODO: Support development vs production .env
 func LoadConfiguration() *DatabaseConfiguration {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
 	username := os.Getenv("DATABASE_USERNAME")
 	password := os.Getenv("DATABASE_PASSWORD")
 	host := os.Getenv("DATABASE_HOST")

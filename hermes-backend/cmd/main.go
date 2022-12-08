@@ -2,11 +2,23 @@ package main
 
 import (
 	"fmt"
+	"log"
 
+	"github.com/joho/godotenv"
 	"woojiahao.com/hermes/internal/database"
 )
 
+// Loads any configurations from .env
+// TODO: Support development vs production .env
+func loadEnv() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+}
+
 func main() {
+	loadEnv()
 	databaseConfiguration := database.LoadConfiguration()
 	db := database.Initialize(databaseConfiguration)
 	mary, err := db.GetUser("maryanne")
