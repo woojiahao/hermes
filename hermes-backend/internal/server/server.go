@@ -58,9 +58,7 @@ func Start(c *ServerConfiguration, db *database.Database) {
 
 // Loading all routes into the server instance
 func (s *Server) loadRoutes() {
-	s.routes = []route{
-		{GET, "/ping", ping},
-	}
+	s.routes = append(s.routes, healthRoutes...)
 }
 
 func (s *Server) addRoutes() {
