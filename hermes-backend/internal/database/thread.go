@@ -2,7 +2,6 @@ package database
 
 import (
 	"database/sql"
-	"errors"
 	"time"
 
 	i "woojiahao.com/hermes/internal"
@@ -150,6 +149,7 @@ func (d *Database) GetUserThreads(userId string) ([]Thread, error) {
 	)
 }
 
+// TODO: Support loading tags
 func (d *Database) GetThreadById(threadId string) (Thread, error) {
 	threads, err := query(
 		d,
@@ -159,26 +159,31 @@ func (d *Database) GetThreadById(threadId string) (Thread, error) {
 	)
 
 	if err != nil {
+		return dummyThread, &i.DatabaseError{Custom: "failed to retrieve thread by id", Base: err}
+	}
+
+	err = i.ExactlyOneResultError(threads)
+	if err != nil {
 		return dummyThread, err
 	}
 
-	switch len(threads) {
-	case 0:
-		return dummyThread, errors.New("unable to find thread")
-	case 1:
-		return threads[0], nil
-	default:
-		return dummyThread, errors.New("thread should be unique by id")
-	}
+	return threads[0], nil
 }
 
+// TODO: Support loading tags
 func (d *Database) GetThreads() ([]Thread, error) {
-	return query(
+	threads, err := query(
 		d,
 		"SELECT * FROM thread",
 		generate_params(),
 		parseThreadRows,
 	)
+
+	if err != nil {
+		return nil, &i.DatabaseError{Custom: "failed to retrieve all threads", Base: err}
+	}
+
+	return threads, nil
 }
 
 func (d *Database) DeleteThread(userId, threadId string) (Thread, error) {
@@ -199,19 +204,21 @@ func (d *Database) DeleteThread(userId, threadId string) (Thread, error) {
 	)
 
 	if err != nil {
+		return dummyThread, &i.DatabaseError{
+			Custom: "failed to delete thread, reasons: user not original poster or user not admin",
+			Base:   err,
+		}
+	}
+
+	err = i.ExactlyOneResultError(threads)
+	if err != nil {
 		return dummyThread, err
 	}
 
-	switch len(threads) {
-	case 0:
-		return dummyThread, errors.New("unable to update thread")
-	case 1:
-		return threads[0], nil
-	default:
-		return dummyThread, errors.New("only one thread should have been updated")
-	}
+	return threads[0], nil
 }
 
+// TODO: Support editing tags
 func (d *Database) EditThread(
 	userId,
 	threadId,
@@ -233,15 +240,13 @@ func (d *Database) EditThread(
 	)
 
 	if err != nil {
+		return dummyThread, &i.DatabaseError{Custom: "failed to edit a thread", Base: err}
+	}
+
+	err = i.ExactlyOneResultError(threads)
+	if err != nil {
 		return dummyThread, err
 	}
 
-	switch len(threads) {
-	case 0:
-		return dummyThread, errors.New("unable to update thread")
-	case 1:
-		return threads[0], nil
-	default:
-		return dummyThread, errors.New("only one thread should have been updated")
-	}
+	return threads[0], err
 }

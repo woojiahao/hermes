@@ -2,9 +2,9 @@ package database
 
 import (
 	"database/sql"
-	"errors"
 
 	"golang.org/x/crypto/bcrypt"
+	i "woojiahao.com/hermes/internal"
 )
 
 type (
@@ -46,7 +46,7 @@ func (d *Database) CreateUser(
 ) (User, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
 	if err != nil {
-		return dummyUser, err
+		return dummyUser, &i.ServerError{"failed to generate hash for password", err}
 	}
 
 	users, err := query(
@@ -61,11 +61,12 @@ func (d *Database) CreateUser(
 	)
 
 	if err != nil {
-		return dummyUser, err
+		return dummyUser, &i.DatabaseError{"failed to insert new user, reason: conflicting username or email", err}
 	}
 
-	if len(users) != 1 {
-		return dummyUser, errors.New("invalid INSERT on user")
+	err = i.ExactlyOneResultError(users)
+	if err != nil {
+		return dummyUser, err
 	}
 
 	return users[0], nil
@@ -87,17 +88,15 @@ func (d *Database) GetUserById(userId string) (User, error) {
 	)
 
 	if err != nil {
+		return dummyUser, &i.DatabaseError{Custom: "failed to retrieve user by id", Base: err}
+	}
+
+	err = i.ExactlyOneResultError(users)
+	if err != nil {
 		return dummyUser, err
 	}
 
-	switch len(users) {
-	case 0:
-		return dummyUser, errors.New("unable to find user")
-	case 1:
-		return users[0], nil
-	default:
-		return dummyUser, errors.New("user should be unique by id")
-	}
+	return users[0], nil
 }
 
 func (d *Database) GetUser(username string) (User, error) {
@@ -113,24 +112,28 @@ func (d *Database) GetUser(username string) (User, error) {
 	)
 
 	if err != nil {
+		return dummyUser, &i.DatabaseError{Custom: "failed to retrieve user by username", Base: err}
+	}
+
+	err = i.ExactlyOneResultError(users)
+	if err != nil {
 		return dummyUser, err
 	}
 
-	switch len(users) {
-	case 0:
-		return dummyUser, errors.New("unable to find user")
-	case 1:
-		return users[0], nil
-	default:
-		return dummyUser, errors.New("user should be unique by username")
-	}
+	return users[0], nil
 }
 
 func (d *Database) GetUsers() ([]User, error) {
-	return query(
+	users, err := query(
 		d,
 		"SELECT * FROM user;",
 		generate_params(),
 		parseUserRows,
 	)
+
+	if err != nil {
+		return make([]User, 0), &i.DatabaseError{Custom: "failed to retrieve all users", Base: err}
+	}
+
+	return users, nil
 }
