@@ -1,7 +1,86 @@
-.content {
-  .heading {
-    margin-bottom: 2rem;
-    position: relative;
-    color: var(--primary-color)
+.thread-card {
+  padding: 1rem;
+  background-color: var(--background-secondary);
+  border-radius: 8px;
+  box-shadow: #e7e7e7 1px 1px 5px;
+  transition: all 0.3s ease-in-out;
+
+  .subtitle {
+    color: #757575;
+  }
+}
+
+.thread-card:hover {
+  cursor: pointer;
+  transform: translateY(-5px);
+  box-shadow: #d4d4d4 1px 1px 7px;
+}
+
+.thread-list {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+}
+
+.login {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background-secondary);
+  box-sizing: border-box;
+  padding: 2rem;
+  min-width: 350px;
+  box-shadow: #d4d4d4 1px 1px 7px;
+  border-radius: 8px;
+
+  h3.heading {
+    margin-bottom: 1rem;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1rem;
+
+    div:not(.buttons) {
+      display: flex;
+      flex-direction: column;
+
+      label {
+        font-weight: bold;
+      }
+    }
+
+    input {
+      padding: 10px 15px;
+      margin-top: 0.5rem;
+      border-radius: 8px;
+      border: 1px solid var(--primary-color);
+      font-size: 1rem;
+    }
+
+    .buttons {
+      margin-top: 1rem;
+
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+
+      button {
+        border: 1px solid var(--primary-color);
+        background-color: inherit;
+        border-radius: 8px;
+        font-size: 1rem;
+        padding: 10px 15px;
+      }
+
+      button:hover {
+        cursor: pointer;
+      }
+
+      .login-button {
+        background-color: var(--primary-color);
+        color: var(--background-secondary);
+      }
+    }
   }
 }

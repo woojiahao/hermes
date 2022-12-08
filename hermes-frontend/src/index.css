@@ -1,17 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
 
-.content .heading {
-    margin-bottom: 2rem;
-    position: relative;
-    color: var(--primary-color)
-  }
-
-.thread-list {
-  display: flex;
-  flex-direction: column;
-  row-gap: 1rem;
-}
-
 .thread-card {
   padding: 1rem;
   background-color: var(--background-secondary);
@@ -29,6 +17,75 @@
   transform: translateY(-5px);
   box-shadow: #d4d4d4 1px 1px 7px;
 }
+
+.thread-list {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+}
+
+.login {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background-secondary);
+  box-sizing: border-box;
+  padding: 2rem;
+  min-width: 350px;
+  box-shadow: #d4d4d4 1px 1px 7px;
+  border-radius: 8px;
+}
+
+.login h3.heading {
+    margin-bottom: 1rem;
+  }
+
+.login form {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1rem;
+  }
+
+.login form div:not(.buttons) {
+      display: flex;
+      flex-direction: column;
+    }
+
+.login form div:not(.buttons) label {
+        font-weight: bold;
+      }
+
+.login form input {
+      padding: 10px 15px;
+      margin-top: 0.5rem;
+      border-radius: 8px;
+      border: 1px solid var(--primary-color);
+      font-size: 1rem;
+    }
+
+.login form .buttons {
+      margin-top: 1rem;
+
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+.login form .buttons button {
+        border: 1px solid var(--primary-color);
+        background-color: inherit;
+        border-radius: 8px;
+        font-size: 1rem;
+        padding: 10px 15px;
+      }
+
+.login form .buttons button:hover {
+        cursor: pointer;
+      }
+
+.login form .buttons .login-button {
+        background-color: var(--primary-color);
+        color: var(--background-secondary);
+      }
 
 * {
   padding: 0;
@@ -93,6 +150,12 @@ body {
     width: 70%;
     margin: 2rem auto;
   }
+
+.container .content .heading {
+      margin-bottom: 2rem;
+      position: relative;
+      color: var(--primary-color)
+    }
 
 .container footer {
     display: flex;
