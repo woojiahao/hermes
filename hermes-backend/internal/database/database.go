@@ -116,6 +116,6 @@ func transactionQuery[T any](tx *sql.Tx, query string, params []any, fn perRow[T
 	return parseResults[T](rows, fn)
 }
 
-func generate_params(values ...any) []any {
+func generateParams(values ...any) []any {
 	return values
 }

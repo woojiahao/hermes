@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	i "woojiahao.com/hermes/internal"
@@ -39,7 +40,7 @@ type Thread struct {
 	Tags        []Tag
 }
 
-var dummyThread = Thread{"", false, false, "", "", nil, "", nil, nil, sql.NullString{}, make([]Tag, 0)}
+var dummyThread Thread
 
 func parseThreadRows(rows *sql.Rows) (Thread, error) {
 	var thread Thread
@@ -76,7 +77,7 @@ func (d *Database) CreateThread(userId, title, content string, tags []Tag) (Thre
 				VALUES ($1, $2, $3)
 				RETURNING *;
 			`,
-			generate_params(title, content, userId),
+			generateParams(title, content, userId),
 			parseThreadRows,
 		)
 		if err != nil {
@@ -104,7 +105,7 @@ func (d *Database) CreateThread(userId, title, content string, tags []Tag) (Thre
 					UNION
 					SELECT * FROM tag WHERE tag."content" = $1;
 				`,
-				generate_params(tag.Content, tag.HexCode),
+				generateParams(tag.Content, tag.HexCode),
 				parseTagRows,
 			)
 
@@ -121,7 +122,7 @@ func (d *Database) CreateThread(userId, title, content string, tags []Tag) (Thre
 					VALUES ($1, $2)
 					RETURNING *;
 				`,
-				generate_params(thread.Id, ts[0].Id),
+				generateParams(thread.Id, ts[0].Id),
 				func(r *sql.Rows) (string, error) {
 					return "", nil // this perRow fn does not parse the results
 				},
@@ -144,7 +145,7 @@ func (d *Database) GetUserThreads(userId string) ([]Thread, error) {
 	return query(
 		d,
 		"SELECT * FROM thread INNER JOIN \"user\" ON thread.created_by = \"user\".id WHERE \"user\".id = $1",
-		generate_params(userId),
+		generateParams(userId),
 		parseThreadRows,
 	)
 }
@@ -154,7 +155,7 @@ func (d *Database) GetThreadById(threadId string) (Thread, error) {
 	threads, err := query(
 		d,
 		"SELECT * FROM thread WHERE thread.id = $1",
-		generate_params(threadId),
+		generateParams(threadId),
 		parseThreadRows,
 	)
 
@@ -170,20 +171,55 @@ func (d *Database) GetThreadById(threadId string) (Thread, error) {
 	return threads[0], nil
 }
 
-// TODO: Support loading tags
 func (d *Database) GetThreads() ([]Thread, error) {
-	threads, err := query(
-		d,
-		"SELECT * FROM thread",
-		generate_params(),
-		parseThreadRows,
-	)
+	return transaction(d, func(tx *sql.Tx) ([]Thread, error) {
+		threads, err := transactionQuery(
+			tx,
+			"SELECT * FROM thread",
+			generateParams(),
+			parseThreadRows,
+		)
 
-	if err != nil {
-		return nil, &i.DatabaseError{Custom: "failed to retrieve all threads", Base: err}
-	}
+		if err != nil {
+			return nil, &i.DatabaseError{Custom: "failed to retrieve all threads", Base: err}
+		}
 
-	return threads, nil
+		threadTags := make(map[string][]Tag)
+
+		_, err = transactionQuery(
+			tx,
+			`
+				SELECT t.id, tag.id, tag."content", tag.hex_code
+				FROM tag
+								INNER JOIN thread_tag tt on tag.id = tt.tag_id
+								INNER JOIN thread t on t.id = tt.thread_id;
+			`,
+			generateParams(),
+			func(r *sql.Rows) (string, error) {
+				var threadId string
+				var tag Tag
+				err := r.Scan(&threadId, &tag.Id, &tag.Content, &tag.HexCode)
+
+				if _, found := threadTags[threadId]; found {
+					threadTags[threadId] = append(threadTags[threadId], tag)
+				} else {
+					threadTags[threadId] = []Tag{tag}
+				}
+
+				return "", err
+			},
+		)
+
+		if err != nil {
+			return nil, &i.DatabaseError{Custom: "failed to retrieve all tags related to all threads", Base: err}
+		}
+
+		for _, thread := range threads {
+			thread.Tags = threadTags[thread.Id]
+		}
+
+		return threads, nil
+	})
 }
 
 func (d *Database) DeleteThread(userId, threadId string) (Thread, error) {
@@ -199,7 +235,7 @@ func (d *Database) DeleteThread(userId, threadId string) (Thread, error) {
 				)
 			RETURNING *
 		`,
-		generate_params(userId, threadId),
+		generateParams(userId, threadId),
 		parseThreadRows,
 	)
 
@@ -235,7 +271,7 @@ func (d *Database) EditThread(
 			WHERE thread.id = $5 AND thread.created_by = $6
 			RETURNING *
 		`,
-		generate_params(title, content, isPublished, isOpen, threadId, userId),
+		generateParams(title, content, isPublished, isOpen, threadId, userId),
 		parseThreadRows,
 	)
 
