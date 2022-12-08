@@ -92,7 +92,7 @@ func query[T any](db *Database, query string, params []any, fn perRow[T]) ([]T, 
 	}
 	defer rows.Close()
 
-	return parseResults[T](rows, fn)
+	return parseResults(rows, fn)
 }
 
 func transaction[T any](db *Database, fn func(*sql.Tx) (T, error)) (T, error) {
