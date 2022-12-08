@@ -56,12 +56,12 @@ func (d *Database) CreateUser(
 			VALUES ($1, $2, $3, $4::text::"role")
 			RETURNING *;
 		`,
-		generate_params(username, email, string(hash), role),
+		generateParams(username, email, string(hash), role),
 		parseUserRows,
 	)
 
 	if err != nil {
-		return dummyUser, &i.DatabaseError{"failed to insert new user, reason: conflicting username or email", err}
+		return dummyUser, &i.DatabaseError{Custom: "failed to insert new user, reason: conflicting username or email", Base: err}
 	}
 
 	err = i.ExactlyOneResultError(users)
@@ -83,7 +83,7 @@ func (d *Database) GetUserById(userId string) (User, error) {
 			FROM "user"
 			WHERE id = $1;
 		`,
-		generate_params(userId),
+		generateParams(userId),
 		parseUserRows,
 	)
 
@@ -107,7 +107,7 @@ func (d *Database) GetUser(username string) (User, error) {
 			FROM "user"
 			WHERE username = $1;
 		`,
-		generate_params(username),
+		generateParams(username),
 		parseUserRows,
 	)
 
@@ -127,7 +127,7 @@ func (d *Database) GetUsers() ([]User, error) {
 	users, err := query(
 		d,
 		"SELECT * FROM user;",
-		generate_params(),
+		generateParams(),
 		parseUserRows,
 	)
 
