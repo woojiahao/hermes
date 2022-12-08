@@ -14,7 +14,7 @@ export default function Home() {
 
   return (
     <div className="content">
-      <h1>Threads</h1>
+      <h1 className="heading">Threads</h1>
       <ThreadList threads={threads}></ThreadList>
     </div>
   );

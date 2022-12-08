@@ -1,19 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
 
-.content h1 {
+.content .heading {
     margin-bottom: 2rem;
     position: relative;
-
-  }
-
-.content h1::before {
-    content: '';
-    position: absolute;
-    width: 4px;
-    top: 10px;
-    bottom: 10px;
-    left: -10px;
-    background-color: #000;
+    color: var(--primary-color)
   }
 
 .thread-list {
@@ -24,18 +14,21 @@
 
 .thread-card {
   padding: 1rem;
-  background-color: #F5F5F5;
-  border-radius: 5px;
-  box-shadow: #e6e6e6 1px 1px 5px;
+  background-color: var(--background-secondary);
+  border-radius: 8px;
+  box-shadow: #e7e7e7 1px 1px 5px;
+  transition: all 0.3s ease-in-out;
 }
-
-.thread-card :hover {
-    cursor: pointer;
-  }
 
 .thread-card .subtitle {
     color: #757575;
   }
+
+.thread-card:hover {
+  cursor: pointer;
+  transform: translateY(-5px);
+  box-shadow: #d4d4d4 1px 1px 7px;
+}
 
 * {
   padding: 0;
@@ -46,6 +39,15 @@
 body {
   font-family: 'Poppins', sans-serif;
   font-size: 16px;
+  --background-primary: #F4FAFF;
+  --background-secondary: #FFFFFF;
+  --dark-primary: #191919;
+  --dark-secondary: #535657;
+  --dark-highlight: #4F646F;
+  --accent-color: #AFCBFF;
+  --primary-color: #345995;
+  color: var(--dark-primary);
+  background-color: var(--background-primary);
 }
 
 .container {
@@ -62,11 +64,29 @@ body {
 .container header nav {
       display: flex;
       column-gap: 2rem;
+      align-items: center;
     }
 
 .container header nav a {
-        text-decoration: none;
+        text-decoration: underline;
         color: #000;
+      }
+
+.container header nav button {
+        border: none;
+        background-color: var(--background-primary);
+        font-family: "Poppins", sans-serif;
+        font-size: 16px;
+        padding: 5px 15px;
+        border: 1px solid var(--dark-primary);
+        border-radius: 8px;
+        transition: all 0.2s ease-in-out;
+      }
+
+.container header nav button:hover {
+        background-color: var(--primary-color);
+        color: var(--background-secondary);
+        cursor: pointer;
       }
 
 .container .content {

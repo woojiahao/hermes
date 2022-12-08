@@ -2,6 +2,10 @@ import React from "react";
 
 export default function About() {
   return (
-    <div>About</div>
+    <div className="content">
+      <h1 className="heading">About</h1>
+      <p><em>hermes</em> is a web forum built with React, Golang, and PostgreSQL as part of the CVWO Assignment 2022.</p>
+      <p>The goal of hermes is to provide a simple and easy to use forum for users to start threads and create discussions.</p>
+    </div>
   )
 }

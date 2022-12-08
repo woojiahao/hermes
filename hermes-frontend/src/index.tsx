@@ -1,6 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { isButtonElement } from 'react-router-dom/dist/dom';
+import Popup from 'reactjs-popup';
+import LoginPopup from './components/LoginPopup';
 import './index.css';
 import About from './routes/about';
 import Home from './routes/home';
@@ -27,7 +30,9 @@ root.render(
         <nav>
           <a href="/">Home</a>
           <a href="/about">About</a>
-          <a href="/login">Login</a>
+          <Popup trigger={<button>Login</button>}>
+            <LoginPopup></LoginPopup>
+          </Popup>
         </nav>
       </header>
       <RouterProvider router={router} />
