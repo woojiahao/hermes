@@ -31,5 +31,19 @@ services:
       POSTGRES_USER: ${DATABASE_USERNAME:-postgres}
       POSTGRES_DB: ${DATABASE_NAME:-hermes}
 
+  frontend:
+    container_name: hermes-frontend
+    build:
+      context: hermes-frontend
+      dockerfile: Dockerfile
+    volumes:
+      - 'react:/app'
+      - '/app/node_modules'
+    depends_on:
+      - backend
+    ports:
+      - 8080:3000
+
 volumes:
+  react:
   postgres:
