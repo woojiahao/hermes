@@ -5,37 +5,28 @@ CREATE TABLE tag
     hex_code  TEXT        NOT NULL
 );
 
-CREATE TABLE role
-(
-    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    title       TEXT NOT NULL,
-    permissions TEXT NOT NULL
-);
+CREATE TYPE "role" AS ENUM ('ADMIN', 'USER');
 
 CREATE TABLE "user"
 (
     id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     username      TEXT UNIQUE NOT NULL,
     email         TEXT UNIQUE NOT NULL,
-    password_hash TEXT        NOT NULL
+    password_hash TEXT        NOT NULL,
+    "role"        "role"      NOT NULL
 );
 
-CREATE TABLE user_role
-(
-    user_id UUID NOT NULL,
-    role_id UUID NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES "user" (id),
-    FOREIGN KEY (role_id) REFERENCES role (id)
-);
-
+-- No updated_by as only the user who posted the thread can edit it
 CREATE TABLE thread
 (
     id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     is_published BOOL NOT NULL    DEFAULT FALSE,
     is_open      BOOL NOT NULL    DEFAULT TRUE,
+    title        TEXT NOT NULL,
     "content"    TEXT NOT NULL,
     created_at   DATE NOT NULL    DEFAULT now(),
     created_by   UUID NOT NULL,
+    updated_at   DATE NULL,
     deleted_at   DATE NULL,
     deleted_by   UUID NULL,
     FOREIGN KEY (created_by) REFERENCES "user" (id),
@@ -67,11 +58,9 @@ CREATE TABLE comment
     created_at DATE NOT NULL    DEFAULT now(),
     created_by UUID NOT NULL,
     thread_id  UUID NOT NULL,
+    deleted_at DATE NULL,
+    deleted_by UUID NULL,
     FOREIGN KEY (thread_id) REFERENCES thread (id),
-    FOREIGN KEY (created_by) REFERENCES "user" (id)
+    FOREIGN KEY (created_by) REFERENCES "user" (id),
+    FOREIGN KEY (deleted_by) REFERENCES "user" (id)
 );
-
-INSERT INTO role (title, permissions)
-VALUES ('ADMIN', 'RWA');
-INSERT INTO role (title, permissions)
-VALUES ('USER', 'RW');

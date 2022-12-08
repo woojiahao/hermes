@@ -1,0 +1,35 @@
+version: '3.9'
+services:
+  backend:
+    container_name: hermes-backend
+    restart: always
+    build:
+      context: hermes-backend
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    ports:
+      - ${SERVER_PORT:-8081}:${SERVER_PORT:-8081}
+    env_file:
+      - hermes-backend/.env
+    environment:
+      DATABASE_HOST: hermes-db
+
+  db:
+    container_name: hermes-db
+    image: postgres
+    volumes:
+      - ./sql/create.sql:/docker-entrypoint-initdb.d/create.sql
+      - "postgres:/var/lib/postgresql/data"
+    restart: always
+    ports:
+      - ${DATABASE_PORT:-5432}:5432
+    env_file:
+      - hermes-backend/.env
+    environment:
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-root}
+      POSTGRES_USER: ${DATABASE_USERNAME:-postgres}
+      POSTGRES_DB: ${DATABASE_NAME:-hermes}
+
+volumes:
+  postgres:
