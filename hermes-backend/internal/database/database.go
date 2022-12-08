@@ -103,7 +103,14 @@ func transaction[T any](db *Database, fn func(*sql.Tx) (T, error)) (T, error) {
 
 	defer tx.Rollback()
 
-	return fn(tx)
+	result, err := fn(tx)
+	if err != nil {
+		return *new(T), err
+	}
+
+	tx.Commit()
+
+	return result, nil
 }
 
 func transactionQuery[T any](tx *sql.Tx, query string, params []any, fn perRow[T]) ([]T, error) {
@@ -113,7 +120,7 @@ func transactionQuery[T any](tx *sql.Tx, query string, params []any, fn perRow[T
 	}
 	defer rows.Close()
 
-	return parseResults[T](rows, fn)
+	return parseResults(rows, fn)
 }
 
 func generateParams(values ...any) []any {
