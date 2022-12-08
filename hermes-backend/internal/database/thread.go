@@ -2,7 +2,6 @@ package database
 
 import (
 	"database/sql"
-	"fmt"
 	"time"
 
 	i "woojiahao.com/hermes/internal"
@@ -86,7 +85,7 @@ func (d *Database) CreateThread(userId, title, content string, tags []Tag) (Thre
 
 		thread := threads[0]
 
-		var db_tags []Tag
+		var dbTags []Tag
 
 		// Create or retrieve all of the tags from the database
 		// Once retrieved, attach the tag to the thread
@@ -113,7 +112,7 @@ func (d *Database) CreateThread(userId, title, content string, tags []Tag) (Thre
 				return dummyThread, &i.DatabaseError{Custom: "failed to create/retrieve new tag", Base: err}
 			}
 
-			db_tags = append(db_tags, ts[0])
+			dbTags = append(dbTags, ts[0])
 
 			_, err = transactionQuery(
 				tx,
@@ -133,9 +132,7 @@ func (d *Database) CreateThread(userId, title, content string, tags []Tag) (Thre
 			}
 		}
 
-		thread.Tags = db_tags
-
-		tx.Commit()
+		thread.Tags = dbTags
 
 		return thread, nil
 	})
@@ -150,25 +147,46 @@ func (d *Database) GetUserThreads(userId string) ([]Thread, error) {
 	)
 }
 
-// TODO: Support loading tags
 func (d *Database) GetThreadById(threadId string) (Thread, error) {
-	threads, err := query(
-		d,
-		"SELECT * FROM thread WHERE thread.id = $1",
-		generateParams(threadId),
-		parseThreadRows,
-	)
+	return transaction(d, func(tx *sql.Tx) (Thread, error) {
+		threads, err := transactionQuery(
+			tx,
+			"SELECT * FROM thread WHERE thread.id = $1",
+			generateParams(threadId),
+			parseThreadRows,
+		)
 
-	if err != nil {
-		return dummyThread, &i.DatabaseError{Custom: "failed to retrieve thread by id", Base: err}
-	}
+		if err != nil {
+			return dummyThread, &i.DatabaseError{Custom: "failed to retrieve thread by id", Base: err}
+		}
 
-	err = i.ExactlyOneResultError(threads)
-	if err != nil {
-		return dummyThread, err
-	}
+		err = i.ExactlyOneResultError(threads)
+		if err != nil {
+			return dummyThread, err
+		}
 
-	return threads[0], nil
+		thread := threads[0]
+
+		threadTags, err := transactionQuery(
+			tx,
+			`
+				SELECT tag.id, tag."content", tag.hex_code
+				FROM tag
+								INNER JOIN thread_tag tt on tag.id = tt.tag_id
+								INNER JOIN thread t on t.id = tt.thread_id
+				WHERE t.id = $1;
+			`,
+			generateParams(thread.Id),
+			parseTagRows,
+		)
+		if err != nil {
+			return dummyThread, &i.DatabaseError{Custom: "failed to retrieve thread tags", Base: err}
+		}
+
+		thread.Tags = threadTags
+
+		return thread, nil
+	})
 }
 
 func (d *Database) GetThreads() ([]Thread, error) {

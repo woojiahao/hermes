@@ -27,7 +27,7 @@ func (se *ServerError) Error() string {
 }
 
 // Handles when a result set should exactly one result
-func ExactlyOneResultError[T any](arr []T) *ServerError {
+func ExactlyOneResultError[T any](arr []T) error {
 	if len(arr) == 0 {
 		return &ServerError{"unable to find intended result", nil}
 	}
