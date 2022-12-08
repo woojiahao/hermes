@@ -1,11 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/joho/godotenv"
 	"woojiahao.com/hermes/internal/database"
+	"woojiahao.com/hermes/internal/server"
 )
 
 // Loads any configurations from .env
@@ -19,30 +19,12 @@ func loadEnv() {
 
 func main() {
 	loadEnv()
+
+	// Setup the database connection
 	databaseConfiguration := database.LoadConfiguration()
 	db := database.Initialize(databaseConfiguration)
-	mary, err := db.GetUser("maryanne")
-	if err != nil {
-		panic(err)
-	}
 
-	thread, err := db.CreateThread(mary.Id, "Hello world", "Lorem ipsum dolor", []database.Tag{
-		database.NewTag("productivity", "#111111"),
-		database.NewTag("fitness", "#188563"),
-		database.NewTag("something", "#188563"),
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println(thread.Tags)
-
-	thread, err = db.EditThread(mary.Id, thread.Id, "Hello world", "Loream ipsum dolor", false, false, []database.Tag{
-		database.NewTag("productivity", "#1111"),
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println(thread.Tags)
+	// Start the server
+	serverConfiguration := server.LoadConfiguration()
+	server.Start(serverConfiguration, db)
 }
