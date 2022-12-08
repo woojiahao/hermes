@@ -9,34 +9,28 @@ import (
 func main() {
 	databaseConfiguration := database.LoadConfiguration()
 	db := database.Initialize(databaseConfiguration)
-
-	db.CreateUser("johndoe", "johndoe@gmail.com", "1234", database.ADMIN)
-	_, err := db.CreateUser("maryanne", "maryanne@gmail.com", "helloworld", database.USER)
+	mary, err := db.GetUser("maryanne")
 	if err != nil {
-		fmt.Println(err)
-	}
-	user, _ := db.GetUser("johndoe")
-	mary, _ := db.GetUser("maryanne")
-	fmt.Println(user.Email)
-
-	users, _ := db.GetUsers()
-	for _, user := range users {
-		fmt.Printf("username: %s, email: %s", user.Username, user.Email)
+		panic(err)
 	}
 
-	thread, err := db.CreateThread(user.Id, "something", "afoqwefj")
+	thread, err := db.CreateThread(mary.Id, "Hello world", "Lorem ipsum dolor", []database.Tag{
+		database.NewTag("productivity", "#111111"),
+		database.NewTag("fitness", "#188563"),
+		database.NewTag("something", "#188563"),
+	})
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
-	_, err = db.DeleteThread(mary.Id, thread.Id)
+
+	fmt.Println(thread.Tags)
+
+	thread, err = db.EditThread(mary.Id, thread.Id, "Hello world", "Loream ipsum dolor", false, false, []database.Tag{
+		database.NewTag("productivity", "#1111"),
+	})
 	if err != nil {
-		fmt.Println(mary.Id)
-		fmt.Println(thread.Id)
-		fmt.Println(err)
+		panic(err)
 	}
 
-	maryThread, _ := db.CreateThread(mary.Id, "foo", "bar")
-	db.DeleteThread(user.Id, maryThread.Id)
-
-	db.EditThread(user.Id, maryThread.Id, "wfqoei", "sfqewf", false, false)
+	fmt.Println(thread.Tags)
 }
