@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
 
 @import './home.css';
+@import './login.css';
 
 * {
   padding: 0;
@@ -18,8 +19,11 @@ body {
   --dark-highlight: #4F646F;
   --accent-color: #AFCBFF;
   --primary-color: #345995;
+  --error-primary: #F56960;
+  --error-accent: #F45866;
   color: var(--dark-primary);
   background-color: var(--background-primary);
+  height: 100%;
 }
 
 .container {
@@ -41,9 +45,11 @@ body {
         color: #000;
       }
 
-      button {
+      .login-button {
+        text-decoration: none;
         border: none;
-        background-color: var(--background-primary);
+        background-color: var(--primary-color);
+        color: var(--background-primary);
         font-family: "Poppins", sans-serif;
         font-size: 16px;
         padding: 5px 15px;
@@ -52,9 +58,9 @@ body {
         transition: all 0.2s ease-in-out;
       }
 
-      button:hover {
-        background-color: var(--primary-color);
-        color: var(--background-secondary);
+      .login-button:hover {
+        background-color: var(--background-primary);
+        color: var(--primary-color);
         cursor: pointer;
       }
     }
@@ -63,6 +69,7 @@ body {
   .content {
     width: 70%;
     margin: 2rem auto;
+    margin-bottom: 6rem;
 
     .heading {
       margin-bottom: 2rem;

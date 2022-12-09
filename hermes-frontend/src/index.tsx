@@ -1,12 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { isButtonElement } from 'react-router-dom/dist/dom';
-import Popup from 'reactjs-popup';
-import LoginPopup from './components/LoginPopup';
 import './index.css';
 import About from './routes/about';
 import Home from './routes/home';
+import Login from './routes/login';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -19,6 +17,10 @@ const router = createBrowserRouter([
     path: "/about",
     element: <About></About>,
   },
+  {
+    path: "/login",
+    element: <Login></Login>,
+  }
 ])
 
 root.render(
@@ -30,9 +32,7 @@ root.render(
         <nav>
           <a href="/">Home</a>
           <a href="/about">About</a>
-          <Popup trigger={<button>Login</button>}>
-            <LoginPopup></LoginPopup>
-          </Popup>
+          <a href="/login" className="login-button">Login</a>
         </nav>
       </header>
       <RouterProvider router={router} />
