@@ -9,6 +9,6 @@
     "request": "launch",
     "mode": "debug",
     "cwd": "hermes-backend",
-    "program": "hermes-backend/cmd/main.go",
+    "program": "hermes-backend/main.go",
   }]
 }
