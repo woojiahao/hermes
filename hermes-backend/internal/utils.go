@@ -48,6 +48,12 @@ func Map[T any, R any](input []T, transform func(T) R) []R {
 	return mapped
 }
 
+func ForEach[T any](input []T, fn func(T)) {
+	for _, el := range input {
+		fn(el)
+	}
+}
+
 func Flatten[T any](input [][]T) []T {
 	var flattened []T
 

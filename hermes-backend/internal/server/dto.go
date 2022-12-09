@@ -16,6 +16,13 @@ type (
 )
 
 type (
+	Login struct {
+		Username string `form:"username" json:"username" binding:"required,min=3"`
+		Password string `json:"password" binding:"required,min=3"`
+	}
+)
+
+type (
 	CreateUser struct {
 		Username string        `form:"username" json:"username" binding:"required,min=3"`
 		Password string        `json:"password" binding:"required,min=3"`

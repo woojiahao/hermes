@@ -10,9 +10,9 @@ import (
 )
 
 var threadRoutes = []route{
-	{"GET", "/threads", getThreads},
-	{"GET", "/threads/:id", getThreadById},
-	{"POST", "/threads", createThread},
+	{"GET", "/threads", getThreads, false},
+	{"GET", "/threads/:id", getThreadById, false},
+	{"POST", "/threads", createThread, true},
 }
 
 func getThreads(ctx *gin.Context, db *database.Database) {

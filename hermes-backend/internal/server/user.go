@@ -10,13 +10,8 @@ import (
 )
 
 var userRoutes = []route{
-	{"GET", "/users/:id", getUser},
-	{"GET", "/users", getUsers},
-	{"POST", "/users", createUser},
-}
-
-func login(ctx *gin.Context, db *database.Database) {
-
+	{"GET", "/users/:id", getUser, true},
+	{"GET", "/users", getUsers, true},
 }
 
 func getUser(ctx *gin.Context, db *database.Database) {
@@ -46,27 +41,6 @@ func getUsers(ctx *gin.Context, db *database.Database) {
 
 	userDTOs := internal.Map(users, userToDTO)
 	ctx.JSON(http.StatusFound, userDTOs)
-}
-
-func createUser(ctx *gin.Context, db *database.Database) {
-	var req CreateUser
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		badRequestValidation(ctx, err)
-		return
-	}
-
-	user, err := db.CreateUser(req.Username, req.Password, database.Role(req.Role))
-	if err != nil {
-		if dbe, ok := err.(*internal.DatabaseError); ok {
-			badRequest(ctx, dbe.Short)
-		} else {
-			// Hash function failed
-			internalSeverError(ctx)
-			return
-		}
-	}
-
-	ctx.JSON(http.StatusCreated, userToDTO(user))
 }
 
 func userToDTO(user database.User) User {

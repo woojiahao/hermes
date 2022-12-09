@@ -8,7 +8,7 @@ import (
 )
 
 var healthRoutes = []route{
-	{GET, "/ping", ping},
+	{GET, "/ping", ping, false},
 }
 
 func ping(c *gin.Context, db *database.Database) {

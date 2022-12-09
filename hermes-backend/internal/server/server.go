@@ -7,16 +7,20 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"golang.org/x/crypto/bcrypt"
 	"woojiahao.com/hermes/internal"
 	"woojiahao.com/hermes/internal/database"
 )
 
 type ServerConfiguration struct {
-	Port int
+	Port   int
+	JWTKey string
 }
 
 func LoadConfiguration() *ServerConfiguration {
@@ -25,47 +29,127 @@ func LoadConfiguration() *ServerConfiguration {
 		log.Fatal("Invalid SERVER_PORT in .env")
 	}
 
-	return &ServerConfiguration{port}
+	return &ServerConfiguration{port, os.Getenv("JWT_KEY")}
 }
 
 type (
 	httpAction string
 
 	route struct {
-		action httpAction
-		route  string
-		body   func(*gin.Context, *database.Database)
+		action                httpAction
+		route                 string
+		body                  func(*gin.Context, *database.Database)
+		authorizationRequired bool
 	}
 
 	// TODO: Reassess if this struct is necessary
 	Server struct {
-		configuration *ServerConfiguration
-		db            *database.Database
-		router        *gin.Engine
-		routes        []route
+		configuration  *ServerConfiguration
+		db             *database.Database
+		router         *gin.Engine
+		routes         []route
+		authMiddleware *jwt.GinJWTMiddleware
 	}
 )
 
 const (
-	GET    httpAction = "GET"
-	POST   httpAction = "POST"
-	DELETE httpAction = "DELETE"
-	PUT    httpAction = "PUT"
+	GET         httpAction = "GET"
+	POST        httpAction = "POST"
+	DELETE      httpAction = "DELETE"
+	PUT         httpAction = "PUT"
+	IdentityKey            = "id"
 )
 
 func Start(c *ServerConfiguration, db *database.Database) {
 	router := gin.Default()
-	server := &Server{c, db, router, make([]route, 0)}
-	server.router.Use(cors.New(cors.Config{
+	server := &Server{c, db, router, make([]route, 0), nil}
+	server.setupCORS()
+	server.setupAuth()
+	server.loadRoutes()
+	server.addRoutes()
+	server.router.Run(fmt.Sprintf(":%d", c.Port))
+}
+
+func (s *Server) setupCORS() {
+	s.router.Use(cors.New(cors.Config{
 		AllowAllOrigins:  true,
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
 		AllowHeaders:     []string{"Origin", "Content-Type"},
 		AllowCredentials: true,
 		ExposeHeaders:    []string{"Content-Length", "Content-Type"},
 	}))
-	server.loadRoutes()
-	server.addRoutes()
-	server.router.Run(fmt.Sprintf(":%d", c.Port))
+}
+
+func (s *Server) setupAuth() {
+	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
+		Realm:       "hermes",
+		Key:         []byte(s.configuration.JWTKey),
+		Timeout:     time.Hour,
+		MaxRefresh:  time.Hour,
+		IdentityKey: IdentityKey,
+		PayloadFunc: func(data interface{}) jwt.MapClaims {
+			if v, ok := data.(*User); ok {
+				return jwt.MapClaims{IdentityKey: v.Username, "role": v.Role}
+			}
+
+			return jwt.MapClaims{}
+		},
+		IdentityHandler: func(ctx *gin.Context) interface{} {
+			claims := jwt.ExtractClaims(ctx)
+			return &User{Username: claims[IdentityKey].(string), Role: claims["role"].(string)}
+		},
+		Authenticator: func(c *gin.Context) (interface{}, error) {
+			var login Login
+			if err := c.ShouldBind(&login); err != nil {
+				return "", jwt.ErrMissingLoginValues
+			}
+			username := login.Username
+			password := login.Password
+
+			user, err := s.db.GetUser(username)
+			if err != nil {
+				return nil, jwt.ErrFailedAuthentication
+			}
+
+			err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
+			if err != nil {
+				return nil, jwt.ErrFailedAuthentication
+			}
+
+			return &User{
+				user.Id,
+				user.Username,
+				user.PasswordHash,
+				string(user.Role),
+			}, nil
+		},
+		Authorizator: func(data interface{}, c *gin.Context) bool {
+			// TODO: Check roles
+			if v, ok := data.(*User); ok {
+				if _, err := s.db.GetUser(v.Username); err != nil {
+					return false
+				}
+
+				return true
+			}
+
+			return false
+		},
+		Unauthorized: func(c *gin.Context, code int, message string) {
+			ginError(c, code, message)
+		},
+	})
+
+	if err != nil {
+		log.Fatal("Failed to setup JWT auth middleware")
+	}
+
+	err = authMiddleware.MiddlewareInit()
+	if err != nil {
+		log.Fatal("Failed to initialize JWT auth middleware")
+	}
+
+	s.authMiddleware = authMiddleware
 }
 
 // Loading all routes into the server instance
@@ -73,25 +157,42 @@ func (s *Server) loadRoutes() {
 	s.routes = internal.Flatten(
 		[][]route{
 			healthRoutes,
+			authRoutes,
 			userRoutes,
 			threadRoutes,
 		})
 }
 
 func (s *Server) addRoutes() {
-	for _, route := range s.routes {
-		switch route.action {
-		case GET:
-			s.router.GET(route.route, ginBody(route, s.db))
-		case POST:
-			s.router.POST(route.route, ginBody(route, s.db))
-		case DELETE:
-			s.router.DELETE(route.route, ginBody(route, s.db))
-		case PUT:
-			s.router.PUT(route.route, ginBody(route, s.db))
-		default:
-			log.Fatal("Invalid HTTP action loaded")
-		}
+	s.router.POST("/login", s.authMiddleware.LoginHandler)
+	s.router.POST("/logout", s.authMiddleware.LogoutHandler)
+
+	internal.ForEach(
+		internal.Filter(s.routes, func(r route) bool { return !r.authorizationRequired }),
+		s.addRoute,
+	)
+
+	internal.ForEach(
+		internal.Filter(s.routes, func(r route) bool { return r.authorizationRequired }),
+		func(r route) {
+			s.router.Use(s.authMiddleware.MiddlewareFunc())
+			s.addRoute(r)
+		},
+	)
+}
+
+func (s *Server) addRoute(r route) {
+	switch r.action {
+	case GET:
+		s.router.GET(r.route, ginBody(r, s.db))
+	case POST:
+		s.router.POST(r.route, ginBody(r, s.db))
+	case DELETE:
+		s.router.DELETE(r.route, ginBody(r, s.db))
+	case PUT:
+		s.router.PUT(r.route, ginBody(r, s.db))
+	default:
+		log.Fatal("Invalid HTTP action loaded")
 	}
 }
 
