@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"woojiahao.com/hermes/internal"
@@ -55,6 +56,13 @@ const (
 func Start(c *ServerConfiguration, db *database.Database) {
 	router := gin.Default()
 	server := &Server{c, db, router, make([]route, 0)}
+	server.router.Use(cors.New(cors.Config{
+		AllowAllOrigins:  true,
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Origin", "Content-Type"},
+		AllowCredentials: true,
+		ExposeHeaders:    []string{"Content-Length", "Content-Type"},
+	}))
 	server.loadRoutes()
 	server.addRoutes()
 	server.router.Run(fmt.Sprintf(":%d", c.Port))
