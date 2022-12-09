@@ -1,4 +1,5 @@
 import React from "react";
+import { Cookies } from "react-cookie";
 
 export default function Login() {
   const usernameRef = React.createRef<HTMLInputElement>();
@@ -64,7 +65,9 @@ export default function Login() {
         setError(err.message)
       } else {
         const s = json as { token: string }
-        setSuccess(s.token)
+        setSuccess('Welcome back!')
+        const cookies = new Cookies()
+        cookies.set("token", s.token)
       }
     } catch (e) {
       setError(e)
