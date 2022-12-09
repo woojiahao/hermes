@@ -2,10 +2,10 @@ package internal
 
 import "fmt"
 
-// TODO: Add ways to differentiate errors for the server
 // Database error that occurs during query
 type DatabaseError struct {
 	Custom string
+	Short  string
 	Base   error
 }
 

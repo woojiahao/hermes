@@ -15,6 +15,10 @@ var userRoutes = []route{
 	{"POST", "/users", createUser},
 }
 
+func login(ctx *gin.Context, db *database.Database) {
+
+}
+
 func getUser(ctx *gin.Context, db *database.Database) {
 	id := ctx.Param("id")
 	var user database.User
@@ -51,15 +55,20 @@ func createUser(ctx *gin.Context, db *database.Database) {
 		return
 	}
 
-	user, err := db.CreateUser(req.Username, req.Email, req.Password, database.Role(req.Role))
+	user, err := db.CreateUser(req.Username, req.Password, database.Role(req.Role))
 	if err != nil {
-		internalSeverError(ctx)
-		return
+		if dbe, ok := err.(*internal.DatabaseError); ok {
+			badRequest(ctx, dbe.Short)
+		} else {
+			// Hash function failed
+			internalSeverError(ctx)
+			return
+		}
 	}
 
 	ctx.JSON(http.StatusCreated, userToDTO(user))
 }
 
 func userToDTO(user database.User) User {
-	return User{user.Id, user.Username, user.Email, user.PasswordHash, string(user.Role)}
+	return User{user.Id, user.Username, user.PasswordHash, string(user.Role)}
 }

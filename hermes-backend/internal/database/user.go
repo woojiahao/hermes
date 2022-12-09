@@ -13,7 +13,6 @@ type (
 	User struct {
 		Id           string
 		Username     string
-		Email        string
 		PasswordHash string
 		Role
 	}
@@ -24,26 +23,20 @@ const (
 	USER  Role = "USER"
 )
 
-var dummyUser = User{"", "", "", "", ""}
+var dummyUser User
 
 func parseUserRows(rows *sql.Rows) (User, error) {
 	var user User
 	err := rows.Scan(
 		&user.Id,
 		&user.Username,
-		&user.Email,
 		&user.PasswordHash,
 		&user.Role,
 	)
 	return user, err
 }
 
-func (d *Database) CreateUser(
-	username string,
-	email string,
-	password string,
-	role Role,
-) (User, error) {
+func (d *Database) CreateUser(username string, password string, role Role) (User, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
 	if err != nil {
 		return dummyUser, &i.ServerError{Custom: "failed to generate hash for password", Base: err}
@@ -52,21 +45,20 @@ func (d *Database) CreateUser(
 	users, err := query(
 		d,
 		`
-			INSERT INTO "user"(username, email, password_hash, role)
-			VALUES ($1, $2, $3, $4::text::"role")
+			INSERT INTO "user"(username, password_hash, role)
+			VALUES ($1, $2, $3::text::"role")
 			RETURNING *;
 		`,
-		generateParams(username, email, string(hash), role),
+		generateParams(username, string(hash), role),
 		parseUserRows,
 	)
 
 	if err != nil {
-		return dummyUser, &i.DatabaseError{Custom: "failed to insert new user, reason: conflicting username or email", Base: err}
-	}
-
-	err = i.ExactlyOneResultError(users)
-	if err != nil {
-		return dummyUser, err
+		return dummyUser, &i.DatabaseError{
+			Custom: "failed to insert new user, reason: conflicting username or email",
+			Base:   err,
+			Short:  "Username is already taken",
+		}
 	}
 
 	return users[0], nil

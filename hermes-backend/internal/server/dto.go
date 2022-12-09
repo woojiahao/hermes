@@ -18,7 +18,6 @@ type (
 type (
 	CreateUser struct {
 		Username string        `form:"username" json:"username" binding:"required,min=3"`
-		Email    string        `form:"email" json:"email" binding:"required,email"`
 		Password string        `json:"password" binding:"required,min=3"`
 		Role     database.Role `json:"role" binding:"required"`
 	}
@@ -26,7 +25,6 @@ type (
 	User struct {
 		Id           string `json:"id"`
 		Username     string `json:"username"`
-		Email        string `json:"email"`
 		PasswordHash string `json:"password_hash"`
 		Role         string `json:"role"`
 	}
