@@ -2,7 +2,7 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toggle } from "../redux/authSlice";
-import { setJWT } from "../utility/app";
+import { setJWT } from "../utility/jwt";
 import { Request } from "../utility/request";
 
 export default function Login() {
@@ -20,6 +20,7 @@ export default function Login() {
     setSuccess("")
     setClickable(false)
     await new Request()
+      .POST()
       .endpoint('register')
       .body({
         'username': usernameRef.current.value,
@@ -44,6 +45,7 @@ export default function Login() {
     setClickable(false)
 
     await new Request()
+      .POST()
       .endpoint('login')
       .body({
         'username': usernameRef.current.value,

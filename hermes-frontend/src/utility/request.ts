@@ -2,7 +2,7 @@
  * Utilities for making API requests
  */
 
-import { getJWT } from "./app";
+import { getJWT, refreshJWT } from "./jwt";
 
 // TODO: Change this if necessary
 const apiURL = 'http://localhost:8081'
@@ -29,24 +29,6 @@ export type pathParams = string[]
 
 const defaultOnError: apiCallback<Error> = (err) => console.log(err)
 
-async function handleRequest(
-  url: string,
-  config: RequestInit,
-  onSuccess: apiCallback<any>,
-  onFailure: apiCallback<any>,
-  onError: apiCallback<Error>
-) {
-  try {
-    const result = await fetch(url, config)
-
-    const json = await result.json()
-
-    if (!result.ok) onFailure(json)
-    else onSuccess(json)
-  } catch (e) {
-    onError(e as Error)
-  }
-}
 
 export enum RequestType {
   GET, POST, PUT, DELETE
@@ -60,11 +42,27 @@ export class Request {
   private _body: any = {}
   private _hasAuthorization: boolean = false
   private _onSuccess: apiCallback<any>
-  private _onFailure: apiCallback<any>
+  private _onFailure: apiCallback<{ message: string }>
   private _onError: apiCallback<Error> = defaultOnError
 
-  constructor() {
+  GET(): Request {
+    this._requestType = RequestType.GET
+    return this
+  }
 
+  POST(): Request {
+    this._requestType = RequestType.POST
+    return this
+  }
+
+  PUT(): Request {
+    this._requestType = RequestType.PUT
+    return this
+  }
+
+  DELETE(): Request {
+    this._requestType = RequestType.DELETE
+    return this
   }
 
   requestType(rt: RequestType): Request {
@@ -92,8 +90,8 @@ export class Request {
     return this
   }
 
-  hasAuthorization(ha: boolean): Request {
-    this._hasAuthorization = ha
+  hasAuthorization(): Request {
+    this._hasAuthorization = true
     return this
   }
 
@@ -102,7 +100,7 @@ export class Request {
     return this
   }
 
-  onFailure(of: apiCallback<any>): Request {
+  onFailure(of: apiCallback<{ message: string }>): Request {
     this._onFailure = of
     return this
   }
@@ -110,6 +108,38 @@ export class Request {
   onError(oe: apiCallback<Error>): Request {
     this._onError = oe
     return this
+  }
+
+  private async handleRequest(url: string, config: RequestInit) {
+    console.log(config)
+    try {
+      const result = await fetch(url, config)
+
+      const json = await result.json()
+
+      if (!result.ok) {
+        if (this._hasAuthorization) {
+          const err = json as { message: string }
+          if (result.status === 401 && err.message === "Token is expired") {
+            await refreshJWT()
+            const headers: HeadersInit = {}
+            Object.assign(headers, config.headers)
+            headers['Authorization:Bearer'] = getJWT()
+
+            const copyConfig: RequestInit = {}
+            Object.assign(copyConfig, config)
+            copyConfig.headers = headers
+            this.handleRequest(url, copyConfig)
+          } else {
+            this._onFailure(json)
+          }
+        }
+        this._onFailure(json)
+      }
+      else this._onSuccess(json)
+    } catch (e) {
+      this._onError(e as Error)
+    }
   }
 
   async call() {
@@ -133,9 +163,18 @@ export class Request {
         break
     }
 
-    if (this._hasAuthorization) headers['Authorization:Bearer'] = getJWT()
+    if (this._hasAuthorization) {
+      const jwtToken = getJWT()
+      if (!jwtToken) {
+        this._onError(new Error("JWT Token does not exist"))
+        return
+      }
+      headers['Authorization:Bearer'] = jwtToken
+    }
+
+    config.headers = headers
 
     const url = createURL(this._endpoint, this._queryParams, this._pathParams)
-    await handleRequest(url, config, this._onSuccess, this._onFailure, this._onError)
+    await this.handleRequest(url, config)
   }
 }
