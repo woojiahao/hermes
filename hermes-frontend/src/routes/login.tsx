@@ -1,9 +1,9 @@
 import React from "react";
-import { Cookies } from "react-cookie";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toggle } from "../redux/authSlice";
-import { partialPOST } from "../utility/request";
+import { setJWT } from "../utility/app";
+import { Request } from "../utility/request";
 
 export default function Login() {
   const usernameRef = React.createRef<HTMLInputElement>();
@@ -19,21 +19,21 @@ export default function Login() {
     setError("")
     setSuccess("")
     setClickable(false)
-    await partialPOST(
-      'register',
-      {
+    await new Request()
+      .endpoint('register')
+      .body({
         'username': usernameRef.current.value,
         'password': passwordRef.current.value,
         'role': 'USER',
-      },
-      (r: { username: string }) => {
+      })
+      .onSuccess((r: { username: string }) => {
         setSuccess(`Welcome ${r.username}. Please login to proceed!`)
-      },
-      (e: { message: string }) => {
+      })
+      .onFailure((e: { message: string }) => {
         setError(e.message)
-      },
-      (f) => setError(f.message)
-    )
+      })
+      .onFailure((f) => setError(f.message))
+      .call()
 
     setClickable(true)
   }
@@ -43,24 +43,23 @@ export default function Login() {
     setSuccess('')
     setClickable(false)
 
-    await partialPOST(
-      'login',
-      {
+    await new Request()
+      .endpoint('login')
+      .body({
         'username': usernameRef.current.value,
         'password': passwordRef.current.value
-      },
-      (r: { token: string }) => {
+      })
+      .onSuccess((r: { token: string }) => {
         setSuccess('Welcome back!')
-        const cookies = new Cookies()
-        cookies.set("token", r.token)
+        setJWT(r.token)
         dispatch(toggle())
         navigate('/')
-      },
-      (e: { message: string }) => {
+      })
+      .onFailure((e: { message: string }) => {
         setError(e.message)
-      },
-      (f) => setError(f.message)
-    )
+      })
+      .onError((f) => setError(f.message))
+      .call()
   }
 
   return (
