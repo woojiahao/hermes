@@ -34,7 +34,7 @@ export enum RequestType {
   GET, POST, PUT, DELETE
 }
 
-export class Request {
+export class HermesRequest {
   private _requestType: RequestType = RequestType.GET
   private _endpoint: string
   private _queryParams: queryParams = {}
@@ -45,73 +45,76 @@ export class Request {
   private _onFailure: apiCallback<{ message: string }>
   private _onError: apiCallback<Error> = defaultOnError
 
-  GET(): Request {
+  GET(): HermesRequest {
     this._requestType = RequestType.GET
     return this
   }
 
-  POST(): Request {
+  POST(): HermesRequest {
     this._requestType = RequestType.POST
     return this
   }
 
-  PUT(): Request {
+  PUT(): HermesRequest {
     this._requestType = RequestType.PUT
     return this
   }
 
-  DELETE(): Request {
+  DELETE(): HermesRequest {
     this._requestType = RequestType.DELETE
     return this
   }
 
-  requestType(rt: RequestType): Request {
+  requestType(rt: RequestType): HermesRequest {
     this._requestType = rt
     return this
   }
 
-  endpoint(e: string): Request {
+  endpoint(e: string): HermesRequest {
     this._endpoint = e
     return this
   }
 
-  queryParams(qp: queryParams): Request {
+  queryParams(qp: queryParams): HermesRequest {
     this._queryParams = qp
     return this
   }
 
-  pathParams(pp: pathParams): Request {
+  pathParams(pp: pathParams): HermesRequest {
     this._pathParams = pp
     return this
   }
 
-  body(b: any): Request {
+  body(b: any): HermesRequest {
     this._body = b
     return this
   }
 
-  hasAuthorization(): Request {
+  hasAuthorization(): HermesRequest {
     this._hasAuthorization = true
     return this
   }
 
-  onSuccess(os: apiCallback<any>): Request {
+  onSuccess(os: apiCallback<any>): HermesRequest {
     this._onSuccess = os
     return this
   }
 
-  onFailure(of: apiCallback<{ message: string }>): Request {
+  onFailure(of: apiCallback<{ message: string }>): HermesRequest {
     this._onFailure = of
     return this
   }
 
-  onError(oe: apiCallback<Error>): Request {
+  onError(oe: apiCallback<Error>): HermesRequest {
     this._onError = oe
     return this
   }
 
+  private bearerToken(): string {
+    return `Bearer ${getJWT()}`;
+  }
+
   private async handleRequest(url: string, config: RequestInit) {
-    console.log(config)
     try {
       const result = await fetch(url, config)
 
@@ -121,10 +124,17 @@ export class Request {
         if (this._hasAuthorization) {
           const err = json as { message: string }
           if (result.status === 401 && err.message === "Token is expired") {
-            await refreshJWT()
+            const refreshed = await refreshJWT()
+            if (!refreshed) {
+              // If refreshing failed, this means that the refresh token has been expired and
+              // the user MUST login again
+              this._onFailure(json)
+              return
+            }
+
             const headers: HeadersInit = {}
             Object.assign(headers, config.headers)
-            headers['Authorization:Bearer'] = getJWT()
+            headers['Authorization'] = this.bearerToken()
 
             const copyConfig: RequestInit = {}
             Object.assign(copyConfig, config)
@@ -169,7 +179,7 @@ export class Request {
         this._onError(new Error("JWT Token does not exist"))
         return
       }
-      headers['Authorization:Bearer'] = jwtToken
+      headers['Authorization'] = this.bearerToken();
     }
 
     config.headers = headers

@@ -1,9 +1,9 @@
 import React from "react";
-import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toggle } from "../redux/authSlice";
+import { useAppDispatch } from "../redux/hooks";
 import { setJWT } from "../utility/jwt";
-import { Request } from "../utility/request";
+import { HermesRequest } from "../utility/request";
 
 export default function Login() {
   const usernameRef = React.createRef<HTMLInputElement>();
@@ -13,13 +13,13 @@ export default function Login() {
   const [error, setError] = React.useState<string>();
   const [success, setSuccess] = React.useState<string>();
   const navigate = useNavigate()
-  const dispatch = useDispatch()
+  const dispatch = useAppDispatch()
 
   async function register() {
     setError("")
     setSuccess("")
     setClickable(false)
-    await new Request()
+    await new HermesRequest()
       .POST()
       .endpoint('register')
       .body({
@@ -44,7 +44,7 @@ export default function Login() {
     setSuccess('')
     setClickable(false)
 
-    await new Request()
+    await new HermesRequest()
       .POST()
       .endpoint('login')
       .body({
@@ -62,6 +62,8 @@ export default function Login() {
       })
       .onError((f) => setError(f.message))
       .call()
+
+    setClickable(true)
   }
 
   return (

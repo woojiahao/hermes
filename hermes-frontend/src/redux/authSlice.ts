@@ -6,13 +6,8 @@ interface AuthState {
   value: boolean
 }
 
-function hasToken(): boolean {
-  const cookies = new Cookies()
-  return cookies.get('token') !== undefined
-}
-
 const initialState: AuthState = {
-  value: hasToken()
+  value: new Cookies().get('token') !== undefined
 }
 
 export const authSlice = createSlice({

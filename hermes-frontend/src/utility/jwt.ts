@@ -1,7 +1,7 @@
 import { Cookies } from "react-cookie";
 import store from "../redux/store";
 import { toggle } from "../redux/authSlice";
-import { Request } from "./request";
+import { HermesRequest } from "./request";
 
 const cookies = new Cookies()
 
@@ -26,21 +26,27 @@ export function clearJWT() {
   cookies.remove(jwtCookiesKey)
 }
 
-export async function refreshJWT() {
-  await new Request()
+export async function refreshJWT(): Promise<boolean> {
+  let refreshed = false
+  await new HermesRequest()
     .GET()
-    .endpoint("auth/refresh")
+    .endpoint("refresh")
     .hasAuthorization()
     .onSuccess((s: { token: string }) => {
       setJWT(s.token)
+      refreshed = true
     })
     .onFailure((_) => {
       clearJWT()
       store.dispatch(toggle())
+      refreshed = false
     })
     .onError((_) => {
       clearJWT()
       store.dispatch(toggle())
+      refreshed = false
     })
     .call()
+
+  return refreshed
 }

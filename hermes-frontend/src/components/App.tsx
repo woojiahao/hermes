@@ -1,10 +1,16 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { CookiesProvider } from "react-cookie";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { useAppSelector } from "../redux/hooks";
+import User from "../models/User";
+import { toggle } from "../redux/authSlice";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { load } from "../redux/userSlice";
 import About from "../routes/about";
 import Home from "../routes/home";
 import Login from "../routes/login";
+import UserThreads from "../routes/userThreads";
+import { clearJWT, hasValidJWT } from "../utility/jwt";
+import { HermesRequest } from "../utility/request";
 
 const router = createBrowserRouter([
   {
@@ -18,11 +24,40 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login></Login>,
+  },
+  {
+    path: "/your-threads",
+    element: <UserThreads></UserThreads>
   }
 ])
 
 export default function App() {
   const isLoggedIn = useAppSelector((state) => state.auth.value)
+  const user = useAppSelector((state) => state.user.user)
+  const dispatch = useAppDispatch()
+
+  function logout() {
+    dispatch(toggle())
+    clearJWT()
+  }
+
+  useEffect(() => {
+    if (hasValidJWT()) {
+      console.log("loading current user");
+
+      (async () => {
+        await new HermesRequest()
+          .GET()
+          .endpoint("/users/current")
+          .hasAuthorization()
+          .onSuccess((u: User) => {
+            console.log(u)
+            dispatch(load(u))
+          })
+          .call()
+      })()
+    }
+  }, [])
 
   return (
     <CookiesProvider>
@@ -33,9 +68,11 @@ export default function App() {
           <nav>
             <a href="/">Home</a>
             <a href="/about">About</a>
+            {isLoggedIn && <a href="/your-threads">Your Threads</a>}
+            {isLoggedIn && <span>Welcome back {user.username}!</span>}
             {!isLoggedIn ?
               <a href="/login" className="button">Login</a> :
-              <a href="/" className="button">Logout</a>
+              <a href="/" onClick={logout} className="button">Logout</a>
             }
           </nav>
         </header>
