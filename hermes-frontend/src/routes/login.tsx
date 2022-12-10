@@ -1,5 +1,8 @@
 import React from "react";
 import { Cookies } from "react-cookie";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { toggle } from "../redux/authSlice";
 
 export default function Login() {
   const usernameRef = React.createRef<HTMLInputElement>();
@@ -8,6 +11,8 @@ export default function Login() {
   const [clickable, setClickable] = React.useState(true);
   const [error, setError] = React.useState<string>();
   const [success, setSuccess] = React.useState<string>();
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   async function register() {
     setError("")
@@ -68,6 +73,8 @@ export default function Login() {
         setSuccess('Welcome back!')
         const cookies = new Cookies()
         cookies.set("token", s.token)
+        dispatch(toggle())
+        navigate('/')
       }
     } catch (e) {
       setError(e)
