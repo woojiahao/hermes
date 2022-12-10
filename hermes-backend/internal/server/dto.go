@@ -30,10 +30,9 @@ type (
 	}
 
 	User struct {
-		Id           string `json:"id"`
-		Username     string `json:"username"`
-		PasswordHash string `json:"password_hash"`
-		Role         string `json:"role"`
+		Id       string `json:"id"`
+		Username string `json:"username"`
+		Role     string `json:"role"`
 	}
 )
 

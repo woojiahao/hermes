@@ -12,6 +12,22 @@ import (
 var userRoutes = []route{
 	{"GET", "/users/:id", getUser, true},
 	{"GET", "/users", getUsers, true},
+	{"GET", "/users/current", getCurrentUser, true},
+}
+
+func getCurrentUser(ctx *gin.Context, db *database.Database) {
+	if u, ok := ctx.Get(IdentityKey); ok {
+		username := u.(*User).Username
+		user, err := db.GetUser(username)
+		if err != nil {
+			notFound(ctx, "Unable to find user")
+			return
+		}
+		ctx.JSON(http.StatusOK, userToDTO(user))
+		return
+	}
+
+	badRequest(ctx, "Failed to retrieve current user")
 }
 
 func getUser(ctx *gin.Context, db *database.Database) {
@@ -44,5 +60,5 @@ func getUsers(ctx *gin.Context, db *database.Database) {
 }
 
 func userToDTO(user database.User) User {
-	return User{user.Id, user.Username, user.PasswordHash, string(user.Role)}
+	return User{user.Id, user.Username, string(user.Role)}
 }
