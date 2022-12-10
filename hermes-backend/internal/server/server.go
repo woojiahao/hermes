@@ -73,8 +73,8 @@ func Start(c *ServerConfiguration, db *database.Database) {
 func (s *Server) setupCORS() {
 	s.router.Use(cors.New(cors.Config{
 		AllowAllOrigins:  true,
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
-		AllowHeaders:     []string{"Origin", "Content-Type"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "Accept", "X-Requested-With"},
 		AllowCredentials: true,
 		ExposeHeaders:    []string{"Content-Length", "Content-Type"},
 	}))
@@ -85,7 +85,7 @@ func (s *Server) setupAuth() {
 		Realm:       "hermes",
 		Key:         []byte(s.configuration.JWTKey),
 		Timeout:     time.Hour,
-		MaxRefresh:  time.Hour,
+		MaxRefresh:  168 * time.Hour,
 		IdentityKey: IdentityKey,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(*User); ok {
@@ -119,7 +119,6 @@ func (s *Server) setupAuth() {
 			return &User{
 				user.Id,
 				user.Username,
-				user.PasswordHash,
 				string(user.Role),
 			}, nil
 		},
@@ -166,6 +165,7 @@ func (s *Server) loadRoutes() {
 func (s *Server) addRoutes() {
 	s.router.POST("/login", s.authMiddleware.LoginHandler)
 	s.router.POST("/logout", s.authMiddleware.LogoutHandler)
+	s.router.GET("/refresh", s.authMiddleware.RefreshHandler)
 
 	internal.ForEach(
 		internal.Filter(s.routes, func(r route) bool { return !r.authorizationRequired }),
