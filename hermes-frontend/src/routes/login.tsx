@@ -3,6 +3,7 @@ import { Cookies } from "react-cookie";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toggle } from "../redux/authSlice";
+import { partialPOST } from "../utility/request";
 
 export default function Login() {
   const usernameRef = React.createRef<HTMLInputElement>();
@@ -18,31 +19,21 @@ export default function Login() {
     setError("")
     setSuccess("")
     setClickable(false)
-
-    try {
-      const result = await fetch('http://localhost:8081/register', {
-        method: 'post',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          'username': usernameRef.current.value,
-          'password': passwordRef.current.value,
-          'role': 'USER',
-        })
-      })
-
-      const json = await result.json()
-
-      if (!result.ok) {
-        const err = json as { message: string }
-        setError(err.message)
-      } else {
-        const s = json as { username: string }
-        setSuccess(`Welcome ${s.username}. Please login to proceed!`)
-      }
-    } catch (e) {
-      console.log(e)
-      setError(e)
-    }
+    await partialPOST(
+      'register',
+      {
+        'username': usernameRef.current.value,
+        'password': passwordRef.current.value,
+        'role': 'USER',
+      },
+      (r: { username: string }) => {
+        setSuccess(`Welcome ${r.username}. Please login to proceed!`)
+      },
+      (e: { message: string }) => {
+        setError(e.message)
+      },
+      (f) => setError(f.message)
+    )
 
     setClickable(true)
   }
@@ -52,33 +43,24 @@ export default function Login() {
     setSuccess('')
     setClickable(false)
 
-    try {
-      const result = await fetch('http://localhost:8081/login', {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          'username': usernameRef.current.value,
-          'password': passwordRef.current.value
-        })
-      })
-
-      const json = await result.json()
-
-      if (!result.ok) {
-        console.log(json)
-        const err = json as { message: string }
-        setError(err.message)
-      } else {
-        const s = json as { token: string }
+    await partialPOST(
+      'login',
+      {
+        'username': usernameRef.current.value,
+        'password': passwordRef.current.value
+      },
+      (r: { token: string }) => {
         setSuccess('Welcome back!')
         const cookies = new Cookies()
-        cookies.set("token", s.token)
+        cookies.set("token", r.token)
         dispatch(toggle())
         navigate('/')
-      }
-    } catch (e) {
-      setError(e)
-    }
+      },
+      (e: { message: string }) => {
+        setError(e.message)
+      },
+      (f) => setError(f.message)
+    )
   }
 
   return (

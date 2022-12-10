@@ -1,7 +1,7 @@
 import React from "react";
 import { CookiesProvider } from "react-cookie";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { useAppSelector } from "../redux/hooks";
 import About from "../routes/about";
 import Home from "../routes/home";
 import Login from "../routes/login";
@@ -34,8 +34,8 @@ export default function App() {
             <a href="/">Home</a>
             <a href="/about">About</a>
             {!isLoggedIn ?
-              <a href="/login" className="login-button">Login</a> :
-              <a href="/" className="login-button">Logout</a>
+              <a href="/login" className="button">Login</a> :
+              <a href="/" className="button">Logout</a>
             }
           </nav>
         </header>

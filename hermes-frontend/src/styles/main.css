@@ -2,6 +2,7 @@
 
 @import './home.css';
 @import './login.css';
+@import './shared.css';
 
 * {
   padding: 0;
@@ -17,7 +18,7 @@ body {
   --dark-primary: #191919;
   --dark-secondary: #535657;
   --dark-highlight: #4F646F;
-  --accent-color: #AFCBFF;
+  --accent-color: #4583f6;
   --primary-color: #345995;
   --error-primary: #F56960;
   --error-accent: #F45866;
@@ -40,28 +41,9 @@ body {
       column-gap: 2rem;
       align-items: center;
 
-      a {
-        text-decoration: underline;
-        color: #000;
-      }
-
-      .login-button {
+      a:not(.button) {
         text-decoration: none;
-        border: none;
-        background-color: var(--primary-color);
-        color: var(--background-primary);
-        font-family: "Poppins", sans-serif;
-        font-size: 16px;
-        padding: 5px 15px;
-        border: 1px solid var(--dark-primary);
-        border-radius: 8px;
-        transition: all 0.2s ease-in-out;
-      }
-
-      .login-button:hover {
-        background-color: var(--background-primary);
-        color: var(--primary-color);
-        cursor: pointer;
+        color: var(--accent-color);
       }
     }
   }
@@ -84,3 +66,4 @@ body {
     justify-content: space-between;
   }
 }
+
