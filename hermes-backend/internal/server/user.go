@@ -45,7 +45,7 @@ func getUser(ctx *gin.Context, db *database.Database) {
 		return
 	}
 
-	ctx.JSON(http.StatusFound, userToDTO(user))
+	ctx.JSON(http.StatusOK, userToDTO(user))
 }
 
 func getUsers(ctx *gin.Context, db *database.Database) {
@@ -56,7 +56,7 @@ func getUsers(ctx *gin.Context, db *database.Database) {
 	}
 
 	userDTOs := internal.Map(users, userToDTO)
-	ctx.JSON(http.StatusFound, userDTOs)
+	ctx.JSON(http.StatusOK, userDTOs)
 }
 
 func userToDTO(user database.User) User {

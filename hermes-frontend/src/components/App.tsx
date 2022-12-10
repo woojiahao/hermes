@@ -6,6 +6,7 @@ import { toggle } from "../redux/authSlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { load } from "../redux/userSlice";
 import About from "../routes/about";
+import CreateThread from "../routes/createThread";
 import Home from "../routes/home";
 import Login from "../routes/login";
 import UserThreads from "../routes/userThreads";
@@ -28,6 +29,10 @@ const router = createBrowserRouter([
   {
     path: "/your-threads",
     element: <UserThreads></UserThreads>
+  },
+  {
+    path: "/create-thread",
+    element: <CreateThread></CreateThread>
   }
 ])
 
@@ -43,15 +48,12 @@ export default function App() {
 
   useEffect(() => {
     if (hasValidJWT()) {
-      console.log("loading current user");
-
       (async () => {
         await new HermesRequest()
           .GET()
           .endpoint("/users/current")
           .hasAuthorization()
           .onSuccess((u: User) => {
-            console.log(u)
             dispatch(load(u))
           })
           .call()
@@ -64,7 +66,6 @@ export default function App() {
       <div className="container">
         <header>
           <h1>hermes</h1>
-          {/* TODO: Dynamically generate navigation depending on whether they are logged in or not */}
           <nav>
             <a href="/">Home</a>
             <a href="/about">About</a>

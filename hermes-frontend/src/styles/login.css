@@ -1,4 +1,5 @@
-.login-form {
+/* TODO: Move this into main since other classes are usign this too */
+.form {
   display: flex;
   flex-direction: column;
   background-color: var(--background-secondary);
@@ -29,12 +30,21 @@
     border: 2px solid rgb(68, 194, 110);
   }
 
-  div:not(.buttons) {
+  .field {
     display: flex;
     flex-direction: column;
 
     p {
       font-weight: bold;
+    }
+
+    span {
+      color: var(--dark-highlight);
+    }
+
+    a {
+      text-decoration: none;
+      color: var(--primary-color);
     }
 
     input {
@@ -43,6 +53,22 @@
       border-radius: 8px;
       border: 1px solid var(--primary-color);
       font-size: 1rem;
+    }
+  }
+
+  .editor {
+    display: block;
+    margin-top: 1rem;
+
+    .editor-toolbar {
+      border: 1px solid var(--primary-color);
+      border-radius: 8px;
+    }
+
+    .editor-field {
+      border: 1px solid var(--primary-color);
+      border-radius: 8px;
+      padding: 10px 15px;
     }
   }
 
@@ -67,7 +93,7 @@
       cursor: pointer;
     }
 
-    .login-button {
+    .primary-button {
       background-color: var(--primary-color);
       color: var(--background-secondary);
     }

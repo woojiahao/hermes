@@ -13,6 +13,7 @@ var threadRoutes = []route{
 	{"GET", "/threads", getThreads, false},
 	{"GET", "/threads/:id", getThreadById, false},
 	{"POST", "/threads", createThread, true},
+	{"GET", "/threads/tags", getTags, false},
 }
 
 func getThreads(ctx *gin.Context, db *database.Database) {
@@ -21,11 +22,8 @@ func getThreads(ctx *gin.Context, db *database.Database) {
 		internalSeverError(ctx)
 		return
 	}
-	fmt.Println(internal.Filter(threads, func(thread database.Thread) bool {
-		return len(thread.Tags) > 0
-	}))
 
-	ctx.JSON(http.StatusFound, internal.Map(threads, threadToDTO))
+	ctx.JSON(http.StatusOK, internal.Map(threads, threadToDTO))
 }
 
 func getThreadById(ctx *gin.Context, db *database.Database) {
@@ -37,7 +35,7 @@ func getThreadById(ctx *gin.Context, db *database.Database) {
 		return
 	}
 
-	ctx.JSON(http.StatusFound, threadToDTO(thread))
+	ctx.JSON(http.StatusOK, threadToDTO(thread))
 }
 
 func createThread(ctx *gin.Context, db *database.Database) {
@@ -61,6 +59,16 @@ func createThread(ctx *gin.Context, db *database.Database) {
 	}
 
 	ctx.JSON(http.StatusCreated, threadToDTO(thread))
+}
+
+func getTags(ctx *gin.Context, db *database.Database) {
+	tags, err := db.GetTags()
+	if err != nil {
+		notFound(ctx, "Cannot find tags")
+		return
+	}
+
+	ctx.JSON(http.StatusOK, tags)
 }
 
 func tagToDTO(tag database.Tag) Tag {

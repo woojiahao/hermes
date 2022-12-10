@@ -24,7 +24,9 @@
   row-gap: 1rem;
 }
 
-.login-form {
+/* TODO: Move this into main since other classes are usign this too */
+
+.form {
   display: flex;
   flex-direction: column;
   background-color: var(--background-secondary);
@@ -36,36 +38,45 @@
   row-gap: 1.5rem;
 }
 
-.login-form .error, .login-form .success {
+.form .error, .form .success {
     padding: 15px;
     color: var(--background-secondary);
     border-radius: 8px;
   }
 
-.login-form .error p, .login-form .success p {
+.form .error p, .form .success p {
       font-weight: bold;
     }
 
-.login-form .error {
+.form .error {
     background-color: rgba(245, 105, 96, 0.7);
     border: 2px solid rgb(245, 105, 96);
   }
 
-.login-form .success {
+.form .success {
     background-color: rgba(68, 194, 110, 0.7);
     border: 2px solid rgb(68, 194, 110);
   }
 
-.login-form div:not(.buttons) {
+.form .field {
     display: flex;
     flex-direction: column;
   }
 
-.login-form div:not(.buttons) p {
+.form .field p {
       font-weight: bold;
     }
 
-.login-form div:not(.buttons) input {
+.form .field span {
+      color: var(--dark-highlight);
+    }
+
+.form .field a {
+      text-decoration: none;
+      color: var(--primary-color);
+    }
+
+.form .field input {
       padding: 10px 15px;
       margin-top: 0.5rem;
       border-radius: 8px;
@@ -73,7 +84,23 @@
       font-size: 1rem;
     }
 
-.login-form .buttons {
+.form .editor {
+    display: block;
+    margin-top: 1rem;
+  }
+
+.form .editor .editor-toolbar {
+      border: 1px solid var(--primary-color);
+      border-radius: 8px;
+    }
+
+.form .editor .editor-field {
+      border: 1px solid var(--primary-color);
+      border-radius: 8px;
+      padding: 10px 15px;
+    }
+
+.form .buttons {
     margin-top: 1rem;
 
     display: flex;
@@ -83,7 +110,7 @@
 
 /* TODO: Abstract this button to a separate class */
 
-.login-form .buttons button {
+.form .buttons button {
       font-family: 'Poppins', sans-serif;
       border: 1px solid var(--primary-color);
       background-color: inherit;
@@ -92,11 +119,11 @@
       padding: 5px 15px;
     }
 
-.login-form .buttons button:hover {
+.form .buttons button:hover {
       cursor: pointer;
     }
 
-.login-form .buttons .login-button {
+.form .buttons .primary-button {
       background-color: var(--primary-color);
       color: var(--background-secondary);
     }
@@ -173,9 +200,18 @@ body {
     margin-bottom: 6rem;
   }
 
+.container .content .menu {
+      display: flex;
+      justify-content: space-between;
+    }
+
+.container .content .menu a {
+        height: -moz-fit-content;
+        height: fit-content;
+      }
+
 .container .content .heading {
       margin-bottom: 2rem;
-      position: relative;
       color: var(--primary-color)
     }
 

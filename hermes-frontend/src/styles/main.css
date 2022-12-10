@@ -53,9 +53,17 @@ body {
     margin: 2rem auto;
     margin-bottom: 6rem;
 
+    .menu {
+      display: flex;
+      justify-content: space-between;
+
+      a {
+        height: fit-content;
+      }
+    }
+
     .heading {
       margin-bottom: 2rem;
-      position: relative;
       color: var(--primary-color)
     }
   }

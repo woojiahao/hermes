@@ -120,33 +120,39 @@ export class HermesRequest {
 
       const json = await result.json()
 
-      if (!result.ok) {
-        if (this._hasAuthorization) {
-          const err = json as { message: string }
-          if (result.status === 401 && err.message === "Token is expired") {
-            const refreshed = await refreshJWT()
-            if (!refreshed) {
-              // If refreshing failed, this means that the refresh token has been expired and
-              // the user MUST login again
-              this._onFailure(json)
-              return
-            }
-
-            const headers: HeadersInit = {}
-            Object.assign(headers, config.headers)
-            headers['Authorization'] = this.bearerToken()
-
-            const copyConfig: RequestInit = {}
-            Object.assign(copyConfig, config)
-            copyConfig.headers = headers
-            this.handleRequest(url, copyConfig)
-          } else {
-            this._onFailure(json)
-          }
-        }
-        this._onFailure(json)
+      if (result.ok) {
+        this._onSuccess(json)
+        return
       }
-      else this._onSuccess(json)
+
+      if (!this._hasAuthorization) {
+        this._onFailure(json)
+        return
+      }
+
+      const err = json as { message: string }
+      const tryRefresh = result.status === 401 && err.message === "Token is expired"
+
+      if (!tryRefresh) {
+        this._onFailure(err)
+      }
+
+      const refreshed = await refreshJWT()
+      if (!refreshed) {
+        // If refreshing failed, this means that the refresh token has been expired and
+        // the user MUST login again
+        this._onFailure(err)
+        return
+      }
+
+      const headers: HeadersInit = {}
+      Object.assign(headers, config.headers)
+      headers['Authorization'] = this.bearerToken()
+
+      const copyConfig: RequestInit = {}
+      Object.assign(copyConfig, config)
+      copyConfig.headers = headers
+      this.handleRequest(url, copyConfig)
     } catch (e) {
       this._onError(e as Error)
     }

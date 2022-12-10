@@ -1,5 +1,5 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toggle } from "../redux/authSlice";
 import { useAppDispatch } from "../redux/hooks";
 import { setJWT } from "../utility/jwt";
@@ -14,6 +14,11 @@ export default function Login() {
   const [success, setSuccess] = React.useState<string>();
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
+  const { state } = useLocation()
+
+  useEffect(() => {
+    if (state) setError(state.message)
+  }, [])
 
   async function register() {
     setError("")
@@ -69,7 +74,7 @@ export default function Login() {
   return (
     <div className="content">
       <h1 className="heading">Login to hermes</h1>
-      <div className="login-form">
+      <div className="form">
         {error &&
           <div className="error">
             <p>{error}</p>
@@ -82,14 +87,15 @@ export default function Login() {
           </div>
         }
 
-        <div>
+        <div className="field">
           <p>Username</p>
           <input type="text" name="username" id="username" ref={usernameRef} />
         </div>
-        <div>
+        <div className="field">
           <p>Password</p>
           <input type="password" name="password" id="password" ref={passwordRef} />
         </div>
+
         <div className="buttons">
           <button
             type="button"
@@ -97,7 +103,7 @@ export default function Login() {
             disabled={!clickable}>Register</button>
           <button
             type="button"
-            className="login-button"
+            className="primary-button"
             onClick={async () => await login()}
             disabled={!clickable}>Login</button>
         </div>

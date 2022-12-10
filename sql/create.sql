@@ -19,7 +19,7 @@ CREATE TABLE "user"
 CREATE TABLE thread
 (
     id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    is_published BOOL NOT NULL    DEFAULT FALSE,
+    is_published BOOL NOT NULL    DEFAULT TRUE,
     is_open      BOOL NOT NULL    DEFAULT TRUE,
     title        TEXT NOT NULL,
     "content"    TEXT NOT NULL,
