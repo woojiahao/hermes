@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	i "woojiahao.com/hermes/internal"
@@ -152,7 +153,7 @@ func (d *Database) GetThreads() ([]Thread, error) {
 	return transaction(d, func(tx *sql.Tx) ([]Thread, error) {
 		threads, err := transactionQuery(
 			tx,
-			"SELECT * FROM thread WHERE deleted_at IS NULL",
+			"SELECT * FROM thread WHERE deleted_at IS NULL AND is_published",
 			generateParams(),
 			parseThreadRows,
 		)
@@ -160,6 +161,8 @@ func (d *Database) GetThreads() ([]Thread, error) {
 		if err != nil {
 			return nil, &i.DatabaseError{Custom: "failed to retrieve all threads", Base: err}
 		}
+
+		fmt.Println(threads)
 
 		threadTags := make(map[string][]Tag)
 
@@ -288,6 +291,20 @@ func (d *Database) EditThread(
 
 		return thread, err
 	})
+}
+
+func (d *Database) GetTags() ([]Tag, error) {
+	tags, err := query(
+		d,
+		`SELECT * FROM tag;`,
+		generateParams(),
+		parseTagRows,
+	)
+	if err != nil {
+		return nil, &i.DatabaseError{Custom: "failed to retrieve all tags", Short: "Cannot retrieve tags", Base: err}
+	}
+
+	return tags, nil
 }
 
 func attachTags(tx *sql.Tx, thread Thread, tags []Tag) (Thread, error) {
