@@ -1,0 +1,153 @@
+import React, {createRef, useEffect, useRef, useState} from "react";
+import {HermesRequest, jsonConvert} from "../utility/request"
+import Tag from "../models/Tag"
+import {MdOutlineClose} from "react-icons/md"
+
+export default function TagSelection() {
+  const componentRef = useRef(null)
+  const searchTagRef = createRef<HTMLInputElement>()
+  const newTagContentRef = createRef<HTMLInputElement>()
+  const newTagHexCodeRef = createRef<HTMLInputElement>()
+
+  const [tags, setTags] = useState<Tag[]>([])
+  const [selectedTags, setSelectedTags] = useState<Map<number, Tag>>(new Map())
+  const [searchTerm, setSearchTerm] = useState<string>("")
+  const [isShown, setIsShown] = useState(false)
+  const [error, setError] = useState("")
+
+  useEffect(() => {
+    (async () => {
+      await new HermesRequest()
+        .GET()
+        .endpoint("threads/tags")
+        .onSuccess((json) => {
+          if (json) {
+            const tags = jsonConvert.deserializeArray(json, Tag)
+            setTags(tags)
+          }
+        })
+        .call()
+    })()
+  }, [tags])
+
+  useEffect(() => {
+    const handleClickOutside = (event: Event) => {
+      if (componentRef.current && !componentRef.current.contains(event.target)) {
+        setIsShown(false)
+      }
+    }
+
+    document.addEventListener('click', handleClickOutside, true)
+    return () => {
+      document.removeEventListener('click', handleClickOutside, true)
+    }
+  })
+
+  function addNewTag() {
+    setError("")
+
+    const content = newTagContentRef.current.value
+
+    // Check if content is repeated
+    if (tags.filter(tag => tag.content === content).length > 0) {
+      setError("Tag content must be unique")
+      return
+    }
+
+    const hexCode = newTagHexCodeRef.current.value
+    const newTag = new Tag()
+    newTag.content = content
+    newTag.hexCode = hexCode
+    setTags(prevState => [...prevState, newTag])
+    newTagContentRef.current.value = ""
+  }
+
+  function selectTag(id: number) {
+    const selectedTag = tags[id]
+    setSelectedTags(prevState => {
+      const cur = new Map(prevState)
+      cur.set(id, selectedTag)
+      return cur
+    })
+  }
+
+  function removeSelection(id: number) {
+    setSelectedTags(prevState => {
+      const cur = new Map(prevState)
+      cur.delete(id)
+      return cur
+    })
+  }
+
+  function isLight(hexCode: string): boolean {
+    const code = hexCode.replace('#', '')
+    const r = parseInt(code.substr(0, 2), 16)
+    const g = parseInt(code.substr(2, 2), 16)
+    const b = parseInt(code.substr(4, 2), 16)
+    const brightness = ((r * 299) + (g * 587) + (b * 114)) / 1000
+    return brightness > 155
+  }
+
+  function tagStyle(tag: Tag): React.CSSProperties {
+    return {
+      backgroundColor: tag.hexCode,
+      color: isLight(tag.hexCode) ? `var(--dark-primary)` : `var(--background-primary)`
+    }
+  }
+
+  return (
+    <div className="tag-select" ref={componentRef} onFocus={() => setIsShown(true)}>
+      {error && <p className="error">{error}</p>}
+
+      <div className="tags-input">
+        <div className="tags-selected">
+          {selectedTags &&
+            Array
+              .from(selectedTags.entries())
+              .map(([i, tag]) =>
+                <div key={i} style={tagStyle(tag)}>
+                  <span style={tagStyle(tag)}>{tag.content}</span><MdOutlineClose onClick={() => removeSelection(i)}/>
+                </div>
+              )
+          }
+        </div>
+        <input type="text"
+               className="search-tags"
+               onChange={() => setSearchTerm(searchTagRef.current.value)}
+               ref={searchTagRef}/>
+      </div>
+
+      <div className="tags-dropdown" hidden={!isShown}>
+        <div className="add-new-tag">
+          <input
+            type="text"
+            name="new-tag-content"
+            id="new-tag-content"
+            placeholder="New Tag"
+            defaultValue=""
+            onKeyDown={e => {
+              if (e.key === 'Enter') addNewTag()
+            }}
+            ref={newTagContentRef}/>
+          <input
+            type="color"
+            name="new-tag-color"
+            id="new-tag-color"
+            ref={newTagHexCodeRef}/>
+        </div>
+
+        <div className="tags-list">
+          {tags &&
+            tags.filter(tag => tag.content.includes(searchTerm))
+              .map((tag, i) =>
+                <div key={i}
+                     onClick={() => {
+                       if (!(i in selectedTags)) selectTag(i)
+                     }}>
+                  <p style={tagStyle(tag)}>{tag.content}</p>
+                </div>)}
+        </div>
+      </div>
+    </div>
+  )
+}

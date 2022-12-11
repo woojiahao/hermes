@@ -149,6 +149,107 @@
   cursor: pointer;
 }
 
+.tag-select {
+  width: 100%;
+}
+
+/* Input area for tags */
+
+.tag-select .tags-input .tags-selected {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      column-gap: 8px;
+      row-gap: 8px;
+    }
+
+.tag-select .tags-input .tags-selected div {
+        display: flex;
+        justify-content: center;
+        align-content: center;
+        align-items: center;
+        column-gap: 8px;
+        width: -moz-fit-content;
+        width: fit-content;
+        padding: 5px 15px;
+        border-radius: 8px;
+      }
+
+.tag-select .tags-input .tags-selected div svg:hover {
+          cursor: pointer;
+        }
+
+.tag-select .tags-input .search-tags {
+      width: 100%;
+    }
+
+/* Dropdown for tags */
+
+.tag-select .tags-dropdown {
+    border: 1px solid var(--primary-color);
+    border-top: none;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+  }
+
+.tag-select .tags-dropdown .add-new-tag {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+
+.tag-select .tags-dropdown .add-new-tag input {
+        margin: 0;
+      }
+
+.tag-select .tags-dropdown .add-new-tag input[type='text'] {
+        border: none;
+        flex: 1;
+      }
+
+.tag-select .tags-dropdown .add-new-tag input[type='text']:focus {
+        outline: none;
+      }
+
+.tag-select .tags-dropdown .add-new-tag .tag-color-preview {
+        height: 50px;
+        aspect-ratio: 1 / 1;
+      }
+
+.tag-select .tags-dropdown .add-new-tag input[type='color'] {
+        border: none;
+        background-color: var(--background-secondary);
+        width: 30px;
+        height: 30px;
+        padding: 0;
+        margin: 0;
+      }
+
+.tag-select .tags-dropdown .add-new-tag input[type='color']:hover {
+        cursor: pointer;
+      }
+
+.tag-select .tags-dropdown .tags-list div {
+        padding: 10px;
+      }
+
+.tag-select .tags-dropdown .tags-list div:hover {
+        cursor: pointer;
+        background-color: #e7e7e7;
+      }
+
+.tag-select .tags-dropdown .tags-list div:last-child {
+        border-bottom-right-radius: 8px;
+        border-bottom-left-radius: 8px;
+      }
+
+.tag-select .tags-dropdown .tags-list p {
+        padding: 5px 15px;
+        border-radius: 8px;
+        width: -moz-fit-content;
+        width: fit-content;
+      }
+
 * {
   padding: 0;
   margin: 0;
@@ -221,3 +322,7 @@ body {
     justify-content: space-between;
   }
 
+.hidden {
+  height: 0;
+  visibility: hidden;
+}

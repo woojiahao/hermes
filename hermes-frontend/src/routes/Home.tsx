@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import ThreadList from '../components/ThreadList';
 import Thread from '../models/Thread';
-import { HermesRequest, jsonConvert } from '../utility/request';
+import {HermesRequest, jsonConvert} from '../utility/request';
 
 export default function Home() {
   const [threads, setThreads] = useState<Thread[]>([])

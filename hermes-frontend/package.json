@@ -21,6 +21,7 @@
     "react-cookie": "^4.1.1",
     "react-dom": "^18.2.0",
     "react-draft-wysiwyg": "^1.15.0",
+    "react-icons": "^4.7.1",
     "react-redux": "^8.0.5",
     "react-router-dom": "^6.4.5",
     "react-scripts": "5.0.1",
@@ -33,8 +34,8 @@
     "start:js": "react-scripts start",
     "build": "npm-run-all build:css build:js",
     "build:js": "react-scripts build",
-    "build:css": "postcss src/styles/main.css -o src/index.css",
-    "watch:css": "postcss src/styles/main.css -o src/index.css -w",
+    "build:css": "postcss src/styles/main.pcss -o src/index.css",
+    "watch:css": "postcss src/styles/main.pcss -o src/index.css -w",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

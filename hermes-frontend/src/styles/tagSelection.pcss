@@ -1,0 +1,102 @@
+.tag-select {
+  width: 100%;
+
+  /* Input area for tags */
+
+  .tags-input {
+    .tags-selected {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      column-gap: 8px;
+      row-gap: 8px;
+
+      div {
+        display: flex;
+        justify-content: center;
+        align-content: center;
+        align-items: center;
+        column-gap: 8px;
+        width: fit-content;
+        padding: 5px 15px;
+        border-radius: 8px;
+
+        svg:hover {
+          cursor: pointer;
+        }
+      }
+    }
+
+    .search-tags {
+      width: 100%;
+    }
+  }
+
+  /* Dropdown for tags */
+
+  .tags-dropdown {
+    border: 1px solid var(--primary-color);
+    border-top: none;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+
+    .add-new-tag {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+
+      input {
+        margin: 0;
+      }
+
+      input[type='text'] {
+        border: none;
+        flex: 1;
+      }
+
+      input[type='text']:focus {
+        outline: none;
+      }
+
+      .tag-color-preview {
+        height: 50px;
+        aspect-ratio: 1 / 1;
+      }
+
+      input[type='color'] {
+        border: none;
+        background-color: var(--background-secondary);
+        width: 30px;
+        height: 30px;
+        padding: 0;
+        margin: 0;
+      }
+
+      input[type='color']:hover {
+        cursor: pointer;
+      }
+    }
+
+    .tags-list {
+      div {
+        padding: 10px;
+      }
+
+      div:hover {
+        cursor: pointer;
+        background-color: #e7e7e7;
+      }
+
+      div:last-child {
+        border-bottom-right-radius: 8px;
+        border-bottom-left-radius: 8px;
+      }
+
+      p {
+        padding: 5px 15px;
+        border-radius: 8px;
+        width: fit-content;
+      }
+    }
+  }
+}
