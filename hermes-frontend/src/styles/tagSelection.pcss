@@ -80,6 +80,9 @@
     .tags-list {
       div {
         padding: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
       }
 
       div:hover {
@@ -96,6 +99,14 @@
         padding: 5px 15px;
         border-radius: 8px;
         width: fit-content;
+      }
+
+      svg {
+        path:last-child {
+          fill: var(--dark-secondary);
+          width: 15px;
+          stroke-width: 3px;
+        }
       }
     }
   }

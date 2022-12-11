@@ -231,6 +231,9 @@
 
 .tag-select .tags-dropdown .tags-list div {
         padding: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
       }
 
 .tag-select .tags-dropdown .tags-list div:hover {
@@ -249,6 +252,12 @@
         width: -moz-fit-content;
         width: fit-content;
       }
+
+.tag-select .tags-dropdown .tags-list svg path:last-child {
+          fill: var(--dark-secondary);
+          width: 15px;
+          stroke-width: 3px;
+        }
 
 * {
   padding: 0;

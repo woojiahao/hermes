@@ -1,7 +1,7 @@
 import React, {createRef, useEffect, useRef, useState} from "react";
 import {HermesRequest, jsonConvert} from "../utility/request"
 import Tag from "../models/Tag"
-import {MdOutlineClose} from "react-icons/md"
+import {MdOutlineClose, MdOutlineCheck} from "react-icons/md"
 
 export default function TagSelection() {
   const componentRef = useRef(null)
@@ -145,6 +145,7 @@ export default function TagSelection() {
                        if (!(i in selectedTags)) selectTag(i)
                      }}>
                   <p style={tagStyle(tag)}>{tag.content}</p>
+                  {Array.from(selectedTags.values()).filter(t => t === tag).length > 0 && <MdOutlineCheck/>}
                 </div>)}
         </div>
       </div>
