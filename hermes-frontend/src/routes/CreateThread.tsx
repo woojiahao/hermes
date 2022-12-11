@@ -1,14 +1,18 @@
-import React, {createRef, useEffect} from "react";
+import React, {createRef, useEffect, useState} from "react";
 import {Editor} from 'react-draft-wysiwyg';
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import {useNavigate} from "react-router-dom";
 import {useAppSelector} from "../redux/hooks";
 import {HermesRequest} from "../utility/request";
 import TagSelection from "../components/TagSelection"
+import {ContentState, convertToRaw} from "draft-js"
+import {draftToMarkdown} from "markdown-draft-js"
+import Tag from "../models/Tag"
 
 export default function CreateThread() {
   const titleRef = createRef<HTMLInputElement>()
-  const contentRef = createRef<HTMLInputElement>()
+  const [contentState, setContentState] = useState(convertToRaw(ContentState.createFromText("")))
+  const [selectedTags, setSelectedTags] = useState<Map<number, Tag>>(new Map())
 
   const isLoggedIn = useAppSelector((state) => state.auth.value)
   const user = useAppSelector((state) => state.user.user)
@@ -27,8 +31,8 @@ export default function CreateThread() {
       .body({
         "user_id": user.id,
         "title": titleRef.current.value,
-        "content": "loream ipsumloream ipsumloream ipsumloream ipsumloream ipsum",
-        "tags": [],
+        "content": draftToMarkdown(contentState),
+        "tags": Array.from(selectedTags.values()),
       })
       .onSuccess(_ => navigate('/'))
       .onFailure(e => console.log(e.message))
@@ -47,9 +51,13 @@ export default function CreateThread() {
 
         <div className="field">
           <p>Thread content</p>
-          <span><em>hermes</em> supports <a href="https://www.markdownguide.org/getting-started/">markdown</a> rendering!</span>
+          <span><em>hermes</em> supports rich text editing!</span>
           <div className="editor">
-            <Editor editorClassName="editor-field" toolbarClassName="editor-toolbar">
+            <Editor
+              editorClassName="editor-field"
+              toolbarClassName="editor-toolbar"
+              defaultContentState={contentState}
+              onContentStateChange={setContentState}>
             </Editor>
           </div>
         </div>
@@ -57,7 +65,7 @@ export default function CreateThread() {
         <div className="field">
           <p>Tags</p>
           <span>Select tags for this thread to be easily identified.</span>
-          <TagSelection/>
+          <TagSelection selectedTags={selectedTags} setSelectedTags={setSelectedTags}/>
         </div>
 
         <div className="buttons">

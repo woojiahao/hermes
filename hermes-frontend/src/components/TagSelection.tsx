@@ -1,16 +1,20 @@
 import React, {createRef, useEffect, useRef, useState} from "react";
 import {HermesRequest, jsonConvert} from "../utility/request"
 import Tag from "../models/Tag"
-import {MdOutlineClose, MdOutlineCheck} from "react-icons/md"
+import {MdOutlineCheck, MdOutlineClose} from "react-icons/md"
 
-export default function TagSelection() {
+export default function TagSelection(
+  props: {
+    selectedTags: Map<number, Tag>,
+    setSelectedTags: React.Dispatch<React.SetStateAction<Map<number, Tag>>>
+  }
+) {
   const componentRef = useRef(null)
   const searchTagRef = createRef<HTMLInputElement>()
   const newTagContentRef = createRef<HTMLInputElement>()
   const newTagHexCodeRef = createRef<HTMLInputElement>()
 
   const [tags, setTags] = useState<Tag[]>([])
-  const [selectedTags, setSelectedTags] = useState<Map<number, Tag>>(new Map())
   const [searchTerm, setSearchTerm] = useState<string>("")
   const [isShown, setIsShown] = useState(false)
   const [error, setError] = useState("")
@@ -64,7 +68,7 @@ export default function TagSelection() {
 
   function selectTag(id: number) {
     const selectedTag = tags[id]
-    setSelectedTags(prevState => {
+    props.setSelectedTags(prevState => {
       const cur = new Map(prevState)
       cur.set(id, selectedTag)
       return cur
@@ -72,7 +76,7 @@ export default function TagSelection() {
   }
 
   function removeSelection(id: number) {
-    setSelectedTags(prevState => {
+    props.setSelectedTags(prevState => {
       const cur = new Map(prevState)
       cur.delete(id)
       return cur
@@ -101,9 +105,9 @@ export default function TagSelection() {
 
       <div className="tags-input">
         <div className="tags-selected">
-          {selectedTags &&
+          {props.selectedTags &&
             Array
-              .from(selectedTags.entries())
+              .from(props.selectedTags.entries())
               .map(([i, tag]) =>
                 <div key={i} style={tagStyle(tag)}>
                   <span style={tagStyle(tag)}>{tag.content}</span><MdOutlineClose onClick={() => removeSelection(i)}/>
@@ -142,10 +146,10 @@ export default function TagSelection() {
               .map((tag, i) =>
                 <div key={i}
                      onClick={() => {
-                       if (!(i in selectedTags)) selectTag(i)
+                       if (!(i in props.selectedTags)) selectTag(i)
                      }}>
                   <p style={tagStyle(tag)}>{tag.content}</p>
-                  {Array.from(selectedTags.values()).filter(t => t === tag).length > 0 && <MdOutlineCheck/>}
+                  {Array.from(props.selectedTags.values()).filter(t => t === tag).length > 0 && <MdOutlineCheck/>}
                 </div>)}
         </div>
       </div>
