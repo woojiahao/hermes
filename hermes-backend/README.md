@@ -9,3 +9,4 @@ Backend for Hermes, a web forum.
 - [ ] Include publisher name in thread
 - [X] Authentication with JWT
 - [ ] Disallow creation of user named "admin"
+- [ ] Remove "password_hash" from returned user DTO
