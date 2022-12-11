@@ -2,10 +2,13 @@
  * Utilities for making API requests
  */
 
+import { JsonConvert } from "json2typescript";
 import { getJWT, refreshJWT } from "./jwt";
 
 // TODO: Change this if necessary
 const apiURL = 'http://localhost:8081'
+
+export const jsonConvert = new JsonConvert()
 
 function createURL(
   endpoint: string,
@@ -28,7 +31,6 @@ export type queryParams = { [key: string]: string }
 export type pathParams = string[]
 
 const defaultOnError: apiCallback<Error> = (err) => console.log(err)
-
 
 export enum RequestType {
   GET, POST, PUT, DELETE

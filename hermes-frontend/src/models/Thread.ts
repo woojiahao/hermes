@@ -1,9 +1,24 @@
 // TODO: Display the OP's username
-export default interface Thread {
+import { JsonObject, JsonProperty } from "json2typescript";
+import Tag from "./Tag";
+
+@JsonObject("Thread")
+export default class Thread {
+  @JsonProperty("id", String)
   id: string
-  is_published: boolean
-  is_open: boolean
+
+  @JsonProperty("is_published", Boolean)
+  isPublished: boolean
+
+  @JsonProperty("is_open", Boolean)
+  isOpen: boolean
+
+  @JsonProperty("title", String)
   title: string
+
+  @JsonProperty("content", String)
   content: string
-  tags: string[]
+
+  @JsonProperty("tags", [Tag])
+  tags: Tag[]
 }

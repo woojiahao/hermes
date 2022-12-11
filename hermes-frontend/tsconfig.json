@@ -6,7 +6,9 @@
     "allowSyntheticDefaultImports": true,
     "jsx": "react",
     "moduleResolution": "node",
-    "lib": ["DOM"]
+    "lib": ["DOM"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
   },
   "include": ["src/**/*", "./.d.ts"],
   "exclude": ["node_modules"]

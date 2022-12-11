@@ -2,14 +2,15 @@ import React, { createRef, useEffect, useState } from "react";
 import { Editor } from 'react-draft-wysiwyg';
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import { useNavigate } from "react-router-dom";
+import Tag from "../models/Tag";
 import { useAppSelector } from "../redux/hooks";
-import { HermesRequest } from "../utility/request";
+import { HermesRequest, jsonConvert } from "../utility/request";
 
 export default function CreateThread() {
   const titleRef = createRef<HTMLInputElement>()
   const contentRef = createRef<HTMLInputElement>()
 
-  const [tags, setTags] = useState<string[]>([])
+  const [tags, setTags] = useState<Tag[]>([])
   const isLoggedIn = useAppSelector((state) => state.auth.value)
   const user = useAppSelector((state) => state.user.user)
   const navigate = useNavigate()
@@ -22,7 +23,10 @@ export default function CreateThread() {
       await new HermesRequest()
         .GET()
         .endpoint("threads/tags")
-        .onSuccess((s: { content: string }[]) => setTags(s.map(c => c.content)))
+        .onSuccess((json) => {
+          const tags = jsonConvert.deserializeArray(json, Tag)
+          setTags(tags)
+        })
         .call()
     })()
   }, [])
@@ -65,7 +69,7 @@ export default function CreateThread() {
         <div className="field">
           <p>Tags</p>
           <span>Select tags for this thread to be easily identified.</span>
-          {tags && tags.map(tag => <p>{tag}</p>)}
+          {tags && tags.map(tag => <p style={{ backgroundColor: tag.hexCode }}>{tag.content}</p>)}
         </div>
 
         <div className="buttons">

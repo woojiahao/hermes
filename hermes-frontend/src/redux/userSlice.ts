@@ -1,5 +1,6 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import User from "../models/User";
+import { getCurrentUser } from "../services/user";
 import { RootState } from "./store";
 
 interface UserState {
@@ -10,13 +11,25 @@ const initialState: UserState = {
   user: { id: "", username: "", role: "" }
 }
 
+export const loadCurrentUser = createAsyncThunk(
+  'user/getCurrentUser',
+  async () => {
+    return await getCurrentUser()
+  }
+)
+
 export const userSlice = createSlice({
-  name: 'currentUser',
+  name: 'user',
   initialState,
   reducers: {
-    load: (state: UserState, action: PayloadAction<User>) => {
-      state.user = action.payload
+    load: (state, payload: PayloadAction<User>) => {
+      state.user = payload.payload
     }
+  },
+  extraReducers: (builder) => {
+    builder.addCase(loadCurrentUser.fulfilled, (state, action) => {
+      state.user = action.payload
+    })
   }
 })
 

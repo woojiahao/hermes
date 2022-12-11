@@ -4,6 +4,9 @@ import userReducer from './userSlice';
 
 
 const store = configureStore({
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware({
+    serializableCheck: false
+  }),
   reducer: {
     auth: authReducer,
     user: userReducer

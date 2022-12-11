@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import ThreadList from '../components/ThreadList';
 import Thread from '../models/Thread';
-import { HermesRequest } from '../utility/request';
+import { HermesRequest, jsonConvert } from '../utility/request';
 
 export default function Home() {
   const [threads, setThreads] = useState<Thread[]>([])
@@ -12,8 +12,8 @@ export default function Home() {
       await new HermesRequest()
         .GET()
         .endpoint("threads")
-        .onSuccess((threads: Thread[]) => {
-          console.log(threads)
+        .onSuccess((json) => {
+          const threads = jsonConvert.deserializeArray(json, Thread)
           setThreads(threads)
           setMessage("")
         })

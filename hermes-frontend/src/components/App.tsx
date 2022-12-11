@@ -1,17 +1,15 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { CookiesProvider } from "react-cookie";
+import { useDispatch } from "react-redux";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import User from "../models/User";
 import { toggle } from "../redux/authSlice";
-import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { load } from "../redux/userSlice";
+import { useAppSelector } from "../redux/hooks";
 import About from "../routes/about";
 import CreateThread from "../routes/createThread";
 import Home from "../routes/home";
 import Login from "../routes/login";
 import UserThreads from "../routes/userThreads";
-import { clearJWT, hasValidJWT } from "../utility/jwt";
-import { HermesRequest } from "../utility/request";
+import { clearJWT } from "../utility/jwt";
 
 const router = createBrowserRouter([
   {
@@ -37,29 +35,15 @@ const router = createBrowserRouter([
 ])
 
 export default function App() {
+  // TODO: Remove isLoggedIn flag since the user's existence would indicate if the user is logged in
   const isLoggedIn = useAppSelector((state) => state.auth.value)
   const user = useAppSelector((state) => state.user.user)
-  const dispatch = useAppDispatch()
+  const dispatch = useDispatch()
 
   function logout() {
     dispatch(toggle())
     clearJWT()
   }
-
-  useEffect(() => {
-    if (hasValidJWT()) {
-      (async () => {
-        await new HermesRequest()
-          .GET()
-          .endpoint("/users/current")
-          .hasAuthorization()
-          .onSuccess((u: User) => {
-            dispatch(load(u))
-          })
-          .call()
-      })()
-    }
-  }, [])
 
   return (
     <CookiesProvider>
@@ -70,7 +54,7 @@ export default function App() {
             <a href="/">Home</a>
             <a href="/about">About</a>
             {isLoggedIn && <a href="/your-threads">Your Threads</a>}
-            {isLoggedIn && <span>Welcome back {user.username}!</span>}
+            {isLoggedIn && user && <p>Welcome back {user.username}!</p>}
             {!isLoggedIn ?
               <a href="/login" className="button">Login</a> :
               <a href="/" onClick={logout} className="button">Logout</a>

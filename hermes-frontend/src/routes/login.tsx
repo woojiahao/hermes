@@ -2,7 +2,8 @@ import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toggle } from "../redux/authSlice";
 import { useAppDispatch } from "../redux/hooks";
-import { setJWT } from "../utility/jwt";
+import { loadCurrentUser } from "../redux/userSlice";
+import { hasValidJWT, setJWT } from "../utility/jwt";
 import { HermesRequest } from "../utility/request";
 
 export default function Login() {
@@ -60,6 +61,7 @@ export default function Login() {
         setSuccess('Welcome back!')
         setJWT(r.token)
         dispatch(toggle())
+        dispatch(loadCurrentUser())
         navigate('/')
       })
       .onFailure((e: { message: string }) => {
