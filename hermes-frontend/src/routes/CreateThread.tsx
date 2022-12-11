@@ -13,7 +13,7 @@ export default function CreateThread() {
   const titleRef = createRef<HTMLInputElement>()
   const [contentState, setContentState] = useState(convertToRaw(ContentState.createFromText("")))
   const [selectedTags, setSelectedTags] = useState<Map<number, Tag>>(new Map())
-  const [error, setError] = useState("")
+  const [err, setErr] = useState("")
 
   const isLoggedIn = useAppSelector((state) => state.auth.value)
   const user = useAppSelector((state) => state.user.user)
@@ -25,6 +25,8 @@ export default function CreateThread() {
   }, [])
 
   async function createThread() {
+    setErr('')
+
     await new HermesRequest()
       .POST()
       .endpoint("threads")
@@ -41,16 +43,26 @@ export default function CreateThread() {
         }),
       })
       .onSuccess(_ => navigate('/'))
-      .onFailure((e: { message: string }) => setError(e.message))
-      .onError(e => setError(e.message))
+      .onFailure((e: { message: string } | { message: { field: string, message: string }[] }) => {
+        if (typeof e.message === 'string') {
+          setErr(e.message)
+        } else {
+          const formatted = e.message.map((e) => `${e.field} ${e.message}`).join(". ")
+          setErr(formatted)
+        }
+      })
+      .onError(e => {
+        setErr(e.message)
+      })
       .call()
   }
 
   return (
     <div className="content">
       <h1 className="heading">New Thread</h1>
-      {error && <p className="error">{error}</p>}
       <div className="form">
+        {err && <p className="error">{err}</p>}
+
         <div className="field">
           <p>Thread title</p>
           <input type="text" name="title" id="title" ref={titleRef}/>

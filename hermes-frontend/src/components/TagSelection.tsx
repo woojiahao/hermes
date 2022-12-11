@@ -33,7 +33,7 @@ export default function TagSelection(
         })
         .call()
     })()
-  }, [tags])
+  }, [])
 
   useEffect(() => {
     const handleClickOutside = (event: Event) => {

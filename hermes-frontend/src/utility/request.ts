@@ -2,8 +2,8 @@
  * Utilities for making API requests
  */
 
-import { JsonConvert } from "json2typescript";
-import { getJWT, refreshJWT } from "./jwt";
+import {JsonConvert} from "json2typescript";
+import {getJWT, refreshJWT} from "./jwt";
 
 // TODO: Change this if necessary
 const apiURL = 'http://localhost:8081'
@@ -44,7 +44,7 @@ export class HermesRequest {
   private _body: any = {}
   private _hasAuthorization: boolean = false
   private _onSuccess: apiCallback<any>
-  private _onFailure: apiCallback<{ message: string }>
+  private _onFailure: apiCallback<{ message: string } | { message: { field: string, title: string }[] }>
   private _onError: apiCallback<Error> = defaultOnError
 
   GET(): HermesRequest {
@@ -64,11 +64,6 @@ export class HermesRequest {
 
   DELETE(): HermesRequest {
     this._requestType = RequestType.DELETE
-    return this
-  }
-
-  requestType(rt: RequestType): HermesRequest {
-    this._requestType = rt
     return this
   }
 
@@ -132,6 +127,11 @@ export class HermesRequest {
         return
       }
 
+      if (typeof json.message !== 'string') {
+        this._onFailure(json)
+        return
+      }
+
       const err = json as { message: string }
       const tryRefresh = result.status === 401 && err.message === "Token is expired"
 
@@ -155,7 +155,7 @@ export class HermesRequest {
       const copyConfig: RequestInit = {}
       Object.assign(copyConfig, config)
       copyConfig.headers = headers
-      this.handleRequest(url, copyConfig)
+      await this.handleRequest(url, copyConfig)
     } catch (e) {
       this._onError(e as Error)
     }

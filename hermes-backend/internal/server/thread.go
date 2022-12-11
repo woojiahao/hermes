@@ -69,7 +69,7 @@ func getTags(ctx *gin.Context, db *database.Database) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, tags)
+	ctx.JSON(http.StatusOK, internal.Map(tags, tagToDTO))
 }
 
 func tagToDTO(tag database.Tag) Tag {
