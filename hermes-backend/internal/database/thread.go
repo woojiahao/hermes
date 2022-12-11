@@ -2,7 +2,6 @@ package database
 
 import (
 	"database/sql"
-	"fmt"
 	"time"
 
 	i "woojiahao.com/hermes/internal"
@@ -161,8 +160,6 @@ func (d *Database) GetThreads() ([]Thread, error) {
 		if err != nil {
 			return nil, &i.DatabaseError{Custom: "failed to retrieve all threads", Base: err}
 		}
-
-		fmt.Println(threads)
 
 		threadTags := make(map[string][]Tag)
 

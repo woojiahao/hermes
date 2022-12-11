@@ -12,6 +12,15 @@
     color: #757575;
   }
 
+.thread-card .tags {
+    padding-top: 1rem;
+  }
+
+.thread-card .tags span {
+      padding: 5px 15px;
+      border-radius: 8px;
+    }
+
 .thread-card:hover {
   cursor: pointer;
   transform: translateY(-5px);

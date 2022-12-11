@@ -137,6 +137,7 @@ export class HermesRequest {
 
       if (!tryRefresh) {
         this._onFailure(err)
+        return
       }
 
       const refreshed = await refreshJWT()

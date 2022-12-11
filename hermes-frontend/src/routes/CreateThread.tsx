@@ -13,6 +13,7 @@ export default function CreateThread() {
   const titleRef = createRef<HTMLInputElement>()
   const [contentState, setContentState] = useState(convertToRaw(ContentState.createFromText("")))
   const [selectedTags, setSelectedTags] = useState<Map<number, Tag>>(new Map())
+  const [error, setError] = useState("")
 
   const isLoggedIn = useAppSelector((state) => state.auth.value)
   const user = useAppSelector((state) => state.user.user)
@@ -32,17 +33,23 @@ export default function CreateThread() {
         "user_id": user.id,
         "title": titleRef.current.value,
         "content": draftToMarkdown(contentState),
-        "tags": Array.from(selectedTags.values()),
+        "tags": Array.from(selectedTags.values()).map(tag => {
+          return {
+            'content': tag.content,
+            'hex_code': tag.hexCode
+          }
+        }),
       })
       .onSuccess(_ => navigate('/'))
-      .onFailure(e => console.log(e.message))
-      .onError(e => console.log(e))
+      .onFailure((e: { message: string }) => setError(e.message))
+      .onError(e => setError(e.message))
       .call()
   }
 
   return (
     <div className="content">
       <h1 className="heading">New Thread</h1>
+      {error && <p className="error">{error}</p>}
       <div className="form">
         <div className="field">
           <p>Thread title</p>

@@ -44,6 +44,7 @@ func createThread(ctx *gin.Context, db *database.Database) {
 		badRequestValidation(ctx, err)
 		return
 	}
+  fmt.Println(req)
 
 	thread, err := db.CreateThread(
 		req.UserId,
