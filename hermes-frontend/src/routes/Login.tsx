@@ -39,7 +39,14 @@ export default function Login() {
       .onFailure((e: { message: string }) => {
         setError(e.message)
       })
-      .onFailure((f) => setError(f.message))
+      .onFailure((e) => {
+        if (typeof e.message === 'string') {
+          setError(e.message)
+        } else {
+          const formatted = e.message.map((e) => `${e.field} ${e.message}`).join(". ")
+          setError(formatted)
+        }
+      })
       .call()
 
     setClickable(true)

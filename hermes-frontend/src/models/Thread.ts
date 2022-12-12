@@ -21,4 +21,19 @@ export default class Thread {
 
   @JsonProperty("tags", [Tag])
   tags: Tag[]
+
+  @JsonProperty("created_by", String)
+  publisher: string
+}
+
+export function emptyThread(): Thread {
+  return {
+    id: "",
+    isPublished: false,
+    isOpen: false,
+    title: "",
+    content: "",
+    tags: [],
+    publisher: "",
+  }
 }

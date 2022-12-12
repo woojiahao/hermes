@@ -164,6 +164,9 @@ export class HermesRequest {
   }
 
   async call() {
+    if (!this._endpoint)
+      throw new Error("Specify endpoint for Hermes request")
+
     const headers: HeadersInit = {}
     const config: RequestInit = {
       method: RequestType[this._requestType],

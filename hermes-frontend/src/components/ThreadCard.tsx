@@ -2,14 +2,17 @@ import React from "react";
 import ReactMarkdown from "react-markdown"
 import Thread from "../models/Thread";
 import {tagStyle} from "../utility/tag"
+import {useNavigate} from "react-router-dom"
 
 interface ThreadCardProps {
   thread: Thread
 }
 
 export default function ThreadCard({thread}: ThreadCardProps) {
+  const navigate = useNavigate()
+
   return (
-    <div className="thread-card">
+    <div className="thread-card" onClick={() => navigate(`/threads/${thread.id}`)}>
       <h3 className="title">{thread.title}</h3>
       <ReactMarkdown>{thread.content}</ReactMarkdown>
       {thread.tags &&

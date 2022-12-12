@@ -56,5 +56,16 @@ type (
 		Title       string `json:"title"`
 		Content     string `json:"content"`
 		Tags        []Tag  `json:"tags"`
+		CreatedBy   string `json:"created_by"`
+	}
+
+	CreateComment struct {
+		UserId  string `json:"user_id" binding:"required,uuid"`
+		Content string `json:"content" binding:"required"`
+	}
+
+	Comment struct {
+		Id      string `json:"id"`
+		Content string `json:"content"`
 	}
 )

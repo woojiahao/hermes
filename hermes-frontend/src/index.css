@@ -33,6 +33,46 @@
   row-gap: 1rem;
 }
 
+.expanded-thread h2 {
+    margin-bottom: 2rem;
+  }
+
+.expanded-thread .comments {
+    margin-top: 2rem;
+    color: var(--primary-color);
+  }
+
+.expanded-thread .comments h3 {
+      margin-bottom: 1rem;
+    }
+
+.expanded-thread .comments textarea {
+      width: 100%;
+      border: 1px solid var(--primary-color);
+      border-radius: 8px;
+      padding: 5px 15px;
+      font-family: 'Karla', sans-serif;
+      font-size: 16px;
+      margin-bottom: 1rem;
+    }
+
+.expanded-thread .comments button {
+      margin-bottom: 1rem;
+    }
+
+.expanded-thread .comments div {
+      display: flex;
+      flex-direction: column;
+      row-gap: 1rem;
+    }
+
+.expanded-thread .comments div p {
+        padding: 15px;
+        background-color: var(--background-secondary);
+        border-radius: 8px;
+        box-shadow: #e7e7e7 1px 1px 5px;
+      }
+
 /* TODO: Move this into main since other classes are usign this too */
 
 .form {
@@ -314,13 +354,13 @@ body {
 
 .container .content {
     width: 70%;
-    margin: 2rem auto;
-    margin-bottom: 6rem;
+    margin: 2rem auto 6rem;
   }
 
 .container .content .menu {
       display: flex;
       justify-content: space-between;
+      margin-bottom: 2rem;
     }
 
 .container .content .menu a {
@@ -328,8 +368,13 @@ body {
         height: fit-content;
       }
 
+.container .content .menu .group {
+        display: flex;
+        align-items: center;
+        column-gap: 1rem;
+      }
+
 .container .content .heading {
-      margin-bottom: 2rem;
       color: var(--primary-color)
     }
 

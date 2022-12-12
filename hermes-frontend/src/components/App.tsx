@@ -10,6 +10,7 @@ import Home from "../routes/Home";
 import Login from "../routes/Login";
 import UserThreads from "../routes/UserThreads";
 import {clearJWT} from "../utility/jwt";
+import ExpandedThread from "../routes/ExpandedThread"
 
 const router = createBrowserRouter([
   {
@@ -31,6 +32,10 @@ const router = createBrowserRouter([
   {
     path: "/create-thread",
     element: <CreateThread></CreateThread>
+  },
+  {
+    path: "/threads/:id",
+    element: <ExpandedThread></ExpandedThread>
   }
 ])
 
