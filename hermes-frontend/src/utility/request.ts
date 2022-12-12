@@ -29,6 +29,8 @@ function createURL(
 export type apiCallback<T> = (json: T) => void
 export type queryParams = { [key: string]: string }
 export type pathParams = string[]
+export type errorMessage = { message: string }
+export type errorFields = { message: { field: string, message: string }[] }
 
 const defaultOnError: apiCallback<Error> = (err) => console.log(err)
 
@@ -44,7 +46,7 @@ export class HermesRequest {
   private _body: any = {}
   private _hasAuthorization: boolean = false
   private _onSuccess: apiCallback<any>
-  private _onFailure: apiCallback<{ message: string } | { message: { field: string, title: string }[] }>
+  private _onFailure: apiCallback<errorMessage | errorFields>
   private _onError: apiCallback<Error> = defaultOnError
 
   GET(): HermesRequest {
@@ -97,7 +99,7 @@ export class HermesRequest {
     return this
   }
 
-  onFailure(of: apiCallback<{ message: string }>): HermesRequest {
+  onFailure(of: apiCallback<errorMessage | errorFields>): HermesRequest {
     this._onFailure = of
     return this
   }

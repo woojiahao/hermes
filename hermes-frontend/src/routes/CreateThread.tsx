@@ -3,7 +3,7 @@ import {Editor} from 'react-draft-wysiwyg';
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import {useNavigate} from "react-router-dom";
 import {useAppSelector} from "../redux/hooks";
-import {HermesRequest} from "../utility/request";
+import {errorFields, errorMessage, HermesRequest} from "../utility/request";
 import TagSelection from "../components/TagSelection"
 import {ContentState, convertToRaw} from "draft-js"
 import {draftToMarkdown} from "markdown-draft-js"
@@ -43,7 +43,7 @@ export default function CreateThread() {
         }),
       })
       .onSuccess(_ => navigate('/'))
-      .onFailure((e: { message: string } | { message: { field: string, message: string }[] }) => {
+      .onFailure((e: errorMessage | errorFields) => {
         if (typeof e.message === 'string') {
           setErr(e.message)
         } else {
