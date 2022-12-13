@@ -1,11 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Karla:wght@400;700&display=swap');
 
+.tags-filter {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+}
+
+.tags-filter .display-tag:hover {
+    cursor: pointer;
+  }
+
 .thread-card {
   padding: 1rem;
   background-color: var(--background-secondary);
   border-radius: 8px;
   box-shadow: #e7e7e7 1px 1px 5px;
   transition: all 0.3s ease-in-out;
+  word-wrap: break-word;
 }
 
 .thread-card .subtitle {
@@ -13,6 +24,8 @@
   }
 
 .thread-card .tags {
+    display: flex;
+    column-gap: 0.5rem;
     padding-top: 1rem;
   }
 
@@ -307,6 +320,63 @@
           stroke-width: 3px;
         }
 
+.display-tag {
+  display: flex;
+  align-items: center;
+  column-gap: 0.5rem;
+  row-gap: 0.5rem;
+}
+
+.display-tag div {
+    width: 15px;
+    height: 15px;
+    border: 1px solid var(--dark-primary);
+  }
+
+.display-tag p {
+    word-wrap: break-word;
+    word-break: break-word;
+  }
+
+.split, .single {
+  width: 90%;
+  margin: 2rem auto 6rem;
+}
+
+.split .actions, .single .actions {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+  }
+
+.split .actions a, .single .actions a {
+      height: -moz-fit-content;
+      height: fit-content;
+    }
+
+.split .actions .group, .single .actions .group {
+      display: flex;
+      align-items: center;
+      column-gap: 1rem;
+    }
+
+.split .heading, .single .heading {
+    color: var(--primary-color)
+  }
+
+.split .content {
+    display: flex;
+    justify-content: space-between;
+  }
+
+.split .content main {
+      width: 80%;
+    }
+
+.split .content aside {
+      width: 18%;
+    }
+
 * {
   padding: 0;
   margin: 0;
@@ -351,32 +421,6 @@ body {
         text-decoration: none;
         color: var(--accent-color);
       }
-
-.container .content {
-    width: 70%;
-    margin: 2rem auto 6rem;
-  }
-
-.container .content .menu {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 2rem;
-    }
-
-.container .content .menu a {
-        height: -moz-fit-content;
-        height: fit-content;
-      }
-
-.container .content .menu .group {
-        display: flex;
-        align-items: center;
-        column-gap: 1rem;
-      }
-
-.container .content .heading {
-      color: var(--primary-color)
-    }
 
 .container footer {
     display: flex;

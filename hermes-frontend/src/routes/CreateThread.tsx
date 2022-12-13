@@ -58,7 +58,7 @@ export default function CreateThread() {
   }
 
   return (
-    <div className="content">
+    <div className="single">
       <h1 className="heading">New Thread</h1>
       <div className="form">
         {err && <p className="error">{err}</p>}

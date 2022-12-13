@@ -1,15 +1,28 @@
+.tags-filter {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+
+  .display-tag:hover {
+    cursor: pointer;
+  }
+}
+
 .thread-card {
   padding: 1rem;
   background-color: var(--background-secondary);
   border-radius: 8px;
   box-shadow: #e7e7e7 1px 1px 5px;
   transition: all 0.3s ease-in-out;
+  word-wrap: break-word;
 
   .subtitle {
     color: #757575;
   }
 
   .tags {
+    display: flex;
+    column-gap: 0.5rem;
     padding-top: 1rem;
 
     span {

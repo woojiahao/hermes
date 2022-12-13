@@ -9,7 +9,8 @@ interface ThreadListProps {
 export default function ThreadList({threads}: ThreadListProps) {
   return (
     <div className="thread-list">
-      {threads.map(thread => <ThreadCard key={thread.id} thread={thread}/>)}
+      {threads
+        .map(thread => <ThreadCard key={thread.id} thread={thread}/>)}
     </div>
   )
 }

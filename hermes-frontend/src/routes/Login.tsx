@@ -81,7 +81,7 @@ export default function Login() {
   }
 
   return (
-    <div className="content">
+    <div className="single">
       <h1 className="heading">Login to hermes</h1>
       <div className="form">
         {error &&

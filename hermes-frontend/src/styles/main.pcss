@@ -4,6 +4,8 @@
 @import 'login.pcss';
 @import 'shared.pcss';
 @import 'tagSelection.pcss';
+@import 'minorComponents.pcss';
+@import 'layout.pcss';
 
 * {
   padding: 0;
@@ -49,37 +51,13 @@ body {
     }
   }
 
-  .content {
-    width: 70%;
-    margin: 2rem auto 6rem;
-
-    .menu {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 2rem;
-
-      a {
-        height: fit-content;
-      }
-
-      .group {
-        display: flex;
-        align-items: center;
-        column-gap: 1rem;
-      }
-    }
-
-    .heading {
-      color: var(--primary-color)
-    }
-  }
-
   footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
   }
 }
+
 
 .hidden {
   height: 0;

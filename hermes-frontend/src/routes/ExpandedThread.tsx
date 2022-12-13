@@ -48,6 +48,7 @@ export default function ExpandedThread() {
   }
 
   async function submitComment() {
+    setError('')
     await new HermesRequest()
       .POST()
       .endpoint(`/threads/${id}/comments`)
@@ -75,7 +76,7 @@ export default function ExpandedThread() {
   }
 
   return (
-    <div className="content">
+    <div className="single">
       <div className="menu">
         <div className="group">
           <IoArrowBackSharp onClick={() => navigate(-1)}/>
@@ -85,6 +86,7 @@ export default function ExpandedThread() {
       </div>
 
       <div className="expanded-thread">
+        {error && <p className="error">{error}</p>}
         <h2>{thread.title}</h2>
         <ReactMarkdown>{thread.content}</ReactMarkdown>
 

@@ -3,13 +3,14 @@ import {HermesRequest, jsonConvert} from "../utility/request"
 import Tag from "../models/Tag"
 import {MdOutlineCheck, MdOutlineClose} from "react-icons/md"
 import {tagStyle} from "../utility/tag"
+import DisplayTag from "./DisplayTag"
 
-export default function TagSelection(
-  props: {
-    selectedTags: Map<number, Tag>,
-    setSelectedTags: React.Dispatch<React.SetStateAction<Map<number, Tag>>>
-  }
-) {
+interface TagSelectionProps {
+  selectedTags: Map<number, Tag>,
+  setSelectedTags: React.Dispatch<React.SetStateAction<Map<number, Tag>>>
+}
+
+export default function TagSelection(props: TagSelectionProps) {
   const componentRef = useRef(null)
   const searchTagRef = createRef<HTMLInputElement>()
   const newTagContentRef = createRef<HTMLInputElement>()
@@ -133,7 +134,7 @@ export default function TagSelection(
                      onClick={() => {
                        if (!(i in props.selectedTags)) selectTag(i)
                      }}>
-                  <p style={tagStyle(tag)}>{tag.content}</p>
+                  <DisplayTag key={i} tag={tag}></DisplayTag>
                   {Array.from(props.selectedTags.values()).filter(t => t === tag).length > 0 && <MdOutlineCheck/>}
                 </div>)}
         </div>
