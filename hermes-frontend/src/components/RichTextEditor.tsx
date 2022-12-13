@@ -1,8 +1,7 @@
-import {ContentState} from "draft-js"
 import React from "react"
 import {Editor} from "react-draft-wysiwyg"
+import {ContentState} from "draft-js"
 
-// Added @ts-ignore as draft-js does not work well with Typescript
 interface RichTextEditorProps {
   // @ts-ignore
   contentState: ContentState

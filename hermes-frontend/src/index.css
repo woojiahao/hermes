@@ -192,6 +192,7 @@ button[class^=static-button]:hover {
 
 .tag-select .tags-dropdown {
     border: 1px solid var(--primary-color);
+    background-color: var(--background-secondary);
     border-top: none;
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
@@ -252,7 +253,7 @@ button[class^=static-button]:hover {
       }
 
 .tag-select .tags-dropdown .tags-list p {
-        padding: 5px 15px;
+        //padding: 5px 15px;
         border-radius: 8px;
         width: -moz-fit-content;
         width: fit-content;

@@ -1,5 +1,4 @@
 import React, {createRef, useEffect, useState} from "react";
-import {Editor} from 'react-draft-wysiwyg';
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import {useNavigate} from "react-router-dom";
 import {useAppSelector} from "../redux/hooks";
@@ -76,7 +75,7 @@ export default function CreateThread() {
         <div className="field">
           <p>Thread content</p>
           <span><em>hermes</em> supports rich text editing!</span>
-          <RichTextEditor contentState={contentState} setContentState={setContentState}></RichTextEditor>
+          <RichTextEditor contentState={contentState} setContentState={setContentState}/>
         </div>
 
         <div className="field">
