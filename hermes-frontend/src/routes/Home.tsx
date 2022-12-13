@@ -44,9 +44,9 @@ export default function Home() {
 
   return (
     <div className="split">
-      <div className="actions">
+      <div className="title">
         <h1 className="heading">Threads</h1>
-        <a href="/create-thread" className='button'>New Thread</a>
+        <a href="/create-thread" className='effect-button'>New Thread</a>
       </div>
 
       <div className="content">

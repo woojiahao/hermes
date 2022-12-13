@@ -86,128 +86,72 @@
         box-shadow: #e7e7e7 1px 1px 5px;
       }
 
-/* TODO: Move this into main since other classes are usign this too */
-
-.form {
-  display: flex;
-  flex-direction: column;
-  background-color: var(--background-secondary);
-  box-sizing: border-box;
-  padding: 2rem;
-  min-width: 350px;
-  box-shadow: #e7e7e7 1px 1px 5px;
-  border-radius: 8px;
-  row-gap: 1.5rem;
-}
-
-.form .error, .form .success {
-    padding: 15px;
-    color: var(--background-secondary);
-    border-radius: 8px;
-  }
-
-.form .error p, .form .success p {
-      font-weight: bold;
-    }
-
-.form .error {
-    background-color: rgba(245, 105, 96, 0.7);
-    border: 2px solid rgb(245, 105, 96);
-  }
-
-.form .success {
-    background-color: rgba(68, 194, 110, 0.7);
-    border: 2px solid rgb(68, 194, 110);
-  }
-
-.form .field {
-    display: flex;
-    flex-direction: column;
-  }
-
-.form .field p {
-      font-weight: bold;
-    }
-
-.form .field span {
-      color: var(--dark-highlight);
-    }
-
-.form .field a {
-      text-decoration: none;
-      color: var(--primary-color);
-    }
-
-.form .field input {
-      padding: 10px 15px;
-      margin-top: 0.5rem;
-      border-radius: 8px;
-      border: 1px solid var(--primary-color);
-      font-size: 1rem;
-    }
-
-.form .editor {
-    display: block;
-    margin-top: 1rem;
-  }
-
-.form .editor .editor-toolbar {
-      border: 1px solid var(--primary-color);
-      border-radius: 8px;
-    }
-
-.form .editor .editor-field {
-      border: 1px solid var(--primary-color);
-      border-radius: 8px;
-      padding: 10px 15px;
-    }
-
-.form .buttons {
-    margin-top: 1rem;
-
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-  }
-
-/* TODO: Abstract this button to a separate class */
-
-.form .buttons button {
-      font-family: 'Poppins', sans-serif;
-      border: 1px solid var(--primary-color);
-      background-color: inherit;
-      border-radius: 8px;
-      font-size: 1rem;
-      padding: 5px 15px;
-    }
-
-.form .buttons button:hover {
-      cursor: pointer;
-    }
-
-.form .buttons .primary-button {
-      background-color: var(--primary-color);
-      color: var(--background-secondary);
-    }
-
 /* Set of CSS shared among various files */
 
-.button {
+.effect-button {
   text-decoration: none;
-  border: none;
   background-color: var(--primary-color);
   color: var(--background-primary);
-  font-size: 16px;
-  padding: 5px 15px;
+  padding: 10px 25px;
   border: 1px solid var(--dark-primary);
   border-radius: 8px;
   transition: all 0.2s ease-in-out;
 }
 
-.button:hover {
+.effect-button:hover {
   background-color: var(--background-primary);
   color: var(--primary-color);
   cursor: pointer;
+}
+
+button[class^=static-button] {
+  font-family: var(--font-family);
+  border: 1px solid var(--primary-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  padding: 10px 25px;
+}
+
+button[class^=static-button]:hover {
+  cursor: pointer;
+}
+
+.static-button-blue {
+  background-color: var(--primary-color);
+  color: var(--background-secondary);
+}
+
+.static-button-plain {
+  background-color: var(--background-secondary);
+}
+
+.simple-card {
+  background-color: var(--background-secondary);
+  padding: 2rem;
+  box-shadow: #e7e7e7 1px 1px 5px;
+  border-radius: 8px;
+}
+
+.hidden {
+  height: 0;
+  visibility: hidden;
+}
+
+.error, .success {
+  padding: 20px;
+  color: var(--background-secondary);
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+.error {
+  background-color: rgba(245, 105, 96, 0.7);
+  border: 2px solid rgb(245, 105, 96);
+}
+
+.success {
+  background-color: rgba(68, 194, 110, 0.7);
+  border: 2px solid rgb(68, 194, 110);
 }
 
 .tag-select {
@@ -343,26 +287,26 @@
   margin: 2rem auto 6rem;
 }
 
-.split .actions, .single .actions {
+.split .title, .single .title {
     display: flex;
     justify-content: space-between;
     margin-bottom: 2rem;
   }
 
-.split .actions a, .single .actions a {
+.split .title a, .single .title a {
       height: -moz-fit-content;
       height: fit-content;
     }
 
-.split .actions .group, .single .actions .group {
+.split .title .group, .single .title .group {
       display: flex;
       align-items: center;
       column-gap: 1rem;
     }
 
-.split .heading, .single .heading {
-    color: var(--primary-color)
-  }
+.split .title .heading, .single .title .heading {
+      color: var(--primary-color)
+    }
 
 .split .content {
     display: flex;
@@ -377,15 +321,73 @@
       width: 18%;
     }
 
+.form {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1.5rem;
+}
+
+.form .field {
+    display: flex;
+    flex-direction: column;
+
+  }
+
+.form .field input {
+      padding: 15px;
+      margin-top: 0.5rem;
+      border-radius: 8px;
+      border: 1px solid var(--primary-color);
+      font-size: 1rem;
+    }
+
+.form .field p {
+      font-weight: bold;
+    }
+
+.form .field span {
+      color: var(--dark-highlight);
+    }
+
+.form .field a {
+      text-decoration: none;
+      color: var(--primary-color);
+    }
+
+.form .buttons {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+.rich-text-editor {
+  display: block;
+  margin-top: 1rem;
+}
+
+.rich-text-editor .rich-text-editor-field {
+    border: 1px solid var(--primary-color);
+    background-color: var(--background-secondary);
+    min-height: 250px;
+    border-radius: 8px;
+    padding: 10px 15px;
+  }
+
+.rich-text-editor .rich-text-editor-toolbar {
+    border: 1px solid var(--primary-color);
+    border-radius: 8px;
+  }
+
 * {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
 }
 
-body {
-  font-family: 'Karla', sans-serif;
+html {
   font-size: 18px;
+  font-family: var(--font-family);
+  --font-family: 'Karla', Arial, sans-serif;
   --background-primary: #F4FAFF;
   --background-secondary: #FFFFFF;
   --dark-primary: #191919;
@@ -395,6 +397,9 @@ body {
   --primary-color: #345995;
   --error-primary: #F56960;
   --error-accent: #F45866;
+}
+
+body {
   color: var(--dark-primary);
   background-color: var(--background-primary);
   height: 100%;
@@ -417,7 +422,7 @@ body {
       align-items: center;
     }
 
-.container header nav a:not(.button) {
+.container header nav a:not(.effect-button) {
         text-decoration: none;
         color: var(--accent-color);
       }
@@ -428,7 +433,3 @@ body {
     justify-content: space-between;
   }
 
-.hidden {
-  height: 0;
-  visibility: hidden;
-}

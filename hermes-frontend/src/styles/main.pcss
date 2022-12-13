@@ -1,11 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Karla:wght@400;700&display=swap');
 
 @import 'home.pcss';
-@import 'login.pcss';
 @import 'shared.pcss';
 @import 'tagSelection.pcss';
 @import 'minorComponents.pcss';
 @import 'layout.pcss';
+@import 'form.pcss';
+@import 'richTextEditor.pcss';
 
 * {
   padding: 0;
@@ -13,9 +14,10 @@
   box-sizing: border-box;
 }
 
-body {
-  font-family: 'Karla', sans-serif;
+html {
   font-size: 18px;
+  font-family: var(--font-family);
+  --font-family: 'Karla', Arial, sans-serif;
   --background-primary: #F4FAFF;
   --background-secondary: #FFFFFF;
   --dark-primary: #191919;
@@ -25,6 +27,9 @@ body {
   --primary-color: #345995;
   --error-primary: #F56960;
   --error-accent: #F45866;
+}
+
+body {
   color: var(--dark-primary);
   background-color: var(--background-primary);
   height: 100%;
@@ -44,7 +49,7 @@ body {
       column-gap: 2rem;
       align-items: center;
 
-      a:not(.button) {
+      a:not(.effect-button) {
         text-decoration: none;
         color: var(--accent-color);
       }
@@ -58,8 +63,3 @@ body {
   }
 }
 
-
-.hidden {
-  height: 0;
-  visibility: hidden;
-}

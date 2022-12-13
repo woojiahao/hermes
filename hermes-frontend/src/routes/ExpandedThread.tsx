@@ -77,12 +77,12 @@ export default function ExpandedThread() {
 
   return (
     <div className="single">
-      <div className="menu">
+      <div className="title">
         <div className="group">
           <IoArrowBackSharp onClick={() => navigate(-1)}/>
           <h1 className="heading">Thread</h1>
         </div>
-        {thread.publisher === user.id && <a href="/edit-thread" className='button'>Edit</a>}
+        {thread.publisher === user.id && <a href="/edit-thread" className='effect-button'>Edit</a>}
       </div>
 
       <div className="expanded-thread">
@@ -94,7 +94,7 @@ export default function ExpandedThread() {
           <h3>Comments</h3>
           <textarea name="new-comment" id="new-comment" placeholder="Leave a comment" cols={30} rows={10}
                     ref={commentRef}></textarea>
-          <button type="button" className="button" onClick={submitComment}>Submit Comment</button>
+          <button type="button" className="effect-button" onClick={submitComment}>Submit Comment</button>
           <div>
             {comments.map(comment => <p key={comment.id}>{comment.content}</p>)}
           </div>

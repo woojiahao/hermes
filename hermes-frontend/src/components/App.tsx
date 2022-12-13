@@ -61,8 +61,8 @@ export default function App() {
             {isLoggedIn && <a href="/your-threads">Your Threads</a>}
             {isLoggedIn && user && <p>Welcome back {user.username}!</p>}
             {!isLoggedIn ?
-              <a href="/login" className="button">Login</a> :
-              <a href="/" onClick={logout} className="button">Logout</a>
+              <a href="/login" className="effect-button">Login</a> :
+              <a href="/" onClick={logout} className="effect-button">Logout</a>
             }
           </nav>
         </header>

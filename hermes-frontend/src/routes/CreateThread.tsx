@@ -8,6 +8,7 @@ import TagSelection from "../components/TagSelection"
 import {ContentState, convertToRaw} from "draft-js"
 import {draftToMarkdown} from "markdown-draft-js"
 import Tag from "../models/Tag"
+import RichTextEditor from "../components/RichTextEditor"
 
 export default function CreateThread() {
   const titleRef = createRef<HTMLInputElement>()
@@ -59,26 +60,23 @@ export default function CreateThread() {
 
   return (
     <div className="single">
-      <h1 className="heading">New Thread</h1>
+      <div className="title">
+        <h1 className="heading">New Thread</h1>
+      </div>
+
       <div className="form">
         {err && <p className="error">{err}</p>}
 
         <div className="field">
           <p>Thread title</p>
+          <span>Use an interesting and catchy title!</span>
           <input type="text" name="title" id="title" ref={titleRef}/>
         </div>
 
         <div className="field">
           <p>Thread content</p>
           <span><em>hermes</em> supports rich text editing!</span>
-          <div className="editor">
-            <Editor
-              editorClassName="editor-field"
-              toolbarClassName="editor-toolbar"
-              defaultContentState={contentState}
-              onContentStateChange={setContentState}>
-            </Editor>
-          </div>
+          <RichTextEditor contentState={contentState} setContentState={setContentState}></RichTextEditor>
         </div>
 
         <div className="field">
@@ -88,8 +86,9 @@ export default function CreateThread() {
         </div>
 
         <div className="buttons">
-          <button type="button">Cancel</button>
-          <button type="button" className="primary-button" onClick={async () => await createThread()}>Submit</button>
+          <button type="button" className="static-button-plain">Cancel</button>
+          <button type="button" className="static-button-blue" onClick={async () => await createThread()}>Submit
+          </button>
         </div>
       </div>
     </div>

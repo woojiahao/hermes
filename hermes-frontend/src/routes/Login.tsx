@@ -82,19 +82,14 @@ export default function Login() {
 
   return (
     <div className="single">
-      <h1 className="heading">Login to hermes</h1>
-      <div className="form">
-        {error &&
-          <div className="error">
-            <p>{error}</p>
-          </div>
-        }
+      <div className="title">
+        <h1 className="heading">Login to hermes</h1>
+      </div>
 
-        {success &&
-          <div className="success">
-            <p>{success}</p>
-          </div>
-        }
+      <div className="form simple-card">
+        {error && <p className="error">{error}</p>}
+
+        {success && <p className="success">{success}</p>}
 
         <div className="field">
           <p>Username</p>
@@ -109,12 +104,13 @@ export default function Login() {
           <button
             type="button"
             onClick={async () => await register()}
+            className="static-button-plain"
             disabled={!clickable}>Register
           </button>
           <button
             type="button"
-            className="primary-button"
             onClick={async () => await login()}
+            className="static-button-blue"
             disabled={!clickable}>Login
           </button>
         </div>
