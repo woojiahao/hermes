@@ -14,6 +14,46 @@ var threadRoutes = []route{
 	{"GET", "/threads/:id", getThreadById, false},
 	{"POST", "/threads", createThread, true},
 	{"GET", "/threads/tags", getTags, false},
+	{"GET", "/threads/current", getCurrentUserThreads, true},
+	{"DELETE", "/threads/:id", deleteThread, true},
+}
+
+func deleteThread(ctx *gin.Context, db *database.Database) {
+	id := ctx.Param("id")
+	user, err := getPayloadUser(ctx, db)
+	if err != nil {
+		notFound(ctx, err.Error())
+		return
+	}
+
+	_, err = db.DeleteThread(user.Id, id)
+	if err != nil {
+		internalSeverError(ctx)
+		return
+	}
+
+	ctx.Status(http.StatusNoContent)
+}
+
+func getCurrentUserThreads(ctx *gin.Context, db *database.Database) {
+	if u, ok := ctx.Get(IdentityKey); ok {
+		username := u.(*User).Username
+		user, err := db.GetUser(username)
+		if err != nil {
+			notFound(ctx, "Unable to find user")
+			return
+		}
+
+		threads, err := db.GetUserThreads(user.Id)
+		if err != nil {
+			notFound(ctx, "Unable to find user threads")
+		}
+
+		ctx.JSON(http.StatusOK, internal.Map(threads, threadToDTO))
+		return
+	}
+
+	badRequest(ctx, "Failed to retrieve current user's threads")
 }
 
 func getThreads(ctx *gin.Context, db *database.Database) {

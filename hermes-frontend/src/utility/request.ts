@@ -117,6 +117,11 @@ export class HermesRequest {
     try {
       const result = await fetch(url, config)
 
+      if (result.status === 204) {
+        this._onSuccess("")
+        return
+      }
+
       const json = await result.json()
 
       if (result.ok) {
@@ -183,7 +188,6 @@ export class HermesRequest {
         throw new Error("not supported yet: PUT")
         break
       case RequestType.DELETE:
-        throw new Error("not supported yet: DELETE")
         break
     }
 

@@ -23,7 +23,10 @@ export default class Thread {
   tags: Tag[]
 
   @JsonProperty("created_by", String)
-  publisher: string
+  createdBy: string
+
+  @JsonProperty("creator", String)
+  creator: string
 }
 
 export function emptyThread(): Thread {
@@ -34,6 +37,7 @@ export function emptyThread(): Thread {
     title: "",
     content: "",
     tags: [],
-    publisher: "",
+    createdBy: "",
+    creator: ""
   }
 }

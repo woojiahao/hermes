@@ -127,6 +127,7 @@ func (d *Database) CreateThread(userId, title, content string, tags []Tag) (Thre
 	})
 }
 
+// TODO: Optimize this with proper SQL query
 func (d *Database) GetUserThreads(userId string) ([]Thread, error) {
 	threads, err := d.GetThreads()
 	if err != nil {

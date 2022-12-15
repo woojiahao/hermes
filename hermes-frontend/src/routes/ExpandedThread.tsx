@@ -75,14 +75,29 @@ export default function ExpandedThread() {
       .call()
   }
 
+  async function deleteThread() {
+    await new HermesRequest()
+      .DELETE()
+      .endpoint(`/threads/${thread.id}`)
+      .hasAuthorization()
+      .onSuccess(_ => {
+        navigate('/')
+      })
+      .call()
+  }
+
   return (
     <div className="single">
       <div className="title">
         <div className="group">
-          <IoArrowBackSharp onClick={() => navigate(-1)}/>
+          <IoArrowBackSharp onClick={() => navigate(-1)} size={25} color={`var(--primary-color)`}/>
           <h1 className="heading">Thread</h1>
         </div>
-        {thread.publisher === user.id && <a href="/edit-thread" className='effect-button'>Edit</a>}
+        <div className="group">
+          {thread.createdBy === user.id &&
+            <button type="button" onClick={deleteThread} className='static-button-red'>Delete</button>}
+          {thread.createdBy === user.id && <a href="/edit-thread" className='static-button-blue'>Edit</a>}
+        </div>
       </div>
 
       <div className="expanded-thread">
@@ -94,9 +109,9 @@ export default function ExpandedThread() {
           <h3>Comments</h3>
           <textarea name="new-comment" id="new-comment" placeholder="Leave a comment" cols={30} rows={10}
                     ref={commentRef}></textarea>
-          <button type="button" className="effect-button" onClick={submitComment}>Submit Comment</button>
+          <button type="button" className="static-button-blue" onClick={submitComment}>Submit Comment</button>
           <div>
-            {comments.map(comment => <p key={comment.id}>{comment.content}</p>)}
+            {comments.map(comment => <p className="thread-card" key={comment.id}>{comment.content}</p>)}
           </div>
         </div>
       </div>

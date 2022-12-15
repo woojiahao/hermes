@@ -7,4 +7,10 @@ export default class Comment {
 
   @JsonProperty("content", String)
   content: string
+
+  @JsonProperty("created_by", String)
+  createdBy: string
+
+  @JsonProperty("creator", String)
+  creator: string
 }

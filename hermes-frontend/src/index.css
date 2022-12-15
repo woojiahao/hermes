@@ -63,9 +63,9 @@
       width: 100%;
       border: 1px solid var(--primary-color);
       border-radius: 8px;
-      padding: 5px 15px;
-      font-family: 'Karla', sans-serif;
-      font-size: 16px;
+      padding: 15px;
+      font-family: var(--font-family);
+      font-size: 1rem;
       margin-bottom: 1rem;
     }
 
@@ -78,13 +78,6 @@
       flex-direction: column;
       row-gap: 1rem;
     }
-
-.expanded-thread .comments div p {
-        padding: 15px;
-        background-color: var(--background-secondary);
-        border-radius: 8px;
-        box-shadow: #e7e7e7 1px 1px 5px;
-      }
 
 /* Set of CSS shared among various files */
 
@@ -104,9 +97,9 @@
   cursor: pointer;
 }
 
-button[class^=static-button] {
+button[class^=static-button], a[class^=static-button] {
   font-family: var(--font-family);
-  border: 1px solid var(--primary-color);
+  text-decoration: none;
   border-radius: 8px;
   font-size: 1rem;
   padding: 10px 25px;
@@ -117,12 +110,20 @@ button[class^=static-button]:hover {
 }
 
 .static-button-blue {
+  border: 1px solid var(--primary-color);
   background-color: var(--primary-color);
   color: var(--background-secondary);
 }
 
 .static-button-plain {
+  border: 1px solid var(--primary-color);
   background-color: var(--background-secondary);
+}
+
+.static-button-red {
+  background-color: var(--error-accent);
+  border: 1px solid var(--error-primary);
+  color: var(--background-secondary);
 }
 
 .simple-card {
@@ -305,8 +306,12 @@ button[class^=static-button]:hover {
       column-gap: 1rem;
     }
 
+.split .title .group svg:hover, .single .title .group svg:hover {
+        cursor: pointer;
+      }
+
 .split .title .heading, .single .title .heading {
-      color: var(--primary-color)
+      color: var(--primary-color);
     }
 
 .split .content {

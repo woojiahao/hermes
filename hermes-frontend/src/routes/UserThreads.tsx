@@ -1,11 +1,11 @@
 import React, {useEffect, useState} from "react";
 import Thread from "../models/Thread"
 import {useAppSelector} from "../redux/hooks"
-import {HermesRequest} from "../utility/request"
+import {HermesRequest, jsonConvert} from "../utility/request"
+import ThreadList from "../components/ThreadList"
 
 export default function UserThreads() {
   const [threads, setThreads] = useState<Thread[]>([])
-  const user = useAppSelector((state) => state.user.user)
 
   useEffect(() => {
     // TODO: Finish implementation
@@ -14,18 +14,21 @@ export default function UserThreads() {
         .GET()
         .endpoint("threads/current")
         .hasAuthorization()
-        .onSuccess(s => setThreads(s))
+        .onSuccess(json => {
+          const t = jsonConvert.deserializeArray(json, Thread)
+          setThreads(t)
+        })
+        .call()
     })()
   }, [])
 
   return (
     <div className="single">
-      <div className="menu">
+      <div className="title">
         <h1 className="heading">Your Threads</h1>
         <a href="/create-thread" className="effect-button">New Thread</a>
       </div>
-
-
+      <ThreadList threads={threads} />
     </div>
   )
 }
