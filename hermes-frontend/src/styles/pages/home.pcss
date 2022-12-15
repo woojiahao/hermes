@@ -9,26 +9,15 @@
 }
 
 .thread-card {
-  padding: 1rem;
-  background-color: var(--background-secondary);
-  border-radius: 8px;
-  box-shadow: #e7e7e7 1px 1px 5px;
-  transition: all 0.3s ease-in-out;
-  word-wrap: break-word;
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
 
-  .subtitle {
-    color: #757575;
-  }
-
-  .tags {
+  .thread-tags {
     display: flex;
-    column-gap: 0.5rem;
-    padding-top: 1rem;
-
-    span {
-      padding: 5px 15px;
-      border-radius: 8px;
-    }
+    column-gap: 0.8rem;
+    row-gap: 0.8rem;
+    flex-wrap: wrap;
   }
 }
 
@@ -45,7 +34,7 @@
 }
 
 .expanded-thread {
-  h2 {
+  .ends {
     margin-bottom: 2rem;
   }
 
@@ -71,7 +60,7 @@
       margin-bottom: 1rem;
     }
 
-    div {
+    .comments-list {
       display: flex;
       flex-direction: column;
       row-gap: 1rem;

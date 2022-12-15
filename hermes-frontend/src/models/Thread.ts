@@ -1,6 +1,7 @@
 // TODO: Display the OP's username
 import { JsonObject, JsonProperty } from "json2typescript";
 import Tag from "./Tag";
+import {DateConverter} from "./DateConverter"
 
 @JsonObject("Thread")
 export default class Thread {
@@ -22,6 +23,9 @@ export default class Thread {
   @JsonProperty("tags", [Tag])
   tags: Tag[]
 
+  @JsonProperty("created_at", DateConverter)
+  createdAt: Date
+
   @JsonProperty("created_by", String)
   createdBy: string
 
@@ -37,6 +41,7 @@ export function emptyThread(): Thread {
     title: "",
     content: "",
     tags: [],
+    createdAt: new Date(),
     createdBy: "",
     creator: ""
   }

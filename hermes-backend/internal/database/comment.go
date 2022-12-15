@@ -123,7 +123,8 @@ func (d *Database) GetThreadComments(threadId string) ([]Comment, error) {
 			SELECT comment.*, "user".username 
 			FROM comment 
 				INNER JOIN "user" ON "user".id = comment.created_by
-			WHERE thread_id = $1;
+			WHERE thread_id = $1 AND deleted_at IS NULL
+			ORDER BY created_at DESC;
 		`,
 		generateParams(threadId),
 		parseCommentRowsWithCreator,

@@ -191,7 +191,8 @@ func (d *Database) GetThreads() ([]Thread, error) {
 				SELECT thread.*, "user".username
 				FROM thread 
 					INNER JOIN "user" ON thread.created_by = "user".id
-				WHERE deleted_at IS NULL AND is_published;
+				WHERE deleted_at IS NULL AND is_published
+				ORDER BY created_at DESC;
 			`,
 			generateParams(),
 			parseThreadRowsWithCreator,

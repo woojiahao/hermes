@@ -11,28 +11,17 @@
   }
 
 .thread-card {
-  padding: 1rem;
-  background-color: var(--background-secondary);
-  border-radius: 8px;
-  box-shadow: #e7e7e7 1px 1px 5px;
-  transition: all 0.3s ease-in-out;
-  word-wrap: break-word;
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
 }
 
-.thread-card .subtitle {
-    color: #757575;
-  }
-
-.thread-card .tags {
+.thread-card .thread-tags {
     display: flex;
-    column-gap: 0.5rem;
-    padding-top: 1rem;
+    column-gap: 0.8rem;
+    row-gap: 0.8rem;
+    flex-wrap: wrap;
   }
-
-.thread-card .tags span {
-      padding: 5px 15px;
-      border-radius: 8px;
-    }
 
 .thread-card:hover {
   cursor: pointer;
@@ -46,7 +35,7 @@
   row-gap: 1rem;
 }
 
-.expanded-thread h2 {
+.expanded-thread .ends {
     margin-bottom: 2rem;
   }
 
@@ -73,7 +62,7 @@
       margin-bottom: 1rem;
     }
 
-.expanded-thread .comments div {
+.expanded-thread .comments .comments-list {
       display: flex;
       flex-direction: column;
       row-gap: 1rem;
@@ -126,11 +115,20 @@ button[class^=static-button]:hover {
   color: var(--background-secondary);
 }
 
-.simple-card {
+.thick-card {
   background-color: var(--background-secondary);
   padding: 2rem;
   box-shadow: #e7e7e7 1px 1px 5px;
   border-radius: 8px;
+}
+
+.thin-card {
+  padding: 1rem;
+  background-color: var(--background-secondary);
+  border-radius: 8px;
+  box-shadow: #e7e7e7 1px 1px 5px;
+  transition: all 0.3s ease-in-out;
+  word-wrap: break-word;
 }
 
 .hidden {
@@ -153,6 +151,10 @@ button[class^=static-button]:hover {
 .success {
   background-color: rgba(68, 194, 110, 0.7);
   border: 2px solid rgb(68, 194, 110);
+}
+
+.subtitle {
+  color: #757575;
 }
 
 .tag-select {
@@ -284,6 +286,21 @@ button[class^=static-button]:hover {
     word-break: break-word;
   }
 
+.comment-card {
+  display: flex;
+  justify-content: space-between;
+  word-wrap: break-word;
+  align-items: center;
+}
+
+.comment-card .comment-card-by {
+    margin-bottom: 0.5rem;
+  }
+
+.comment-card svg:hover {
+    cursor: pointer;
+  }
+
 .split, .single {
   width: 90%;
   margin: 2rem auto 6rem;
@@ -327,6 +344,11 @@ button[class^=static-button]:hover {
       width: 18%;
     }
 
+.ends {
+  display: flex;
+  justify-content: space-between;
+}
+
 .form {
   display: flex;
   flex-direction: column;
@@ -344,6 +366,7 @@ button[class^=static-button]:hover {
       margin-top: 0.5rem;
       border-radius: 8px;
       border: 1px solid var(--primary-color);
+      font-family: var(--font-family);
       font-size: 1rem;
     }
 

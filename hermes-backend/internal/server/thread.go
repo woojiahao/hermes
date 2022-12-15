@@ -123,6 +123,7 @@ func threadToDTO(thread database.Thread) Thread {
 		thread.Title,
 		thread.Content,
 		internal.Map(thread.Tags, tagToDTO),
+		thread.CreatedAt,
 		thread.CreatedBy,
 		thread.Creator,
 	}

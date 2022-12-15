@@ -6,6 +6,8 @@ import {IoArrowBackSharp} from "react-icons/io5"
 import {useAppSelector} from "../redux/hooks"
 import ReactMarkdown from "react-markdown"
 import Comment from "../models/Comment"
+import {formatDate} from "../utility/general"
+import CommentCard from "../components/CommentCard"
 
 export default function ExpandedThread() {
   const {id} = useParams()
@@ -20,10 +22,10 @@ export default function ExpandedThread() {
     (async () => {
       await new HermesRequest()
         .GET()
-        .hasAuthorization()
         .endpoint(`/threads/${id}`)
         .onSuccess(json => {
           const t = jsonConvert.deserializeObject(json, Thread)
+          console.log(t)
           setThread(t)
         })
         .onFailure((e: errorMessage) => setError(e.message))
@@ -37,9 +39,9 @@ export default function ExpandedThread() {
     await new HermesRequest()
       .GET()
       .endpoint(`/threads/${id}/comments`)
-      .hasAuthorization()
       .onSuccess(json => {
         const c = jsonConvert.deserializeArray(json, Comment)
+        console.log(c)
         setComments(c)
       })
       .onFailure((e: errorMessage) => setError(e.message))
@@ -86,6 +88,17 @@ export default function ExpandedThread() {
       .call()
   }
 
+  async function deleteComment(commentId: string) {
+    await new HermesRequest()
+      .DELETE()
+      .endpoint(`/threads/${thread.id}/comments/${commentId}`)
+      .hasAuthorization()
+      .onSuccess(_ => {
+        getComments()
+      })
+      .call()
+  }
+
   return (
     <div className="single">
       <div className="title">
@@ -94,25 +107,37 @@ export default function ExpandedThread() {
           <h1 className="heading">Thread</h1>
         </div>
         <div className="group">
-          {thread.createdBy === user.id &&
+          {user && (thread.createdBy === user.id || user.role === 'ADMIN') &&
             <button type="button" onClick={deleteThread} className='static-button-red'>Delete</button>}
-          {thread.createdBy === user.id && <a href="/edit-thread" className='static-button-blue'>Edit</a>}
+          {user && (thread.createdBy === user.id || user.role === 'ADMIN') &&
+            <a href="/edit-thread" className='static-button-blue'>Edit</a>}
         </div>
       </div>
 
       <div className="expanded-thread">
         {error && <p className="error">{error}</p>}
         <h2>{thread.title}</h2>
+        <div className="ends">
+          <p className="subtitle">Posted by {thread && thread.creator}</p>
+          <p className="subtitle">Posted by {thread && formatDate(thread.createdAt)}</p>
+        </div>
         <ReactMarkdown>{thread.content}</ReactMarkdown>
 
         <div className="comments">
           <h3>Comments</h3>
+          {user && <div>
           <textarea name="new-comment" id="new-comment" placeholder="Leave a comment" cols={30} rows={10}
                     ref={commentRef}></textarea>
-          <button type="button" className="static-button-blue" onClick={submitComment}>Submit Comment</button>
-          <div>
-            {comments.map(comment => <p className="thread-card" key={comment.id}>{comment.content}</p>)}
-          </div>
+            <button type="button" className="static-button-blue" onClick={submitComment}>Submit Comment</button>
+          </div>}
+          {comments.length > 0 ?
+            <div className="comments-list">
+              {comments.map(comment => <CommentCard key={comment.id}
+                                                    deleteComment={async () => await deleteComment(comment.id)}
+                                                    comment={comment}/>)}
+            </div> :
+            <p>No comments yet!</p>
+          }
         </div>
       </div>
     </div>

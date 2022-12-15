@@ -45,11 +45,20 @@ button[class^=static-button]:hover {
   color: var(--background-secondary);
 }
 
-.simple-card {
+.thick-card {
   background-color: var(--background-secondary);
   padding: 2rem;
   box-shadow: #e7e7e7 1px 1px 5px;
   border-radius: 8px;
+}
+
+.thin-card {
+  padding: 1rem;
+  background-color: var(--background-secondary);
+  border-radius: 8px;
+  box-shadow: #e7e7e7 1px 1px 5px;
+  transition: all 0.3s ease-in-out;
+  word-wrap: break-word;
 }
 
 .hidden {
@@ -74,3 +83,6 @@ button[class^=static-button]:hover {
   border: 2px solid rgb(68, 194, 110);
 }
 
+.subtitle {
+  color: #757575;
+}

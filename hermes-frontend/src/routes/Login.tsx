@@ -86,7 +86,7 @@ export default function Login() {
         <h1 className="heading">Login to hermes</h1>
       </div>
 
-      <div className="form simple-card">
+      <div className="form thick-card">
         {error && <p className="error">{error}</p>}
 
         {success && <p className="success">{success}</p>}

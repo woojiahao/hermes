@@ -1,7 +1,10 @@
 // DTOs to be used for the server
 package server
 
-import "woojiahao.com/hermes/internal/database"
+import (
+	"time"
+	"woojiahao.com/hermes/internal/database"
+)
 
 type (
 	errorBody struct {
@@ -50,14 +53,15 @@ type (
 	}
 
 	Thread struct {
-		Id          string `json:"id"`
-		IsPublished bool   `json:"is_published"`
-		IsOpen      bool   `json:"is_open"`
-		Title       string `json:"title"`
-		Content     string `json:"content"`
-		Tags        []Tag  `json:"tags"`
-		CreatedBy   string `json:"created_by"`
-		Creator     string `json:"creator"`
+		Id          string     `json:"id"`
+		IsPublished bool       `json:"is_published"`
+		IsOpen      bool       `json:"is_open"`
+		Title       string     `json:"title"`
+		Content     string     `json:"content"`
+		Tags        []Tag      `json:"tags"`
+		CreatedAt   *time.Time `json:"created_at"`
+		CreatedBy   string     `json:"created_by"`
+		Creator     string     `json:"creator"`
 	}
 
 	CreateComment struct {
@@ -66,9 +70,10 @@ type (
 	}
 
 	Comment struct {
-		Id        string `json:"id"`
-		Content   string `json:"content"`
-		CreatedBy string `json:"created_by"`
-		Creator   string `json:"creator"`
+		Id        string     `json:"id"`
+		Content   string     `json:"content"`
+		CreatedAt *time.Time `json:"created_at"`
+		CreatedBy string     `json:"created_by"`
+		Creator   string     `json:"creator"`
 	}
 )
