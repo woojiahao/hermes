@@ -1,3 +1,5 @@
+github.com/DATA-DOG/go-sqlmock v1.5.0 h1:Shsta01QNfFxHCfpW6YH2STWB0MudeXXEWMr20OEh60=
+github.com/DATA-DOG/go-sqlmock v1.5.0/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
 github.com/appleboy/gin-jwt/v2 v2.9.0 h1:IW12dFe+/UV7StLmO9NPHFP1+kPPnnjxRrSITnD7S7M=
 github.com/appleboy/gin-jwt/v2 v2.9.0/go.mod h1:eoctvuZub/QEXlM5FJmNWWCGa+RguhVEjVPMOo7nzps=
 github.com/appleboy/gofight/v2 v2.1.2/go.mod h1:frW+U1QZEdDgixycTj4CygQ48yLTUhplt43+Wczp3rw=

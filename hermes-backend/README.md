@@ -4,9 +4,10 @@ Backend for Hermes, a web forum.
 
 ## TODO
 
-- [X] Transactions support
 - [ ] Implementing voting system
-- [ ] Include publisher name in thread
-- [X] Authentication with JWT
 - [ ] Disallow creation of user named "admin"
-- [ ] Remove "password_hash" from returned user DTO
+- [ ] Implement pagination
+- [X] Transactions support
+- [X] Include publisher name in thread
+- [X] Authentication with JWT
+- [X] Remove "password_hash" from returned user DTO

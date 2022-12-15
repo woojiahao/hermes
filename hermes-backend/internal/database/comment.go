@@ -15,9 +15,25 @@ type Comment struct {
 	ThreadId  string
 	DeletedAt *time.Time
 	DeletedBy sql.NullString
+	Creator   string
 }
 
 var dummyComment Comment
+
+func parseCommentRowsWithCreator(rows *sql.Rows) (Comment, error) {
+	var comment Comment
+	err := rows.Scan(
+		&comment.Id,
+		&comment.Content,
+		&comment.CreatedAt,
+		&comment.CreatedBy,
+		&comment.ThreadId,
+		&comment.DeletedAt,
+		&comment.DeletedBy,
+		&comment.Creator,
+	)
+	return comment, err
+}
 
 func parseCommentRows(rows *sql.Rows) (Comment, error) {
 	var comment Comment
@@ -34,21 +50,39 @@ func parseCommentRows(rows *sql.Rows) (Comment, error) {
 }
 
 func (d *Database) CreateComment(userId, threadId, content string) (Comment, error) {
-	comments, err := query(
-		d,
-		`
+	return transaction(d, func(tx *sql.Tx) (Comment, error) {
+		comments, err := transactionQuery(
+			tx,
+			`
 			INSERT INTO comment ("content", created_by, thread_id)
 			VALUES ($1, $2, $3)
 			RETURNING *;
 		`,
-		generateParams(content, userId, threadId),
-		parseCommentRows,
-	)
-	if err != nil {
-		return dummyComment, &i.DatabaseError{Custom: "failed to insert new comment", Base: err}
-	}
+			generateParams(content, userId, threadId),
+			parseCommentRows,
+		)
+		if err != nil {
+			return dummyComment, &i.DatabaseError{Custom: "failed to insert new comment", Base: err}
+		}
 
-	return comments[0], err
+		usernames, err := transactionQuery(
+			tx,
+			`
+				SELECT username FROM "user" WHERE id = $1
+			`,
+			generateParams(userId),
+			func(rows *sql.Rows) (string, error) {
+				var username string
+				err := rows.Scan(&username)
+				return username, err
+			},
+		)
+
+		comment := comments[0]
+		comment.Creator = usernames[0]
+
+		return comment, nil
+	})
 }
 
 func (d *Database) DeleteComment(userId, commentId string) (Comment, error) {
@@ -85,9 +119,14 @@ func (d *Database) DeleteComment(userId, commentId string) (Comment, error) {
 func (d *Database) GetThreadComments(threadId string) ([]Comment, error) {
 	comments, err := query(
 		d,
-		`SELECT * FROM comment WHERE thread_id = $1`,
+		`
+			SELECT comment.*, "user".username 
+			FROM comment 
+				INNER JOIN "user" ON "user".id = comment.created_by
+			WHERE thread_id = $1;
+		`,
 		generateParams(threadId),
-		parseCommentRows,
+		parseCommentRowsWithCreator,
 	)
 	if err != nil {
 		return nil, &i.DatabaseError{Custom: "failed to retrieve comments for given thread", Base: err}

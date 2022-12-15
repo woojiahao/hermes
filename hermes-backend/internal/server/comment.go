@@ -43,5 +43,7 @@ func commentToDTO(comment database.Comment) Comment {
 	return Comment{
 		comment.Id,
 		comment.Content,
+		comment.CreatedBy,
+		comment.Creator,
 	}
 }

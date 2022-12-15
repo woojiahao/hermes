@@ -24,16 +24,16 @@ func parseTagRows(rows *sql.Rows) (Tag, error) {
 }
 
 func tagsAreUnique(tags []Tag) bool {
-	var tag_contents []string
+	var tagContents []string
 	for _, tag := range tags {
-		tag_contents = append(tag_contents, tag.Content)
+		tagContents = append(tagContents, tag.Content)
 	}
 
-	return !i.HasDuplicates(tag_contents)
+	return !i.HasDuplicates(tagContents)
 }
 
-// Opt to use two queries in a transaction to populate the Thread and its associated tags to avoid unnecessarily complex
-// queries or parsing
+// Thread is the database model for Thread objects. Contains references to the related Tags that have been attached with
+// it along with the Creator's username (instead of just the user id)
 type Thread struct {
 	Id          string
 	IsPublished bool
@@ -46,10 +46,31 @@ type Thread struct {
 	DeletedAt   *time.Time
 	DeletedBy   sql.NullString
 	Tags        []Tag
+	Creator     string
 }
 
 var dummyThread Thread
 
+// parseThreadRowsWithCreator will parse the results of a sql.Rows from a SELECT thread.*, "user".username query
+func parseThreadRowsWithCreator(rows *sql.Rows) (Thread, error) {
+	var thread Thread
+	err := rows.Scan(
+		&thread.Id,
+		&thread.IsPublished,
+		&thread.IsOpen,
+		&thread.Title,
+		&thread.Content,
+		&thread.CreatedAt,
+		&thread.CreatedBy,
+		&thread.UpdatedAt,
+		&thread.DeletedAt,
+		&thread.DeletedBy,
+		&thread.Creator,
+	)
+	return thread, err
+}
+
+// parseThreadRows will parse the results of a sql.Rows from a SELECT * query
 func parseThreadRows(rows *sql.Rows) (Thread, error) {
 	var thread Thread
 	err := rows.Scan(
@@ -67,6 +88,9 @@ func parseThreadRows(rows *sql.Rows) (Thread, error) {
 	return thread, err
 }
 
+// CreateThread inserts a new thread by given user (identified by userId) along with its attached tags.
+// The tags provided must have unique contents, otherwise a internal.ServerError will be produced.
+// Performs three different SQL queries: 1) INSERT INTO thread, 2) SELECT * "user", 3) INSERT INTO tag
 func (d *Database) CreateThread(userId, title, content string, tags []Tag) (Thread, error) {
 	if !tagsAreUnique(tags) {
 		return dummyThread, &i.ServerError{Custom: "tags cannot have same name", Base: nil}
@@ -87,41 +111,51 @@ func (d *Database) CreateThread(userId, title, content string, tags []Tag) (Thre
 			return dummyThread, &i.DatabaseError{Custom: "failed to create new thread", Base: err}
 		}
 
+		user, err := d.GetUserById(userId)
+		if err != nil {
+			return dummyThread, &i.DatabaseError{Custom: "failed to retrieve user", Short: "Invalid user_id", Base: err}
+		}
+
 		thread, err := attachTags(tx, threads[0], tags)
 		if err != nil {
 			return dummyThread, err
 		}
 
+		thread.Creator = user.Username
+
 		return thread, nil
 	})
 }
 
-// TODO: Retrieve the tags
 func (d *Database) GetUserThreads(userId string) ([]Thread, error) {
-	return query(
-		d,
-		"SELECT * FROM thread INNER JOIN \"user\" ON thread.created_by = \"user\".id WHERE \"user\".id = $1",
-		generateParams(userId),
-		parseThreadRows,
-	)
+	threads, err := d.GetThreads()
+	if err != nil {
+		return nil, err
+	}
+
+	userThreads := i.Filter(threads, func(thread Thread) bool {
+		return thread.CreatedBy == userId
+	})
+
+	return userThreads, nil
 }
 
 func (d *Database) GetThreadById(threadId string) (Thread, error) {
 	return transaction(d, func(tx *sql.Tx) (Thread, error) {
 		threads, err := transactionQuery(
 			tx,
-			"SELECT * FROM thread WHERE thread.id = $1 AND deleted_at IS NULL",
+			`
+				SELECT thread.*, "user".username 
+				FROM thread 
+					INNER JOIN "user" ON thread.created_by = "user".id
+				WHERE thread.id = $1 AND deleted_at IS NULL
+			`,
 			generateParams(threadId),
-			parseThreadRows,
+			parseThreadRowsWithCreator,
 		)
 
 		if err != nil {
 			return dummyThread, &i.DatabaseError{Custom: "failed to retrieve thread by id", Base: err}
-		}
-
-		err = i.ExactlyOneResultError(threads)
-		if err != nil {
-			return dummyThread, err
 		}
 
 		thread := threads[0]
@@ -129,10 +163,10 @@ func (d *Database) GetThreadById(threadId string) (Thread, error) {
 		threadTags, err := transactionQuery(
 			tx,
 			`
-				SELECT tag.id, tag."content", tag.hex_code
+				SELECT tag.*
 				FROM tag
-								INNER JOIN thread_tag tt on tag.id = tt.tag_id
-								INNER JOIN thread t on t.id = tt.thread_id
+					INNER JOIN thread_tag tt on tag.id = tt.tag_id
+					INNER JOIN thread t on t.id = tt.thread_id
 				WHERE t.id = $1;
 			`,
 			generateParams(thread.Id),
@@ -152,9 +186,14 @@ func (d *Database) GetThreads() ([]Thread, error) {
 	return transaction(d, func(tx *sql.Tx) ([]Thread, error) {
 		threads, err := transactionQuery(
 			tx,
-			"SELECT * FROM thread WHERE deleted_at IS NULL AND is_published",
+			`
+				SELECT thread.*, "user".username
+				FROM thread 
+					INNER JOIN "user" ON thread.created_by = "user".id
+				WHERE deleted_at IS NULL AND is_published;
+			`,
 			generateParams(),
-			parseThreadRows,
+			parseThreadRowsWithCreator,
 		)
 
 		if err != nil {
@@ -223,15 +262,9 @@ func (d *Database) DeleteThread(userId, threadId string) (Thread, error) {
 		}
 	}
 
-	err = i.ExactlyOneResultError(threads)
-	if err != nil {
-		return dummyThread, err
-	}
-
 	return threads[0], nil
 }
 
-// TODO: Support editing tags
 func (d *Database) EditThread(
 	userId,
 	threadId,
@@ -260,12 +293,6 @@ func (d *Database) EditThread(
 
 		if err != nil {
 			return dummyThread, &i.DatabaseError{Custom: "failed to edit a thread", Base: err}
-		}
-
-		// TODO: Reconsider if need to check if the key used to query is already uniquely enforced in the database
-		err = i.ExactlyOneResultError(threads)
-		if err != nil {
-			return dummyThread, err
 		}
 
 		// Delete all existing tags
@@ -307,7 +334,7 @@ func (d *Database) GetTags() ([]Tag, error) {
 func attachTags(tx *sql.Tx, thread Thread, tags []Tag) (Thread, error) {
 	var dbTags []Tag
 
-	// Create or retrieve all of the tags from the database
+	// Create or retrieve all the tags from the database
 	// Once retrieved, attach the tag to the thread
 	for _, tag := range tags {
 		ts, err := transactionQuery(

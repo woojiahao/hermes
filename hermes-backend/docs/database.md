@@ -22,7 +22,6 @@ erDiagram
     bool is_published
     bool is_open
     text content
-    status status
     date created_at
     uuid created_by FK "references user.id"
     date deleted_at
@@ -34,7 +33,7 @@ erDiagram
   }
   tag {
     uuid id PK
-    text name "unique"
+    text content "unique"
     text hex_code
   }
   vote {

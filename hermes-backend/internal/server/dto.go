@@ -57,6 +57,7 @@ type (
 		Content     string `json:"content"`
 		Tags        []Tag  `json:"tags"`
 		CreatedBy   string `json:"created_by"`
+		Creator     string `json:"creator"`
 	}
 
 	CreateComment struct {
@@ -65,7 +66,9 @@ type (
 	}
 
 	Comment struct {
-		Id      string `json:"id"`
-		Content string `json:"content"`
+		Id        string `json:"id"`
+		Content   string `json:"content"`
+		CreatedBy string `json:"created_by"`
+		Creator   string `json:"creator"`
 	}
 )
