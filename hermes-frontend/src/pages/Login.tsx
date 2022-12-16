@@ -87,7 +87,7 @@ export default function Login() {
             <input type="password" name="password" id="password" ref={passwordRef}/>
           </div>
 
-          <div className="buttons">
+          <div className="buttons ends">
             <button
               type="button"
               onClick={async () => await register()}

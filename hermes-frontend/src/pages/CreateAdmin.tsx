@@ -49,11 +49,11 @@ export default function CreateAdmin() {
             <input type="password" name="password" id="password" ref={adminPasswordRef}/>
           </div>
 
-          <div className="buttons">
+          <div className="buttons on-end">
             <button
               type="button"
               onClick={async () => await createAdmin()}
-              className="static-button-blue"
+              className="static-button-blue on-end"
               disabled={!clickable}>Create
             </button>
           </div>

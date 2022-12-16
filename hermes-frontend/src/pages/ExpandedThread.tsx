@@ -144,8 +144,10 @@ export default function ExpandedThread() {
             <div className="ends">
               <h2>{thread.title}</h2>
               {thread.isPinned ?
-                <BsPinAngleFill className={`${user && user.role === 'ADMIN' ? 'clickable' : ''}`} color="#ebc81a" size={25} onClick={async () => await pinThread()}/> :
-                <BsPinAngle className={`${user && user.role === 'ADMIN' ? 'clickable' : ''}`} color="#ebc81a" size={25} onClick={async () => await pinThread()}/>
+                <BsPinAngleFill className={`${user && user.role === 'ADMIN' ? 'clickable' : ''}`} color="#ebc81a"
+                                size={25} onClick={async () => await pinThread()}/> :
+                <BsPinAngle className={`${user && user.role === 'ADMIN' ? 'clickable' : ''}`} color="#ebc81a" size={25}
+                            onClick={async () => await pinThread()}/>
               }
             </div>
             <div className="expanded-thread-tags">
@@ -163,7 +165,10 @@ export default function ExpandedThread() {
             {user && <div>
           <textarea name="new-comment" id="new-comment" placeholder="Leave a comment" cols={30} rows={10}
                     ref={commentRef}></textarea>
-              <button type="button" className="static-button-blue" onClick={submitComment}>Submit Comment</button>
+              <div className="buttons on-end">
+                <button type="button" className="static-button-blue" onClick={submitComment}>Submit Comment
+                </button>
+              </div>
             </div>}
             {comments.length > 0 ?
               <div className="comments-list">

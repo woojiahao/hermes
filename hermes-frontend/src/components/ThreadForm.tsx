@@ -113,7 +113,7 @@ export default function ThreadForm({threadId, action, error, setError}: ThreadFo
         <TagSelection selectedTags={selectedTags} setSelectedTags={setSelectedTags}/>
       </div>
 
-      <div className="buttons">
+      <div className="buttons ends">
         <button type="button" className="static-button-plain" onClick={() => navigate(-1)}>Cancel</button>
         <button type="button" className="static-button-blue" onClick={async () => await onSubmit()}>Submit
         </button>
