@@ -19,6 +19,7 @@ interface ThreadFormProps {
 export default function ThreadForm({threadId, action, error, setError}: ThreadFormProps) {
   const titleRef = createRef<HTMLInputElement>()
   const [thread, setThread] = useState(emptyThread())
+  const [tagsLoaded, setTagsLoaded] = useState(false)
   const [contentState, setContentState] = useState(null)
   const [selectedTags, setSelectedTags] = useState<Map<number, Tag>>(new Map())
   const navigate = useNavigate()
@@ -44,7 +45,7 @@ export default function ThreadForm({threadId, action, error, setError}: ThreadFo
   }, [])
 
   useEffect(() => {
-    if (thread.tags.length > 0) {
+    if (thread.tags.length > 0 && !tagsLoaded) {
       // Load the initial set of selected tags
       const initialTagContents = thread.tags.map(tag => tag.content);
 
@@ -60,6 +61,7 @@ export default function ThreadForm({threadId, action, error, setError}: ThreadFo
               map.set(i, tag)
             })
             setSelectedTags(map)
+            setTagsLoaded(true)
           })
           .call()
       })()
