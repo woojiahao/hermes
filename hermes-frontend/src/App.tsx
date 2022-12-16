@@ -1,80 +1,40 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {CookiesProvider} from "react-cookie";
-import {useDispatch} from "react-redux";
-import {createBrowserRouter, RouterProvider} from "react-router-dom";
-import {toggle} from "./redux/authSlice";
-import {useAppSelector} from "./redux/hooks";
-import About from "./routes/About";
-import CreateThread from "./routes/CreateThread";
-import Home from "./routes/Home";
-import Login from "./routes/Login";
-import UserThreads from "./routes/UserThreads";
-import {clearJWT} from "./utility/jwt";
-import ExpandedThread from "./routes/ExpandedThread"
-import EditThread from "./routes/EditThread"
-
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Home></Home>,
-  },
-  {
-    path: "/about",
-    element: <About></About>,
-  },
-  {
-    path: "/login",
-    element: <Login></Login>,
-  },
-  {
-    path: "/your-threads",
-    element: <UserThreads></UserThreads>
-  },
-  {
-    path: "/create-thread",
-    element: <CreateThread></CreateThread>
-  },
-  {
-    path: "/threads/:id",
-    element: <ExpandedThread></ExpandedThread>
-  },
-  {
-    path: "/threads/:id/edit",
-    element: <EditThread></EditThread>
-  }
-])
+import {BrowserRouter, Route, Routes} from "react-router-dom";
+import About from "./pages/About";
+import CreateThread from "./pages/CreateThread";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import UserThreads from "./pages/UserThreads";
+import ExpandedThread from "./pages/ExpandedThread"
+import EditThread from "./pages/EditThread"
+import CreateAdmin from "./pages/CreateAdmin"
+import Error from "./pages/404"
+import {login} from "./redux/authSlice"
+import {useAppDispatch} from "./redux/hooks"
 
 export default function App() {
-  const user = useAppSelector((state) => state.user.user)
-  const dispatch = useDispatch()
+  const dispatch = useAppDispatch()
 
-  function logout() {
-    dispatch(toggle())
-    clearJWT()
-  }
+  useEffect(() => {
+    dispatch(login())
+  }, [])
 
   return (
     <CookiesProvider>
-      <div className="container">
-        <header>
-          <h1>hermes</h1>
-          <nav>
-            <a href="/">Home</a>
-            <a href="about">About</a>
-            {user && <a href="/your-threads">Your Threads</a>}
-            {user && user && <p>Welcome back {user.username}!</p>}
-            {!user ?
-              <a href="login" className="effect-button">Login</a> :
-              <a href="/" onClick={logout} className="effect-button">Logout</a>
-            }
-          </nav>
-        </header>
-        <RouterProvider router={router}/>
-        <footer>
-          <p>Copyright &copy; 2022 (Woo Jia Hao)</p>
-          <p>hermes is a web forum designed with ❤️ using React and Go</p>
-        </footer>
-      </div>
+      <BrowserRouter>
+        <Routes>
+          <Route index element={<Home/>}/>
+          <Route path="/about" element={<About/>}/>
+          <Route path="/login" element={<Login/>}/>
+          <Route path="/threads/you" element={<UserThreads/>}/>
+          <Route path="/threads/new" element={<CreateThread/>}/>
+          <Route path="/threads/:id" element={<ExpandedThread/>}/>
+          <Route path="/threads/:id/edit" element={<EditThread/>}/>
+          <Route path="/admin/new" element={<CreateAdmin/>}/>
+          <Route path="*" element={<Error message=""/>}/>
+        </Routes>
+      </BrowserRouter>
     </CookiesProvider>
   )
 }

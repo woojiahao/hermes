@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -16,18 +17,16 @@ var userRoutes = []route{
 }
 
 func getCurrentUser(ctx *gin.Context, db *database.Database) {
-	if u, ok := ctx.Get(IdentityKey); ok {
-		username := u.(*User).Username
-		user, err := db.GetUser(username)
-		if err != nil {
-			notFound(ctx, "Unable to find user")
-			return
-		}
-		ctx.JSON(http.StatusOK, userToDTO(user))
+	log.Println("hi")
+	fmt.Println("retrieving current user")
+	user, err := getPayloadUser(ctx, db)
+	fmt.Println(user)
+	if err != nil {
+		badRequest(ctx, err.Error())
 		return
 	}
 
-	badRequest(ctx, "Failed to retrieve current user")
+	ctx.JSON(http.StatusOK, user)
 }
 
 func getUser(ctx *gin.Context, db *database.Database) {

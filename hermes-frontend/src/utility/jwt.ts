@@ -1,7 +1,7 @@
-import { Cookies } from "react-cookie";
-import store from "../redux/store";
-import { toggle } from "../redux/authSlice";
-import { HermesRequest } from "./request";
+import {Cookies} from "react-cookie";
+import {HermesRequest} from "./request";
+import store from "../redux/store"
+import {logout} from "../redux/authSlice"
 
 const cookies = new Cookies()
 
@@ -10,7 +10,7 @@ const jwtCookiesKey = 'token'
 export type jwtToken = string
 
 export function setJWT(jwt: jwtToken) {
-  cookies.set(jwtCookiesKey, jwt)
+  cookies.set(jwtCookiesKey, jwt, {path: '/'})
 }
 
 export function getJWT(): jwtToken | undefined {
@@ -38,12 +38,12 @@ export async function refreshJWT(): Promise<boolean> {
     })
     .onFailure((_) => {
       clearJWT()
-      store.dispatch(toggle())
+      store.dispatch(logout())
       refreshed = false
     })
     .onError((_) => {
       clearJWT()
-      store.dispatch(toggle())
+      store.dispatch(logout())
       refreshed = false
     })
     .call()

@@ -4,11 +4,8 @@ import {Provider} from 'react-redux';
 import App from './App';
 import './index.css';
 import store from './redux/store';
-import {loadCurrentUser} from './redux/userSlice';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-
-store.dispatch(loadCurrentUser())
 
 root.render(
   <Provider store={store}>

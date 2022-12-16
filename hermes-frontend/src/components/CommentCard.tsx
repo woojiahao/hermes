@@ -10,7 +10,7 @@ interface CommentCardProps {
 }
 
 export default function CommentCard({deleteComment, comment}: CommentCardProps) {
-  const user = useAppSelector((state) => state.user.user)
+  const user = useAppSelector((state) => state.auth.user)
 
   return (
     <div className="thin-card comment-card">

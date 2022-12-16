@@ -33,7 +33,6 @@ export default function ThreadForm({threadId, action, error, setError}: ThreadFo
             thread => {
               setThread(thread)
               const content = markdownToDraft(thread.content)
-              console.log(content)
               setContentState(content)
             },
             e => setError(e.message),
@@ -101,7 +100,7 @@ export default function ThreadForm({threadId, action, error, setError}: ThreadFo
         <p>Thread content</p>
         <span><em>hermes</em> supports rich text editing!</span>
         {contentState ?
-          <RichTextEditor contentState={contentState} setContentState={setContentState} /> :
+          <RichTextEditor contentState={contentState} setContentState={setContentState}/> :
           <p className="error">Something happened with RichTextView</p>
         }
       </div>

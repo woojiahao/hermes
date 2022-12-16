@@ -10,6 +10,7 @@ import {formatDate} from "../utility/general"
 import CommentCard from "../components/CommentCard"
 import {asyncGetThread} from "../services/thread"
 import DisplayTag from "../components/DisplayTag"
+import Layout from "../components/Layout"
 
 export default function ExpandedThread() {
   const {id} = useParams()
@@ -17,7 +18,7 @@ export default function ExpandedThread() {
   const [comments, setComments] = useState<Comment[]>([])
   const [error, setError] = useState<string>()
   const navigate = useNavigate()
-  const user = useAppSelector((state) => state.user.user)
+  const user = useAppSelector((state) => state.auth.user)
   const commentRef = useRef<HTMLTextAreaElement>()
 
   useEffect(() => {
@@ -97,51 +98,53 @@ export default function ExpandedThread() {
   }
 
   return (
-    <div className="single">
-      <div className="title">
-        <div className="group">
-          <IoArrowBackSharp onClick={() => navigate(-1)} size={25} color={`var(--primary-color)`}/>
-          <h1 className="heading">Thread</h1>
-        </div>
-        <div className="group">
-          {user && (thread.createdBy === user.id || user.role === 'ADMIN') &&
-            <button type="button" onClick={deleteThread} className='static-button-red'>Delete</button>}
-          {user && (thread.createdBy === user.id || user.role === 'ADMIN') &&
-            <a href={`/threads/${thread.id}/edit`} className='static-button-blue'>Edit</a>}
-        </div>
-      </div>
-
-      <div className="expanded-thread">
-        {error && <p className="error">{error}</p>}
-        <div className="expanded-thread-heading">
-          <h2>{thread.title}</h2>
-          <div className="expanded-thread-tags">
-            {thread.tags.map((tag, i) => <DisplayTag tag={tag} key={i} />)}
+    <Layout>
+      <div className="single">
+        <div className="title">
+          <div className="group">
+            <IoArrowBackSharp onClick={() => navigate(-1)} size={25} color={`var(--primary-color)`}/>
+            <h1 className="heading">Thread</h1>
           </div>
-          <div className="ends">
-            <p className="subtitle">Posted by {thread && thread.creator}</p>
-            <p className="subtitle">Posted by {thread && formatDate(thread.createdAt)}</p>
+          <div className="group">
+            {user && (thread.createdBy === user.id || user.role === 'ADMIN') &&
+              <button type="button" onClick={deleteThread} className='static-button-red'>Delete</button>}
+            {user && (thread.createdBy === user.id || user.role === 'ADMIN') &&
+              <a href={`/threads/${thread.id}/edit`} className='static-button-blue'>Edit</a>}
           </div>
         </div>
-        <ReactMarkdown className="markdown thick-card">{thread.content}</ReactMarkdown>
 
-        <div className="comments">
-          <h3>Comments</h3>
-          {user && <div>
+        <div className="expanded-thread">
+          {error && <p className="error">{error}</p>}
+          <div className="expanded-thread-heading">
+            <h2>{thread.title}</h2>
+            <div className="expanded-thread-tags">
+              {thread.tags.map((tag, i) => <DisplayTag tag={tag} key={i}/>)}
+            </div>
+            <div className="ends">
+              <p className="subtitle">Posted by {thread && thread.creator}</p>
+              <p className="subtitle">Posted by {thread && formatDate(thread.createdAt)}</p>
+            </div>
+          </div>
+          <ReactMarkdown className="markdown thick-card">{thread.content}</ReactMarkdown>
+
+          <div className="comments">
+            <h3>Comments</h3>
+            {user && <div>
           <textarea name="new-comment" id="new-comment" placeholder="Leave a comment" cols={30} rows={10}
                     ref={commentRef}></textarea>
-            <button type="button" className="static-button-blue" onClick={submitComment}>Submit Comment</button>
-          </div>}
-          {comments.length > 0 ?
-            <div className="comments-list">
-              {comments.map(comment => <CommentCard key={comment.id}
-                                                    deleteComment={async () => await deleteComment(comment.id)}
-                                                    comment={comment}/>)}
-            </div> :
-            <p>No comments yet!</p>
-          }
+              <button type="button" className="static-button-blue" onClick={submitComment}>Submit Comment</button>
+            </div>}
+            {comments.length > 0 ?
+              <div className="comments-list">
+                {comments.map(comment => <CommentCard key={comment.id}
+                                                      deleteComment={async () => await deleteComment(comment.id)}
+                                                      comment={comment}/>)}
+              </div> :
+              <p>No comments yet!</p>
+            }
+          </div>
         </div>
       </div>
-    </div>
+    </Layout>
   )
 }
