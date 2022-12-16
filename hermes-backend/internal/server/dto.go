@@ -46,10 +46,17 @@ type (
 	}
 
 	CreateThread struct {
-		UserId  string `json:"user_id" binding:"required,uuid"`
 		Title   string `json:"title" binding:"required,min=5"`
 		Content string `json:"content" binding:"required,min=30"`
 		Tags    []Tag  `json:"tags"`
+	}
+
+	EditThread struct {
+		Title       string `json:"title" binding:"required,min=5"`
+		Content     string `json:"content" binding:"required,min=30"`
+		IsPublished bool   `json:"is_published" binding:"required"`
+		IsOpen      bool   `json:"is_open" binding:"required"`
+		Tags        []Tag  `json:"tags"`
 	}
 
 	Thread struct {

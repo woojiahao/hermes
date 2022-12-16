@@ -1,4 +1,4 @@
-import React from "react"
+import React, {useEffect} from "react"
 import {Editor} from "react-draft-wysiwyg"
 import {ContentState} from "draft-js"
 

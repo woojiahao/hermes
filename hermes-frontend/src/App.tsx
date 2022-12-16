@@ -2,15 +2,16 @@ import React from "react";
 import {CookiesProvider} from "react-cookie";
 import {useDispatch} from "react-redux";
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
-import {toggle} from "../redux/authSlice";
-import {useAppSelector} from "../redux/hooks";
-import About from "../routes/About";
-import CreateThread from "../routes/CreateThread";
-import Home from "../routes/Home";
-import Login from "../routes/Login";
-import UserThreads from "../routes/UserThreads";
-import {clearJWT} from "../utility/jwt";
-import ExpandedThread from "../routes/ExpandedThread"
+import {toggle} from "./redux/authSlice";
+import {useAppSelector} from "./redux/hooks";
+import About from "./routes/About";
+import CreateThread from "./routes/CreateThread";
+import Home from "./routes/Home";
+import Login from "./routes/Login";
+import UserThreads from "./routes/UserThreads";
+import {clearJWT} from "./utility/jwt";
+import ExpandedThread from "./routes/ExpandedThread"
+import EditThread from "./routes/EditThread"
 
 const router = createBrowserRouter([
   {
@@ -36,12 +37,14 @@ const router = createBrowserRouter([
   {
     path: "/threads/:id",
     element: <ExpandedThread></ExpandedThread>
+  },
+  {
+    path: "/threads/:id/edit",
+    element: <EditThread></EditThread>
   }
 ])
 
 export default function App() {
-  // TODO: Remove isLoggedIn flag since the user's existence would indicate if the user is logged in
-  const isLoggedIn = useAppSelector((state) => state.auth.value)
   const user = useAppSelector((state) => state.user.user)
   const dispatch = useDispatch()
 
@@ -57,11 +60,11 @@ export default function App() {
           <h1>hermes</h1>
           <nav>
             <a href="/">Home</a>
-            <a href="/about">About</a>
-            {isLoggedIn && <a href="/your-threads">Your Threads</a>}
-            {isLoggedIn && user && <p>Welcome back {user.username}!</p>}
-            {!isLoggedIn ?
-              <a href="/login" className="effect-button">Login</a> :
+            <a href="about">About</a>
+            {user && <a href="/your-threads">Your Threads</a>}
+            {user && user && <p>Welcome back {user.username}!</p>}
+            {!user ?
+              <a href="login" className="effect-button">Login</a> :
               <a href="/" onClick={logout} className="effect-button">Logout</a>
             }
           </nav>

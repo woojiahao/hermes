@@ -34,6 +34,8 @@ export type errorFields = { message: { field: string, message: string }[] }
 
 const defaultOnError: apiCallback<Error> = (err) => console.log(err)
 
+const defaultOnFailure: apiCallback<errorMessage | errorFields> = err => console.log(err)
+
 export enum RequestType {
   GET, POST, PUT, DELETE
 }
@@ -46,7 +48,7 @@ export class HermesRequest {
   private _body: any = {}
   private _hasAuthorization: boolean = false
   private _onSuccess: apiCallback<any>
-  private _onFailure: apiCallback<errorMessage | errorFields>
+  private _onFailure: apiCallback<errorMessage | errorFields> = defaultOnFailure
   private _onError: apiCallback<Error> = defaultOnError
 
   GET(): HermesRequest {
@@ -177,18 +179,9 @@ export class HermesRequest {
       method: RequestType[this._requestType],
     }
 
-    switch (this._requestType) {
-      case RequestType.GET:
-        break
-      case RequestType.POST:
-        config.body = JSON.stringify(this._body)
-        headers['Content-Type'] = 'application/json'
-        break
-      case RequestType.PUT:
-        throw new Error("not supported yet: PUT")
-        break
-      case RequestType.DELETE:
-        break
+    if ([RequestType.POST, RequestType.PUT].includes(this._requestType)) {
+      config.body = JSON.stringify(this._body)
+      headers['Content-Type'] = 'application/json'
     }
 
     if (this._hasAuthorization) {

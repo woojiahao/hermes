@@ -86,3 +86,27 @@ button[class^=static-button]:hover {
 .subtitle {
   color: #757575;
 }
+
+.markdown {
+  h1, h2, h3 {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  h1:first-child, h2:first-child, h3:first-child {
+    margin-top: 0;
+  }
+
+  h1:last-child, h2:last-child, h3:last-child {
+    margin-bottom: 0;
+  }
+
+  p {
+    line-height: 1.6rem;
+  }
+}
+
+.preview {
+  max-height: 200px;
+  overflow: hidden;
+}

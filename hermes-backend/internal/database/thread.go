@@ -127,18 +127,8 @@ func (d *Database) CreateThread(userId, title, content string, tags []Tag) (Thre
 	})
 }
 
-// TODO: Optimize this with proper SQL query
 func (d *Database) GetUserThreads(userId string) ([]Thread, error) {
-	threads, err := d.GetThreads()
-	if err != nil {
-		return nil, err
-	}
-
-	userThreads := i.Filter(threads, func(thread Thread) bool {
-		return thread.CreatedBy == userId
-	})
-
-	return userThreads, nil
+	return getThreadsWithFilter(d, &userId)
 }
 
 func (d *Database) GetThreadById(threadId string) (Thread, error) {
@@ -184,60 +174,7 @@ func (d *Database) GetThreadById(threadId string) (Thread, error) {
 }
 
 func (d *Database) GetThreads() ([]Thread, error) {
-	return transaction(d, func(tx *sql.Tx) ([]Thread, error) {
-		threads, err := transactionQuery(
-			tx,
-			`
-				SELECT thread.*, "user".username
-				FROM thread 
-					INNER JOIN "user" ON thread.created_by = "user".id
-				WHERE deleted_at IS NULL AND is_published
-				ORDER BY created_at DESC;
-			`,
-			generateParams(),
-			parseThreadRowsWithCreator,
-		)
-
-		if err != nil {
-			return nil, &i.DatabaseError{Custom: "failed to retrieve all threads", Base: err}
-		}
-
-		threadTags := make(map[string][]Tag)
-
-		_, err = transactionQuery(
-			tx,
-			`
-				SELECT t.id, tag.id, tag."content", tag.hex_code
-				FROM tag
-					INNER JOIN thread_tag tt on tag.id = tt.tag_id
-					INNER JOIN thread t on t.id = tt.thread_id
-				WHERE t.deleted_at IS NULL;
-			`,
-			generateParams(),
-			func(r *sql.Rows) (string, error) {
-				var threadId string
-				var tag Tag
-				err := r.Scan(&threadId, &tag.Id, &tag.Content, &tag.HexCode)
-
-				threadTags[threadId] = append(threadTags[threadId], tag)
-
-				return "", err
-			},
-		)
-
-		if err != nil {
-			return nil, &i.DatabaseError{Custom: "failed to retrieve all tags related to all threads", Base: err}
-		}
-
-		var finalThreads []Thread
-		for _, thread := range threads {
-			copyThread := thread
-			copyThread.Tags = threadTags[thread.Id]
-			finalThreads = append(finalThreads, copyThread)
-		}
-
-		return finalThreads, nil
-	})
+	return getThreadsWithFilter(d, nil)
 }
 
 func (d *Database) DeleteThread(userId, threadId string) (Thread, error) {
@@ -331,6 +268,70 @@ func (d *Database) GetTags() ([]Tag, error) {
 	}
 
 	return tags, nil
+}
+
+func getThreadsWithFilter(d *Database, userId *string) ([]Thread, error) {
+	query := `
+		SELECT thread.*, "user".username
+		FROM thread 
+			INNER JOIN "user" ON thread.created_by = "user".id
+		WHERE deleted_at IS NULL AND is_published
+	`
+	params := generateParams()
+	if userId != nil {
+		query += `AND "user".id = $1`
+		params = generateParams(userId)
+	}
+	query += "\nORDER BY created_at DESC;"
+
+	return transaction(d, func(tx *sql.Tx) ([]Thread, error) {
+		threads, err := transactionQuery(
+			tx,
+			query,
+			params,
+			parseThreadRowsWithCreator,
+		)
+
+		if err != nil {
+			return nil, &i.DatabaseError{Custom: "failed to retrieve all threads", Base: err}
+		}
+
+		threadTags := make(map[string][]Tag)
+
+		_, err = transactionQuery(
+			tx,
+			`
+				SELECT t.id, tag.id, tag."content", tag.hex_code
+				FROM tag
+					INNER JOIN thread_tag tt on tag.id = tt.tag_id
+					INNER JOIN thread t on t.id = tt.thread_id
+				WHERE t.deleted_at IS NULL;
+			`,
+			generateParams(),
+			func(r *sql.Rows) (string, error) {
+				var threadId string
+				var tag Tag
+				err := r.Scan(&threadId, &tag.Id, &tag.Content, &tag.HexCode)
+
+				threadTags[threadId] = append(threadTags[threadId], tag)
+
+				return "", err
+			},
+		)
+
+		if err != nil {
+			return nil, &i.DatabaseError{Custom: "failed to retrieve all tags related to all threads", Base: err}
+		}
+
+		var finalThreads []Thread
+		for _, thread := range threads {
+			copyThread := thread
+			copyThread.Tags = threadTags[thread.Id]
+			finalThreads = append(finalThreads, copyThread)
+		}
+
+		return finalThreads, nil
+	})
 }
 
 func attachTags(tx *sql.Tx, thread Thread, tags []Tag) (Thread, error) {

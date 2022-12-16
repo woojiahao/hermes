@@ -8,6 +8,8 @@ import ReactMarkdown from "react-markdown"
 import Comment from "../models/Comment"
 import {formatDate} from "../utility/general"
 import CommentCard from "../components/CommentCard"
+import {asyncGetThread} from "../services/thread"
+import DisplayTag from "../components/DisplayTag"
 
 export default function ExpandedThread() {
   const {id} = useParams()
@@ -20,17 +22,12 @@ export default function ExpandedThread() {
 
   useEffect(() => {
     (async () => {
-      await new HermesRequest()
-        .GET()
-        .endpoint(`/threads/${id}`)
-        .onSuccess(json => {
-          const t = jsonConvert.deserializeObject(json, Thread)
-          console.log(t)
-          setThread(t)
-        })
-        .onFailure((e: errorMessage) => setError(e.message))
-        .onError(e => setError(e.message))
-        .call()
+      await asyncGetThread(
+        id,
+        thread => setThread(thread),
+        e => setError(e.message),
+        e => setError(e.message)
+      )
       await getComments()
     })()
   }, [])
@@ -110,18 +107,23 @@ export default function ExpandedThread() {
           {user && (thread.createdBy === user.id || user.role === 'ADMIN') &&
             <button type="button" onClick={deleteThread} className='static-button-red'>Delete</button>}
           {user && (thread.createdBy === user.id || user.role === 'ADMIN') &&
-            <a href="/edit-thread" className='static-button-blue'>Edit</a>}
+            <a href={`/threads/${thread.id}/edit`} className='static-button-blue'>Edit</a>}
         </div>
       </div>
 
       <div className="expanded-thread">
         {error && <p className="error">{error}</p>}
-        <h2>{thread.title}</h2>
-        <div className="ends">
-          <p className="subtitle">Posted by {thread && thread.creator}</p>
-          <p className="subtitle">Posted by {thread && formatDate(thread.createdAt)}</p>
+        <div className="expanded-thread-heading">
+          <h2>{thread.title}</h2>
+          <div className="expanded-thread-tags">
+            {thread.tags.map((tag, i) => <DisplayTag tag={tag} key={i} />)}
+          </div>
+          <div className="ends">
+            <p className="subtitle">Posted by {thread && thread.creator}</p>
+            <p className="subtitle">Posted by {thread && formatDate(thread.createdAt)}</p>
+          </div>
         </div>
-        <ReactMarkdown>{thread.content}</ReactMarkdown>
+        <ReactMarkdown className="markdown thick-card">{thread.content}</ReactMarkdown>
 
         <div className="comments">
           <h3>Comments</h3>

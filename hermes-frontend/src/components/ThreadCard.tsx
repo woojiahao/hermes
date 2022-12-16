@@ -15,7 +15,7 @@ export default function ThreadCard({thread}: ThreadCardProps) {
   return (
     <div className="thin-card thread-card" onClick={() => navigate(`/threads/${thread.id}`)}>
       <h3 className="thread-title">{thread.title}</h3>
-      <ReactMarkdown className="thread-content">{thread.content}</ReactMarkdown>
+      <ReactMarkdown className="markdown preview">{thread.content}</ReactMarkdown>
       {thread.tags &&
         <div className="thread-tags" hidden={thread.tags.length === 0}>
           {thread.tags.map((tag, i) => <DisplayTag key={i} tag={tag}></DisplayTag>)}

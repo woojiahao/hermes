@@ -1,7 +1,14 @@
-// TODO: Display the OP's username
-import { JsonObject, JsonProperty } from "json2typescript";
+import {JsonObject, JsonProperty} from "json2typescript";
 import Tag from "./Tag";
 import {DateConverter} from "./DateConverter"
+
+export interface ThreadDto {
+  title: string
+  content: string
+  tags: { 'content': string, 'hex_code': string }[]
+  is_published: boolean
+  is_open: boolean
+}
 
 @JsonObject("Thread")
 export default class Thread {

@@ -5,17 +5,7 @@ erDiagram
   user {
     uuid id PK
     text username "unique"
-    text email "unique"
     text password_hash
-  }
-  user_role {
-    uuid user_id FK "references user.id"
-    uuid role_id FK "references role.id"
-  }
-  role {
-    uuid id PK
-    text permissions
-    text title
   }
   thread {
     uuid id PK
@@ -52,9 +42,6 @@ erDiagram
 
   thread ||--o{ thread_tag : has
   tag ||--o{ thread_tag : has
-  user ||--o{ user_role : is
-  role ||--o{ user_role : is
-  user ||--o{ vote : cast
   thread ||--o{ vote : has
   user ||--o{ thread : create
   thread ||--o{ comment : has

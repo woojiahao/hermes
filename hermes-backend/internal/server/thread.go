@@ -16,6 +16,39 @@ var threadRoutes = []route{
 	{"GET", "/threads/tags", getTags, false},
 	{"GET", "/threads/current", getCurrentUserThreads, true},
 	{"DELETE", "/threads/:id", deleteThread, true},
+	{"PUT", "/threads/:id", editThread, true},
+}
+
+func editThread(ctx *gin.Context, db *database.Database) {
+	id := ctx.Param("id")
+	user, err := getPayloadUser(ctx, db)
+	if err != nil {
+		notFound(ctx, err.Error())
+		return
+	}
+
+	var req EditThread
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		badRequestValidation(ctx, err)
+		return
+	}
+
+	// TODO: Check if user can edit thread
+	thread, err := db.EditThread(
+		user.Id,
+		id,
+		req.Title,
+		req.Content,
+		req.IsPublished,
+		req.IsOpen,
+		internal.Map(req.Tags, tagToDatabaseObj),
+	)
+	if err != nil {
+		internalSeverError(ctx)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, thread)
 }
 
 func deleteThread(ctx *gin.Context, db *database.Database) {
@@ -79,6 +112,12 @@ func getThreadById(ctx *gin.Context, db *database.Database) {
 }
 
 func createThread(ctx *gin.Context, db *database.Database) {
+	user, err := getPayloadUser(ctx, db)
+	if err != nil {
+		notFound(ctx, err.Error())
+		return
+	}
+
 	var req CreateThread
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		badRequestValidation(ctx, err)
@@ -86,12 +125,10 @@ func createThread(ctx *gin.Context, db *database.Database) {
 	}
 
 	thread, err := db.CreateThread(
-		req.UserId,
+		user.Id,
 		req.Title,
 		req.Content,
-		internal.Map(req.Tags, func(tag Tag) database.Tag {
-			return database.NewTag(tag.Content, tag.HexCode)
-		}),
+		internal.Map(req.Tags, tagToDatabaseObj),
 	)
 	if err != nil {
 		internalSeverError(ctx)
@@ -109,6 +146,10 @@ func getTags(ctx *gin.Context, db *database.Database) {
 	}
 
 	ctx.JSON(http.StatusOK, internal.Map(tags, tagToDTO))
+}
+
+func tagToDatabaseObj(tag Tag) database.Tag {
+	return database.NewTag(tag.Content, tag.HexCode)
 }
 
 func tagToDTO(tag database.Tag) Tag {

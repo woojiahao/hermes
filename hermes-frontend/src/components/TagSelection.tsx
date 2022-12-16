@@ -10,7 +10,7 @@ interface TagSelectionProps {
   setSelectedTags: React.Dispatch<React.SetStateAction<Map<number, Tag>>>
 }
 
-export default function TagSelection(props: TagSelectionProps) {
+export default function TagSelection({selectedTags, setSelectedTags}: TagSelectionProps) {
   const componentRef = useRef(null)
   const searchTagRef = createRef<HTMLInputElement>()
   const newTagContentRef = createRef<HTMLInputElement>()
@@ -34,7 +34,7 @@ export default function TagSelection(props: TagSelectionProps) {
         })
         .call()
     })()
-  }, [])
+  }, [selectedTags])
 
   useEffect(() => {
     const handleClickOutside = (event: Event) => {
@@ -47,7 +47,7 @@ export default function TagSelection(props: TagSelectionProps) {
     return () => {
       document.removeEventListener('click', handleClickOutside, true)
     }
-  })
+  }, [])
 
   function addNewTag() {
     setError("")
@@ -70,7 +70,7 @@ export default function TagSelection(props: TagSelectionProps) {
 
   function selectTag(id: number) {
     const selectedTag = tags[id]
-    props.setSelectedTags(prevState => {
+    setSelectedTags(prevState => {
       const cur = new Map(prevState)
       cur.set(id, selectedTag)
       return cur
@@ -78,7 +78,7 @@ export default function TagSelection(props: TagSelectionProps) {
   }
 
   function removeSelection(id: number) {
-    props.setSelectedTags(prevState => {
+    setSelectedTags(prevState => {
       const cur = new Map(prevState)
       cur.delete(id)
       return cur
@@ -91,9 +91,9 @@ export default function TagSelection(props: TagSelectionProps) {
 
       <div className="tags-input">
         <div className="tags-selected">
-          {props.selectedTags &&
+          {selectedTags &&
             Array
-              .from(props.selectedTags.entries())
+              .from(selectedTags.entries())
               .map(([i, tag]) =>
                 <div key={i} style={tagStyle(tag)}>
                   <span style={tagStyle(tag)}>{tag.content}</span><MdOutlineClose onClick={() => removeSelection(i)}/>
@@ -132,10 +132,10 @@ export default function TagSelection(props: TagSelectionProps) {
               .map((tag, i) =>
                 <div key={i}
                      onClick={() => {
-                       if (!(i in props.selectedTags)) selectTag(i)
+                       if (!(i in selectedTags)) selectTag(i)
                      }}>
                   <DisplayTag key={i} tag={tag}></DisplayTag>
-                  {Array.from(props.selectedTags.values()).filter(t => t === tag).length > 0 && <MdOutlineCheck/>}
+                  {Array.from(selectedTags.values()).filter(t => t === tag).length > 0 && <MdOutlineCheck/>}
                 </div>)}
         </div>
       </div>

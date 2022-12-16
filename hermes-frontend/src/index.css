@@ -35,9 +35,18 @@
   row-gap: 1rem;
 }
 
-.expanded-thread .ends {
+.expanded-thread .expanded-thread-heading {
     margin-bottom: 2rem;
+
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.5rem;
   }
+
+.expanded-thread .expanded-thread-heading .expanded-thread-tags {
+      display: flex;
+      gap: 0.8rem;
+    }
 
 .expanded-thread .comments {
     margin-top: 2rem;
@@ -155,6 +164,28 @@ button[class^=static-button]:hover {
 
 .subtitle {
   color: #757575;
+}
+
+.markdown h1, .markdown h2, .markdown h3 {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
+.markdown h1:first-child, .markdown h2:first-child, .markdown h3:first-child {
+    margin-top: 0;
+  }
+
+.markdown h1:last-child, .markdown h2:last-child, .markdown h3:last-child {
+    margin-bottom: 0;
+  }
+
+.markdown p {
+    line-height: 1.6rem;
+  }
+
+.preview {
+  max-height: 200px;
+  overflow: hidden;
 }
 
 .tag-select {
