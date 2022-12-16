@@ -17,6 +17,30 @@ var threadRoutes = []route{
 	{"GET", "/threads/current", getCurrentUserThreads, true},
 	{"DELETE", "/threads/:id", deleteThread, true},
 	{"PUT", "/threads/:id", editThread, true},
+	{"PUT", "/threads/:id/pin", pinThread, true},
+}
+
+func pinThread(ctx *gin.Context, db *database.Database) {
+	id := ctx.Param("id")
+	user, err := getPayloadUser(ctx, db)
+	if err != nil {
+		notFound(ctx, err.Error())
+		return
+	}
+
+	var req PinThread
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		badRequestValidation(ctx, err)
+		return
+	}
+
+	thread, err := db.PinThread(user.Id, id, *req.IsPinned)
+	if err != nil {
+		badRequest(ctx, "Cannot pin thread")
+		return
+	}
+
+	ctx.JSON(http.StatusOK, threadToDTO(thread))
 }
 
 func editThread(ctx *gin.Context, db *database.Database) {
@@ -39,8 +63,8 @@ func editThread(ctx *gin.Context, db *database.Database) {
 		id,
 		req.Title,
 		req.Content,
-		req.IsPublished,
-		req.IsOpen,
+		*req.IsPublished,
+		*req.IsOpen,
 		internal.Map(req.Tags, tagToDatabaseObj),
 	)
 	if err != nil {
@@ -161,6 +185,7 @@ func threadToDTO(thread database.Thread) Thread {
 		thread.Id,
 		thread.IsPublished,
 		thread.IsOpen,
+		thread.IsPinned,
 		thread.Title,
 		thread.Content,
 		internal.Map(thread.Tags, tagToDTO),

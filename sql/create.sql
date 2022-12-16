@@ -21,6 +21,7 @@ CREATE TABLE thread
     id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     is_published BOOL NOT NULL    DEFAULT TRUE,
     is_open      BOOL NOT NULL    DEFAULT TRUE,
+    is_pinned    BOOL NOT NULL    DEFAULT FALSE,
     title        TEXT NOT NULL,
     "content"    TEXT NOT NULL,
     created_at   DATE NOT NULL    DEFAULT now(),

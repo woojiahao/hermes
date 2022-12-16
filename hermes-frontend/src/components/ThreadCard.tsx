@@ -4,6 +4,7 @@ import Thread from "../models/Thread";
 import {useNavigate} from "react-router-dom"
 import DisplayTag from "./DisplayTag"
 import {formatDate} from "../utility/general"
+import {BsPinAngleFill} from "react-icons/bs"
 
 interface ThreadCardProps {
   thread: Thread
@@ -14,7 +15,10 @@ export default function ThreadCard({thread}: ThreadCardProps) {
 
   return (
     <div className="thin-card thread-card" onClick={() => navigate(`/threads/${thread.id}`)}>
-      <h3 className="thread-title">{thread.title}</h3>
+      <div className="ends">
+        <h3 className="thread-title">{thread.title}</h3>
+        {thread.isPinned && <BsPinAngleFill color="#ebc81a" size={25}/>}
+      </div>
       <ReactMarkdown className="markdown preview">{thread.content}</ReactMarkdown>
       {thread.tags &&
         <div className="thread-tags" hidden={thread.tags.length === 0}>

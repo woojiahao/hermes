@@ -38,6 +38,7 @@ type Thread struct {
 	Id          string
 	IsPublished bool
 	IsOpen      bool
+	IsPinned    bool
 	Title       string
 	Content     string
 	CreatedAt   *time.Time
@@ -58,6 +59,7 @@ func parseThreadRowsWithCreator(rows *sql.Rows) (Thread, error) {
 		&thread.Id,
 		&thread.IsPublished,
 		&thread.IsOpen,
+		&thread.IsPinned,
 		&thread.Title,
 		&thread.Content,
 		&thread.CreatedAt,
@@ -77,6 +79,7 @@ func parseThreadRows(rows *sql.Rows) (Thread, error) {
 		&thread.Id,
 		&thread.IsPublished,
 		&thread.IsOpen,
+		&thread.IsPinned,
 		&thread.Title,
 		&thread.Content,
 		&thread.CreatedAt,
@@ -270,6 +273,25 @@ func (d *Database) GetTags() ([]Tag, error) {
 	return tags, nil
 }
 
+func (d *Database) PinThread(userId, threadId string, isPinned bool) (Thread, error) {
+	threads, err := query(
+		d,
+		`
+			UPDATE thread
+			SET is_pinned = $1
+			WHERE id = $2 and created_by = $3
+			RETURNING *;
+		`,
+		generateParams(isPinned, threadId, userId),
+		parseThreadRows,
+	)
+	if err != nil {
+		return dummyThread, &i.DatabaseError{Custom: "failed to pin thread", Short: "Cannot pin thread", Base: err}
+	}
+
+	return threads[0], nil
+}
+
 func getThreadsWithFilter(d *Database, userId *string) ([]Thread, error) {
 	query := `
 		SELECT thread.*, "user".username
@@ -279,10 +301,10 @@ func getThreadsWithFilter(d *Database, userId *string) ([]Thread, error) {
 	`
 	params := generateParams()
 	if userId != nil {
-		query += `AND "user".id = $1`
+		query += ` AND "user".id = $1`
 		params = generateParams(userId)
 	}
-	query += "\nORDER BY created_at DESC;"
+	query += "\nORDER BY is_pinned DESC, created_at DESC;"
 
 	return transaction(d, func(tx *sql.Tx) ([]Thread, error) {
 		threads, err := transactionQuery(

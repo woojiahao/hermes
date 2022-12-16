@@ -2,7 +2,6 @@ package server
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -17,10 +16,7 @@ var userRoutes = []route{
 }
 
 func getCurrentUser(ctx *gin.Context, db *database.Database) {
-	log.Println("hi")
-	fmt.Println("retrieving current user")
 	user, err := getPayloadUser(ctx, db)
-	fmt.Println(user)
 	if err != nil {
 		badRequest(ctx, err.Error())
 		return

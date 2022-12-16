@@ -21,6 +21,9 @@ export default class Thread {
   @JsonProperty("is_open", Boolean)
   isOpen: boolean
 
+  @JsonProperty("is_pinned", Boolean)
+  isPinned: boolean
+
   @JsonProperty("title", String)
   title: string
 
@@ -45,6 +48,7 @@ export function emptyThread(): Thread {
     id: "",
     isPublished: false,
     isOpen: false,
+    isPinned: false,
     title: "",
     content: "",
     tags: [],

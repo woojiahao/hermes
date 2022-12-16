@@ -106,9 +106,17 @@ button[class^=static-button]:hover {
   p {
     line-height: 1.6rem;
   }
+
+  p:not(:last-child) {
+    margin-bottom: 0.8rem;
+  }
 }
 
 .preview {
   max-height: 200px;
   overflow: hidden;
+}
+
+.clickable:hover {
+  cursor: pointer
 }

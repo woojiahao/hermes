@@ -102,14 +102,8 @@ func (d *Database) GetUser(username string) (User, error) {
 		generateParams(username),
 		parseUserRows,
 	)
-
-	if err != nil {
+	if err != nil || len(users) == 0 {
 		return dummyUser, &i.DatabaseError{Custom: "failed to retrieve user by username", Base: err}
-	}
-
-	err = i.ExactlyOneResultError(users)
-	if err != nil {
-		return dummyUser, err
 	}
 
 	return users[0], nil

@@ -11,6 +11,7 @@ import CommentCard from "../components/CommentCard"
 import {asyncGetThread} from "../services/thread"
 import DisplayTag from "../components/DisplayTag"
 import Layout from "../components/Layout"
+import {BsPinAngle, BsPinAngleFill} from "react-icons/bs"
 
 export default function ExpandedThread() {
   const {id} = useParams()
@@ -39,7 +40,6 @@ export default function ExpandedThread() {
       .endpoint(`/threads/${id}/comments`)
       .onSuccess(json => {
         const c = jsonConvert.deserializeArray(json, Comment)
-        console.log(c)
         setComments(c)
       })
       .onFailure((e: errorMessage) => setError(e.message))
@@ -97,6 +97,31 @@ export default function ExpandedThread() {
       .call()
   }
 
+  async function pinThread() {
+    if (user.role !== 'ADMIN') return
+
+    const status = !thread.isPinned
+    await new HermesRequest()
+      .PUT()
+      .endpoint(`/threads/${thread.id}/pin`)
+      .hasAuthorization()
+      .body({
+        "is_pinned": status,
+      })
+      .onSuccess(json => {
+        const t = jsonConvert.deserializeObject(json, Thread)
+        setThread(prevState => {
+          // TODO: Implement proper returning of tags
+          t.tags = prevState.tags
+          t.creator = prevState.creator
+          return t
+        })
+      })
+      .onFailure((e: errorMessage) => setError(e.message))
+      .onError(e => setError(e.message))
+      .call()
+  }
+
   return (
     <Layout>
       <div className="single">
@@ -116,7 +141,13 @@ export default function ExpandedThread() {
         <div className="expanded-thread">
           {error && <p className="error">{error}</p>}
           <div className="expanded-thread-heading">
-            <h2>{thread.title}</h2>
+            <div className="ends">
+              <h2>{thread.title}</h2>
+              {thread.isPinned ?
+                <BsPinAngleFill className={`${user && user.role === 'ADMIN' ? 'clickable' : ''}`} color="#ebc81a" size={25} onClick={async () => await pinThread()}/> :
+                <BsPinAngle className={`${user && user.role === 'ADMIN' ? 'clickable' : ''}`} color="#ebc81a" size={25} onClick={async () => await pinThread()}/>
+              }
+            </div>
             <div className="expanded-thread-tags">
               {thread.tags.map((tag, i) => <DisplayTag tag={tag} key={i}/>)}
             </div>

@@ -24,6 +24,14 @@ func main() {
 	databaseConfiguration := database.LoadConfiguration()
 	db := database.Initialize(databaseConfiguration)
 
+	// Setup the original admin user for testing purposes
+	if _, err := db.GetUser("admin"); err != nil {
+		_, err = db.CreateUser("admin", "root", database.ADMIN)
+		if err != nil {
+			log.Fatalf("Failed to setup admin user %s", err)
+		}
+	}
+
 	// Start the server
 	serverConfiguration := server.LoadConfiguration()
 	server.Start(serverConfiguration, db)

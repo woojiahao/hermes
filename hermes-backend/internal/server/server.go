@@ -123,7 +123,6 @@ func (s *Server) setupAuth() {
 			}, nil
 		},
 		Authorizator: func(data interface{}, c *gin.Context) bool {
-			fmt.Println(data)
 			// TODO: Check roles
 			if v, ok := data.(*User); ok {
 				if _, err := s.db.GetUser(v.Username); err != nil {

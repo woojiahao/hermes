@@ -54,15 +54,20 @@ type (
 	EditThread struct {
 		Title       string `json:"title" binding:"required,min=5"`
 		Content     string `json:"content" binding:"required,min=30"`
-		IsPublished bool   `json:"is_published" binding:"required"`
-		IsOpen      bool   `json:"is_open" binding:"required"`
+		IsPublished *bool  `json:"is_published" binding:"required"`
+		IsOpen      *bool  `json:"is_open" binding:"required"`
 		Tags        []Tag  `json:"tags"`
+	}
+
+	PinThread struct {
+		IsPinned *bool `json:"is_pinned" binding:"required"`
 	}
 
 	Thread struct {
 		Id          string     `json:"id"`
 		IsPublished bool       `json:"is_published"`
 		IsOpen      bool       `json:"is_open"`
+		IsPinned    bool       `json:"is_pinned"`
 		Title       string     `json:"title"`
 		Content     string     `json:"content"`
 		Tags        []Tag      `json:"tags"`
