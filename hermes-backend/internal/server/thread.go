@@ -28,13 +28,18 @@ func pinThread(ctx *gin.Context, db *database.Database) {
 		return
 	}
 
+	if user.Role != string(database.ADMIN) {
+		badRequest(ctx, "Invalid user action")
+		return
+	}
+
 	var req PinThread
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		badRequestValidation(ctx, err)
 		return
 	}
 
-	thread, err := db.PinThread(user.Id, id, *req.IsPinned)
+	thread, err := db.PinThread(id, *req.IsPinned)
 	if err != nil {
 		badRequest(ctx, "Cannot pin thread")
 		return

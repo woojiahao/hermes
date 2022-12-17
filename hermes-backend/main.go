@@ -9,7 +9,6 @@ import (
 )
 
 // Loads any configurations from .env
-// TODO: Support development vs production .env
 func loadEnv() {
 	err := godotenv.Load()
 	if err != nil {

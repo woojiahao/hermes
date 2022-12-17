@@ -2,11 +2,11 @@
  * Utilities for making API requests
  */
 
-import {JsonConvert} from "json2typescript";
-import {getJWT, refreshJWT} from "./jwt";
+import { JsonConvert } from "json2typescript";
+import { getJWT, refreshJWT } from "./jwt";
 
 // TODO: Change this if necessary
-const apiURL = 'http://localhost:8081'
+const apiURL = 'http://localhost:8080'
 
 export const jsonConvert = new JsonConvert()
 

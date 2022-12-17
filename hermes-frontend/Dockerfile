@@ -1,13 +1,15 @@
 FROM node:19-alpine
 
 WORKDIR /app
+
 ENV PATH /app/node_modules/.bin:$PATH
+
 COPY package.json ./
 COPY yarn.lock ./
-RUN pwd
-RUN cd /app
 RUN yarn install --silent
 RUN yarn global add react-scripts --silent
+RUN yarn global add serve
+
 COPY . ./
-EXPOSE 3000
-CMD ["yarn", "start"]
+
+CMD ["serve", "-s" "build"]

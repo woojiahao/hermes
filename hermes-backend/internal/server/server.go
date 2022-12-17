@@ -2,11 +2,9 @@ package server
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
@@ -19,17 +17,11 @@ import (
 )
 
 type ServerConfiguration struct {
-	Port   int
 	JWTKey string
 }
 
 func LoadConfiguration() *ServerConfiguration {
-	port, err := strconv.Atoi(os.Getenv("SERVER_PORT"))
-	if err != nil {
-		log.Fatal("Invalid SERVER_PORT in .env")
-	}
-
-	return &ServerConfiguration{port, os.Getenv("JWT_KEY")}
+	return &ServerConfiguration{os.Getenv("JWT_KEY")}
 }
 
 type (
@@ -67,7 +59,7 @@ func Start(c *ServerConfiguration, db *database.Database) {
 	server.setupAuth()
 	server.loadRoutes()
 	server.addRoutes()
-	server.router.Run(fmt.Sprintf(":%d", c.Port))
+	server.router.Run()
 }
 
 func (s *Server) setupCORS() {

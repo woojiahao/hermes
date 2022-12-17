@@ -11,6 +11,7 @@ erDiagram
     uuid id PK
     bool is_published
     bool is_open
+    bool is_pinned
     text content
     date created_at
     uuid created_by FK "references user.id"

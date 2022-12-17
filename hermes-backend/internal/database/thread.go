@@ -139,8 +139,8 @@ func (d *Database) GetThreadById(threadId string) (Thread, error) {
 		threads, err := transactionQuery(
 			tx,
 			`
-				SELECT thread.*, "user".username 
-				FROM thread 
+				SELECT thread.*, "user".username
+				FROM thread
 					INNER JOIN "user" ON thread.created_by = "user".id
 				WHERE thread.id = $1 AND deleted_at IS NULL
 			`,
@@ -273,16 +273,16 @@ func (d *Database) GetTags() ([]Tag, error) {
 	return tags, nil
 }
 
-func (d *Database) PinThread(userId, threadId string, isPinned bool) (Thread, error) {
+func (d *Database) PinThread(threadId string, isPinned bool) (Thread, error) {
 	threads, err := query(
 		d,
 		`
 			UPDATE thread
 			SET is_pinned = $1
-			WHERE id = $2 and created_by = $3
+			WHERE thread.id = $2
 			RETURNING *;
 		`,
-		generateParams(isPinned, threadId, userId),
+		generateParams(isPinned, threadId),
 		parseThreadRows,
 	)
 	if err != nil {
@@ -295,7 +295,7 @@ func (d *Database) PinThread(userId, threadId string, isPinned bool) (Thread, er
 func getThreadsWithFilter(d *Database, userId *string) ([]Thread, error) {
 	query := `
 		SELECT thread.*, "user".username
-		FROM thread 
+		FROM thread
 			INNER JOIN "user" ON thread.created_by = "user".id
 		WHERE deleted_at IS NULL AND is_published
 	`
