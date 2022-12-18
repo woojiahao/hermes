@@ -55,7 +55,7 @@ hermes supports Docker for deployments. To use Docker for a local deployment, en
 
 ```bash
 docker compose build
-docker compose up
+docker compose --env-file ./hermes-backend/.env up
 ```
 
 Docker Compose handles the initialization and setup of the application.

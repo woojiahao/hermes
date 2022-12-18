@@ -6,10 +6,13 @@ ENV PATH /app/node_modules/.bin:$PATH
 
 COPY package.json ./
 COPY yarn.lock ./
-RUN yarn install --silent
-RUN yarn global add react-scripts --silent
+
+RUN yarn install --registry=https://registry.npmjs.org --network-timeout 1000000
+RUN yarn global add react-scripts
 RUN yarn global add serve
 
 COPY . ./
 
-CMD ["serve", "-s" "build"]
+RUN yarn build
+
+CMD ["serve", "-s", "build/"]

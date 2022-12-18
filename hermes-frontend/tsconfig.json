@@ -8,7 +8,7 @@
     "moduleResolution": "node",
     "lib": ["DOM"],
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
+    "emitDecoratorMetadata": true
   },
   "include": ["src/**/*", "./.d.ts"],
   "exclude": ["node_modules"]
