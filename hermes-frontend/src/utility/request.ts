@@ -3,10 +3,8 @@
  */
 
 import { JsonConvert } from "json2typescript";
+import urlJoin from 'url-join';
 import { getJWT, refreshJWT } from "./jwt";
-
-// TODO: Change this if necessary
-const apiURL = 'http://localhost:8080'
 
 export const jsonConvert = new JsonConvert()
 
@@ -15,7 +13,12 @@ function createURL(
   queryParams: queryParams = {},
   pathParams: pathParams = []
 ) {
-  let url = new URL(endpoint, apiURL);
+  let url: URL
+  if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
+    url = new URL(endpoint, 'http://localhost:8080')
+  } else {
+    url = new URL(urlJoin('https://hermes.woojiahao.com', 'api', endpoint))
+  }
 
   if (queryParams)
     for (const key in queryParams) url.searchParams.append(key, queryParams[key])
