@@ -8,7 +8,7 @@ interface ThreadListProps {
 
 export default function ThreadList({threads}: ThreadListProps) {
   return (
-    <div className="thread-list">
+    <div className="flex flex-col gap-y-4">
       {threads
         .map(thread => <ThreadCard key={thread.id} thread={thread}/>)}
     </div>

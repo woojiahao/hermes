@@ -35,7 +35,7 @@ export default function CreateAdmin() {
           <h1 className="heading">New Admin</h1>
         </div>
 
-        <div className="form thick-card">
+        <div className="form card thick">
           {error && <p className="error">{error}</p>}
 
           {success && <p className="success">{success}</p>}
@@ -49,11 +49,11 @@ export default function CreateAdmin() {
             <input type="password" name="password" id="password" ref={adminPasswordRef}/>
           </div>
 
-          <div className="buttons on-end">
+          <div className="flex justify-end">
             <button
               type="button"
               onClick={async () => await createAdmin()}
-              className="static-button-blue on-end"
+              className="button blue"
               disabled={!clickable}>Create
             </button>
           </div>

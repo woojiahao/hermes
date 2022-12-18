@@ -5,6 +5,8 @@ import {errorMessage, HermesRequest, jsonConvert} from '../utility/request';
 import Tag from "../models/Tag"
 import DisplayTag from "../components/DisplayTag"
 import Layout from "../components/Layout"
+import {AiOutlineSearch} from "react-icons/ai"
+import {Link} from "react-router-dom"
 
 export default function Home() {
   const [threads, setThreads] = useState<Thread[]>([])
@@ -48,7 +50,10 @@ export default function Home() {
       <div className="split">
         <div className="title">
           <h1 className="heading">Threads</h1>
-          <a href="/threads/new" className='effect-button'>New Thread</a>
+          <div className="flex items-center gap-x-4">
+            <AiOutlineSearch size={30} className="text-primary hover:cursor-pointer"/>
+            <Link to="/threads/new" className="button blue effect">New Thread</Link>
+          </div>
         </div>
 
         <div className="content">
@@ -64,7 +69,7 @@ export default function Home() {
               <p>No threads created yet.</p>
             }
           </main>
-          <aside className="tags-filter">
+          <aside className="flex flex-col gap-y-4">
             <p><strong>Tags</strong> (click to filter)</p>
             <div hidden={filteredTags.length === 0}>
               {filteredTags.length > 0 && <p><em>Filtered tags</em></p>}

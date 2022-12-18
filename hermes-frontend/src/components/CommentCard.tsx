@@ -13,14 +13,14 @@ export default function CommentCard({deleteComment, comment}: CommentCardProps) 
   const user = useAppSelector((state) => state.auth.user)
 
   return (
-    <div className="thin-card comment-card">
+    <div className="card flex justify-between break-words items-center">
       <div>
-        <p className="comment-card-by subtitle">Comment by {comment.creator} on {formatDate(comment.createdAt)}</p>
+        <p className="text-dark-secondary italic mb-2">Comment by {comment.creator} on {formatDate(comment.createdAt)}</p>
         <p>{comment.content}</p>
       </div>
 
       {user && (comment.createdBy === user.id || user.role === 'ADMIN') &&
-        <MdDeleteOutline onClick={deleteComment} size={25} color={"var(--error-primary)"}/>}
+        <MdDeleteOutline onClick={deleteComment} size={25} className="text-error hover:cursor-pointer"/>}
     </div>
   )
 }

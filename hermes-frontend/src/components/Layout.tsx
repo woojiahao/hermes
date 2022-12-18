@@ -35,37 +35,39 @@ export default function Layout({isProtected, children}: LayoutProps) {
   }
 
   return (
-    <div className="container">
-      <header>
-        <h1>hermes</h1>
+    <div className="bg-background text-dark min-h-full">
+      <div className="container py-12">
+        <header className="flex flex-row justify-between items-center pb-4">
+          <h1 className="text-primary">hermes</h1>
 
-        {isLoggedIn && user &&
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-            {user.role === 'ADMIN' && <Link to="/admin/new">New admin</Link>}
-            {<Link to="/threads/you">Your Threads</Link>}
-            {<p>Welcome back {user.username}!</p>}
-            <button type="button" onClick={logoutAction} className="effect-button">Logout</button>
-          </nav>
-        }
+          {isLoggedIn && user &&
+            <nav className="flex gap-x-8 items-center">
+              <Link to="/">Home</Link>
+              <Link to="/about">About</Link>
+              {user.role === 'ADMIN' && <Link to="/admin/new">New admin</Link>}
+              {<Link to="/threads/you">Your Threads</Link>}
+              {<p>Welcome back {user.username}!</p>}
+              <button type="button" onClick={logoutAction} className="button effect blue">Logout</button>
+            </nav>
+          }
 
-        {(!isLoggedIn || !user) &&
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-            <Link to="/login" className="effect-button">Login</Link>
-          </nav>
-        }
+          {(!isLoggedIn || !user) &&
+            <nav className="flex gap-x-8 items-center">
+              <Link to="/">Home</Link>
+              <Link to="/about">About</Link>
+              <Link to="/login" className="button effect blue">Login</Link>
+            </nav>
+          }
 
-      </header>
+        </header>
 
-      {children}
+        {children}
 
-      <footer>
-        <p>Copyright &copy; 2022 (Woo Jia Hao)</p>
-        <p>hermes is a web forum designed with ❤️ using React and Go</p>
-      </footer>
+        <footer className="flex justify-between pt-8">
+          <p>Copyright &copy; 2022 (Woo Jia Hao)</p>
+          <p>hermes is a web forum designed with ❤️ using React and Go</p>
+        </footer>
+      </div>
     </div>
   )
 }

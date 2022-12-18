@@ -1,5 +1,5 @@
 import User from "../models/User";
-import {hasValidJWT} from "../utility/jwt";
+import {clearJWT, hasValidJWT} from "../utility/jwt";
 import {HermesRequest, jsonConvert} from "../utility/request";
 
 export async function getCurrentUser(): Promise<User> {
@@ -11,6 +11,9 @@ export async function getCurrentUser(): Promise<User> {
       .hasAuthorization()
       .onSuccess((json) => {
         user = jsonConvert.deserializeObject(json, User)
+      })
+      .onFailure(_ => {
+        clearJWT()
       })
       .call()
   }

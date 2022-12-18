@@ -86,29 +86,29 @@ export default function TagSelection({selectedTags, setSelectedTags}: TagSelecti
   }
 
   return (
-    <div className="tag-select" ref={componentRef} onFocus={() => setIsShown(true)}>
+    <div className="w-full" ref={componentRef} onFocus={() => setIsShown(true)}>
       {error && <p className="error">{error}</p>}
 
-      <div className="tags-input">
-        <div className="tags-selected">
+      <div>
+        <div className="flex flex-row flex-wrap gap-2">
           {selectedTags &&
             Array
               .from(selectedTags.entries())
               .map(([i, tag]) =>
-                <div key={i} style={tagStyle(tag)}>
-                  <span style={tagStyle(tag)}>{tag.content}</span><MdOutlineClose onClick={() => removeSelection(i)}/>
+                <div key={i} style={tagStyle(tag)} className="flex justify-center items-center gap-y-2 w-fit px-1.5 py-2 rounded-br">
+                  <span style={tagStyle(tag)}>{tag.content}</span><MdOutlineClose className="hover:cursor-pointer ml-2" onClick={() => removeSelection(i)}/>
                 </div>
               )
           }
         </div>
         <input type="text"
-               className="search-tags"
+               className="w-full"
                onChange={() => setSearchTerm(searchTagRef.current.value)}
                ref={searchTagRef}/>
       </div>
 
-      <div className="tags-dropdown" hidden={!isShown}>
-        <div className="add-new-tag">
+      <div className="border border-primary bg-background-secondary border-t-0 rounded-l-[8px] rounded-r-[8px]" hidden={!isShown}>
+        <div className="flex flex-row items-center">
           <input
             type="text"
             name="new-tag-content"
@@ -118,11 +118,13 @@ export default function TagSelection({selectedTags, setSelectedTags}: TagSelecti
             onKeyDown={e => {
               if (e.key === 'Enter') addNewTag()
             }}
+            className="border-0 flex-1 focus:outline-0 m-0 p-2"
             ref={newTagContentRef}/>
           <input
             type="color"
             name="new-tag-color"
             id="new-tag-color"
+            className="border-0 bg-background-secondary w-[30px] h-[30px] !p-0 !m-0 hover:cursor-pointer"
             ref={newTagHexCodeRef}/>
         </div>
 
@@ -131,11 +133,12 @@ export default function TagSelection({selectedTags, setSelectedTags}: TagSelecti
             tags.filter(tag => tag.content.includes(searchTerm))
               .map((tag, i) =>
                 <div key={i}
+                     className="flex p-2 items-center justify-between hover:cursor-pointer hover:bg-[#e7e7e7]"
                      onClick={() => {
                        if (!(i in selectedTags)) selectTag(i)
                      }}>
                   <DisplayTag key={i} tag={tag}></DisplayTag>
-                  {Array.from(selectedTags.values()).filter(t => t === tag).length > 0 && <MdOutlineCheck/>}
+                  {Array.from(selectedTags.values()).filter(t => t.content === tag.content).length > 0 && <MdOutlineCheck/>}
                 </div>)}
         </div>
       </div>

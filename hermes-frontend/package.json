@@ -39,8 +39,8 @@
     "start:js": "react-scripts start",
     "build": "npm-run-all build:css build:js",
     "build:js": "GENERATE_SOURCEMAP=false DISABLE_ESLINT_PLUGIN=true react-scripts build",
-    "build:css": "postcss src/styles/main.pcss -o src/index.css",
-    "watch:css": "postcss src/styles/main.pcss -o src/index.css -w",
+    "build:css": "npx tailwindcss --postcss ./postcss.config.js -c ./tailwind.config.js -i src/styles/main.pcss -o src/index.css",
+    "watch:css": "npx tailwindcss --postcss ./postcss.config.js -c ./tailwind.config.js -i src/styles/main.pcss -o src/index.css -w",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -68,6 +68,8 @@
     "postcss-cli": "^10.1.0",
     "postcss-import": "^15.0.1",
     "postcss-nested": "^6.0.0",
-    "postcss-preset-env": "^7.8.3"
+    "postcss-nesting": "^10.2.0",
+    "postcss-preset-env": "^7.8.3",
+    "tailwindcss": "^3.2.4"
   }
 }

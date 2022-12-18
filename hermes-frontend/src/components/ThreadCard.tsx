@@ -14,19 +14,19 @@ export default function ThreadCard({thread}: ThreadCardProps) {
   const navigate = useNavigate()
 
   return (
-    <div className="thin-card thread-card" onClick={() => navigate(`/threads/${thread.id}`)}>
-      <div className="ends">
-        <h3 className="thread-title">{thread.title}</h3>
+    <div className="card animated" onClick={() => navigate(`/threads/${thread.id}`)}>
+      <div className="flex justify-between">
+        <h3 className="mb-4 text-dark-highlight">{thread.title}</h3>
         {thread.isPinned && <BsPinAngleFill color="#ebc81a" size={25}/>}
       </div>
       <ReactMarkdown className="markdown preview">{thread.content}</ReactMarkdown>
       {thread.tags &&
-        <div className="thread-tags" hidden={thread.tags.length === 0}>
+        <div className="flex gap-3 flex-wrap" hidden={thread.tags.length === 0}>
           {thread.tags.map((tag, i) => <DisplayTag key={i} tag={tag}></DisplayTag>)}
         </div>}
-      <div className="ends">
-        <p className="subtitle">Posted by {thread.creator}</p>
-        <p className="subtitle">Posted on {formatDate(thread.createdAt)}</p>
+      <div className="flex justify-between mt-4">
+        <p className="text-dark-highlight italic">Posted by {thread.creator}</p>
+        <p className="text-dark-highlight italic">Posted on {formatDate(thread.createdAt)}</p>
       </div>
     </div>
   )

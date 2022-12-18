@@ -36,9 +36,12 @@ export default function UserThreads() {
       <div className="single">
         <div className="title">
           <h1 className="heading">Your Threads</h1>
-          <a href="/create-thread" className="effect-button">New Thread</a>
+          <a href="/create-thread" className="button effect blue">New Thread</a>
         </div>
-        <ThreadList threads={threads}/>
+        {threads.length > 0 ?
+          <ThreadList threads={threads}/> :
+          <p>You have not created any threads yet!</p>
+        }
       </div>
     </Layout>
   )

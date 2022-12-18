@@ -9,9 +9,9 @@ interface DisplayTagProps {
 
 export default function DisplayTag({tag, onClick, style}: DisplayTagProps) {
   return (
-    <div className="display-tag" onClick={onClick}>
-      <div style={{backgroundColor: tag.hexCode}}></div>
-      <p style={style}>{tag.content}</p>
+    <div className="flex items-center gap-2 hover:cursor-pointer" onClick={onClick}>
+      <div className="w-[15px] h-[15px] border border-dark" style={{backgroundColor: tag.hexCode}}></div>
+      <p className="break-words" style={style}>{tag.content}</p>
     </div>
   )
 }

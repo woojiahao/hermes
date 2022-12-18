@@ -132,46 +132,49 @@ export default function ExpandedThread() {
           </div>
           <div className="group">
             {user && (thread.createdBy === user.id || user.role === 'ADMIN') &&
-              <button type="button" onClick={deleteThread} className='static-button-red'>Delete</button>}
+              <button type="button" onClick={deleteThread} className='button red'>Delete</button>}
             {user && (thread.createdBy === user.id || user.role === 'ADMIN') &&
-              <a href={`/threads/${thread.id}/edit`} className='static-button-blue'>Edit</a>}
+              <a href={`/threads/${thread.id}/edit`} className='button blue'>Edit</a>}
           </div>
         </div>
 
-        <div className="expanded-thread">
+        <div>
           {error && <p className="error">{error}</p>}
-          <div className="expanded-thread-heading">
-            <div className="ends">
+          <div className="mb-8 flex flex-col gap-y-2">
+            <div className="flex justify-between">
               <h2>{thread.title}</h2>
               {thread.isPinned ?
-                <BsPinAngleFill className={`${user && user.role === 'ADMIN' ? 'clickable' : ''}`} color="#ebc81a"
-                                size={25} onClick={async () => await pinThread()}/> :
-                <BsPinAngle className={`${user && user.role === 'ADMIN' ? 'clickable' : ''}`} color="#ebc81a" size={25}
+                <BsPinAngleFill className={`${user && user.role === 'ADMIN' ? 'clickable' : ''} hover:cursor-pointer`} color="#ebc81a"
+                                size={25} onClick={async () => await pinThread()} /> :
+                <BsPinAngle className={`${user && user.role === 'ADMIN' ? 'clickable' : ''} hover:cursor-pointer`} color="#ebc81a" size={25}
                             onClick={async () => await pinThread()}/>
               }
             </div>
-            <div className="expanded-thread-tags">
+            <div className="flex gap-3">
               {thread.tags.map((tag, i) => <DisplayTag tag={tag} key={i}/>)}
             </div>
-            <div className="ends">
-              <p className="subtitle">Posted by {thread && thread.creator}</p>
-              <p className="subtitle">Posted by {thread && formatDate(thread.createdAt)}</p>
+            <div className="flex justify-between">
+              <p className="text-dark-secondary italic">Posted by {thread && thread.creator}</p>
+              <p className="text-dark-secondary italic">Posted by {thread && formatDate(thread.createdAt)}</p>
             </div>
           </div>
-          <ReactMarkdown className="markdown thick-card">{thread.content}</ReactMarkdown>
+          <ReactMarkdown className="markdown card thick">{thread.content}</ReactMarkdown>
 
-          <div className="comments">
-            <h3>Comments</h3>
+          <div className="mt-8 text-primary">
+            <h3 className="mb-4">Comments</h3>
             {user && <div>
-          <textarea name="new-comment" id="new-comment" placeholder="Leave a comment" cols={30} rows={10}
-                    ref={commentRef}></textarea>
-              <div className="buttons on-end">
-                <button type="button" className="static-button-blue" onClick={submitComment}>Submit Comment
-                </button>
-              </div>
+          <textarea name="new-comment"
+                    id="new-comment"
+                    placeholder="Leave a comment"
+                    cols={30}
+                    rows={10}
+                    ref={commentRef}
+                    className="w-full border rounded-br border-primary p-4 font-sans text-base mb-4 text-dark"/>
+              <button type="button" className="button blue mb-4" onClick={submitComment}>Submit Comment
+              </button>
             </div>}
             {comments.length > 0 ?
-              <div className="comments-list">
+              <div className="flex flex-col gap-y-4">
                 {comments.map(comment => <CommentCard key={comment.id}
                                                       deleteComment={async () => await deleteComment(comment.id)}
                                                       comment={comment}/>)}

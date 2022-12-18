@@ -113,9 +113,9 @@ export default function ThreadForm({threadId, action, error, setError}: ThreadFo
         <TagSelection selectedTags={selectedTags} setSelectedTags={setSelectedTags}/>
       </div>
 
-      <div className="buttons ends">
-        <button type="button" className="static-button-plain" onClick={() => navigate(-1)}>Cancel</button>
-        <button type="button" className="static-button-blue" onClick={async () => await onSubmit()}>Submit
+      <div className="flex justify-between">
+        <button type="button" className="button" onClick={() => navigate(-1)}>Cancel</button>
+        <button type="button" className="button blue" onClick={async () => await onSubmit()}>Submit
         </button>
       </div>
     </div>

@@ -73,7 +73,7 @@ export default function Login() {
           <h1 className="heading">Login to hermes</h1>
         </div>
 
-        <div className="form thick-card">
+        <div className="form card thick">
           {error && <p className="error">{error}</p>}
 
           {success && <p className="success">{success}</p>}
@@ -87,17 +87,17 @@ export default function Login() {
             <input type="password" name="password" id="password" ref={passwordRef}/>
           </div>
 
-          <div className="buttons ends">
+          <div className="flex justify-between">
             <button
               type="button"
               onClick={async () => await register()}
-              className="static-button-plain"
+              className="button"
               disabled={!clickable}>Register
             </button>
             <button
               type="button"
               onClick={async () => await loginAction()}
-              className="static-button-blue"
+              className="button blue"
               disabled={!clickable}>Login
             </button>
           </div>

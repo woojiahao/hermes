@@ -1,65 +1,172 @@
 @import url('https://fonts.googleapis.com/css2?family=Karla:wght@400;700&display=swap');
 
-@import 'pages/home.pcss';
-@import 'components/tagSelection.pcss';
-@import 'components/minorComponents.pcss';
-@import 'components/layout.pcss';
-@import 'components/form.pcss';
-@import 'components/richTextEditor.pcss';
-@import 'shared.pcss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-* {
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
+@layer base {
+  * {
+    @apply text-base font-sans;
+  }
+
+  html, body {
+    @apply min-h-full bg-background;
+  }
+
+  h1 {
+    @apply text-3xl font-bold;
+  }
+
+  h2 {
+    @apply text-2xl font-bold;
+  }
+
+  h3 {
+    @apply text-xl font-bold;
+  }
+
+  h4 {
+    @apply text-lg font-bold;
+  }
+
+  a {
+    @apply text-primary;
+  }
+
+  a:hover {
+    @apply underline;
+  }
 }
 
-html {
-  font-size: 18px;
-  font-family: var(--font-family);
-  --font-family: 'Karla', Arial, sans-serif;
-  --background-primary: #F4FAFF;
-  --background-secondary: #FFFFFF;
-  --dark-primary: #191919;
-  --dark-secondary: #535657;
-  --dark-highlight: #4F646F;
-  --accent-color: #4583f6;
-  --primary-color: #345995;
-  --error-primary: #F56960;
-  --error-accent: #F45866;
-}
+@layer components {
+  .button {
+    @apply font-bold py-2 px-6 bg-background-secondary text-primary rounded-br border border-primary transition-all duration-300;
+  }
 
-body {
-  color: var(--dark-primary);
-  background-color: var(--background-primary);
-  height: 100%;
-}
+  .button.effect:hover {
+    @apply text-dark bg-background-secondary no-underline;
+  }
 
-.container {
-  width: 70%;
-  margin: 3rem auto;
+  .button.blue {
+    @apply bg-primary text-background-secondary;
+  }
 
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  .button.red {
+    @apply bg-error text-background-secondary border-error;
+  }
 
-    nav {
-      display: flex;
-      column-gap: 2rem;
-      align-items: center;
+  .single, .split {
+    @apply w-[90%] my-8 mx-auto;
 
-      a:not(.effect-button) {
-        text-decoration: none;
-        color: var(--accent-color);
+    .title {
+      @apply flex justify-between items-center mb-8;
+
+      .heading {
+        @apply text-primary;
+      }
+    }
+
+    .group {
+      @apply flex items-center gap-x-4;
+
+      svg:hover {
+        @apply cursor-pointer
       }
     }
   }
 
-  footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  .split {
+    .content {
+      @apply flex justify-between;
+
+      main {
+        @apply w-[80%];
+      }
+
+      aside {
+        @apply w-[18%];
+      }
+    }
+  }
+
+  .form {
+    @apply flex flex-col gap-y-6 w-full;
+
+    p {
+      @apply font-bold;
+    }
+
+    span {
+      @apply text-dark-highlight;
+    }
+
+    .field {
+      input {
+        @apply p-4 mt-2 rounded-br border-primary border w-full;
+      }
+    }
+  }
+
+  .card {
+    @apply bg-background-secondary p-4 shadow-bs rounded-br break-words transition-all duration-300;
+  }
+
+  .card.animated:hover {
+    @apply cursor-pointer translate-y-[-5px] shadow-emp;
+  }
+
+  .thick {
+    @apply p-8;
+  }
+
+  .error, .success {
+    @apply p-6 text-background-secondary rounded-br font-bold border-2;
+  }
+
+  .error {
+    @apply bg-error/70 border-error-accent;
+  }
+
+  .success {
+    @apply bg-success/70 border-success-accent;
+  }
+
+  .markdown {
+    h1, h2, h3 {
+      @apply my-4;
+    }
+
+    h1:first-child, h2:first-child, h3:first-child {
+      @apply mt-0;
+    }
+
+    h1:last-child, h2:last-child, h3:last-child {
+      @apply mb-0;
+    }
+
+    p {
+      @apply leading-6;
+    }
+
+    p:not(:last-child) {
+      @apply mb-3;
+    }
+  }
+
+  .preview {
+    @apply max-h-[200px] overflow-hidden;
+  }
+
+  .rich-text-editor {
+    @apply block mt-4;
+
+    .rich-text-editor-field {
+      @apply border border-primary bg-background-secondary min-h-[250px] rounded-br px-4;
+    }
+
+    .rich-text-editor-toolbar {
+      @apply border border-primary rounded-br;
+    }
   }
 }
 
