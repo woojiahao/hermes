@@ -997,6 +997,11 @@ a:hover{
   border-bottom-right-radius: 8px !important;
 }
 
+.rounded-b-\[8px\]{
+  border-bottom-right-radius: 8px !important;
+  border-bottom-left-radius: 8px !important;
+}
+
 .rounded-br{
   border-bottom-right-radius: 0.25rem !important;
 }
@@ -1126,6 +1131,11 @@ a:hover{
 .filter{
   -webkit-filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow) !important;
           filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow) !important;
+}
+
+.last\:rounded-b-br:last-child{
+  border-bottom-right-radius: 8px !important;
+  border-bottom-left-radius: 8px !important;
 }
 
 .hover\:cursor-pointer:hover{

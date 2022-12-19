@@ -107,7 +107,7 @@ export default function TagSelection({selectedTags, setSelectedTags}: TagSelecti
                ref={searchTagRef}/>
       </div>
 
-      <div className="border border-primary bg-background-secondary border-t-0 rounded-l-[8px] rounded-r-[8px]" hidden={!isShown}>
+      <div className="border border-primary bg-background-secondary border-t-0 rounded-b-[8px]" hidden={!isShown}>
         <div className="flex flex-row items-center">
           <input
             type="text"
@@ -133,12 +133,12 @@ export default function TagSelection({selectedTags, setSelectedTags}: TagSelecti
             tags.filter(tag => tag.content.includes(searchTerm))
               .map((tag, i) =>
                 <div key={i}
-                     className="flex p-2 items-center justify-between hover:cursor-pointer hover:bg-[#e7e7e7]"
+                     className="flex p-2 items-center justify-between hover:cursor-pointer hover:bg-[#e7e7e7] last:rounded-b-br"
                      onClick={() => {
                        if (!(i in selectedTags)) selectTag(i)
                      }}>
                   <DisplayTag key={i} tag={tag}></DisplayTag>
-                  {Array.from(selectedTags.values()).filter(t => t.content === tag.content).length > 0 && <MdOutlineCheck/>}
+                  {Array.from(selectedTags.values()).filter(t => t.content === tag.content).length > 0 && <MdOutlineCheck size={25} />}
                 </div>)}
         </div>
       </div>
