@@ -3,7 +3,6 @@
 ## Pending
 
 - [ ] Vote system
-- [ ] Input sanitisation
 
 ## Completed
 
@@ -16,3 +15,4 @@
 - [X] Sort threads by recency
 - [X] Search threads
 - [X] Mobile responsiveness
+- [X] Input sanitisation
