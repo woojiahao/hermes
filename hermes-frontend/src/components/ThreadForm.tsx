@@ -68,12 +68,33 @@ export default function ThreadForm({threadId, action, error, setError}: ThreadFo
     }
   }, [thread])
 
+  function validateInput(): [boolean, string?, string?, string?] {
+    const title = titleRef.current.value.trim() as string
+    const content = (draftToMarkdown(contentState) as string).trim()
+
+    if (title.length < 5) {
+      return [false, "Thread title must be at least 5 characters long"]
+    }
+
+    if (content.length < 30) {
+      return [false, "Thread title must be at least 30 characters long"]
+    }
+
+    return [true, null, title, content]
+  }
+
   async function onSubmit() {
     setError("")
 
+    const [status, error, title, content] = validateInput()
+    if (!status) {
+      setError(error)
+      return
+    }
+
     const dto: ThreadDto = {
-      title: titleRef.current.value,
-      content: draftToMarkdown(contentState),
+      title: title,
+      content: content,
       tags:
         Array.from(selectedTags.values()).map(tag => {
           return {
