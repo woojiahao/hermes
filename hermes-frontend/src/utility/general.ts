@@ -2,6 +2,8 @@ export function all<T>(arr: T[], predicate: (el: T) => boolean): boolean {
   return arr.filter(predicate).length === arr.length
 }
 
+export const fieldRegex = /^[a-zA-Z]\w{2,}$/
+
 export function formatDate(date: Date): string {
   let month = ""
   switch (date.getUTCMonth() + 1) {

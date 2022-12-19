@@ -6,6 +6,7 @@ import {setJWT} from "../utility/jwt";
 import {HermesRequest} from "../utility/request";
 import {createUser} from "../services/user"
 import Layout from "../components/Layout"
+import {fieldRegex} from "../utility/general"
 
 export default function Login() {
   const usernameRef = React.createRef<HTMLInputElement>();
@@ -22,19 +23,18 @@ export default function Login() {
     if (state) setError(state.message)
   }, [])
 
-  function validateAuthDetails(): [boolean, string?, string?, string?] {
-    const authRegex = /^[a-zA-Z]\w{2,}$/
+  function validateInput(): [boolean, string?, string?, string?] {
     const username = usernameRef.current.value.trim()
     const password = passwordRef.current.value.trim()
 
-    if (!username.match(authRegex)) {
+    if (!username.match(fieldRegex)) {
       return [
         false,
         'Username must start with a letter, contain at least three characters, and only include letters, digits, and _'
       ]
     }
 
-    if (!password.match(authRegex)) {
+    if (!password.match(fieldRegex)) {
       return [
         false,
         'Password must start with a letter, contain at least three characters, and only include letters, digits, and _'
@@ -49,7 +49,7 @@ export default function Login() {
     setSuccess("")
     setClickable(false)
 
-    const [status, error, username, password] = validateAuthDetails()
+    const [status, error, username, password] = validateInput()
     if (!status) {
       setError(error)
       setClickable(true)
@@ -73,7 +73,7 @@ export default function Login() {
     setSuccess('')
     setClickable(false)
 
-    const [status, error, username, password] = validateAuthDetails()
+    const [status, error, username, password] = validateInput()
     if (!status) {
       setError(error)
       setClickable(true)
