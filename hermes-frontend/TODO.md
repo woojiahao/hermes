@@ -3,7 +3,7 @@
 ## Pending
 
 - [ ] Vote system
-- [ ] Search threads
+- [ ] Input sanitisation
 
 ## Completed
 
@@ -14,3 +14,5 @@
 - [X] Delete thread
 - [X] Tag filtering system
 - [X] Sort threads by recency
+- [X] Search threads
+- [X] Mobile responsiveness

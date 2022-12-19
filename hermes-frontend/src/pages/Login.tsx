@@ -22,14 +22,43 @@ export default function Login() {
     if (state) setError(state.message)
   }, [])
 
+  function validateAuthDetails(): [boolean, string?, string?, string?] {
+    const authRegex = /^[a-zA-Z]\w{2,}$/
+    const username = usernameRef.current.value.trim()
+    const password = passwordRef.current.value.trim()
+
+    if (!username.match(authRegex)) {
+      return [
+        false,
+        'Username must start with a letter, contain at least three characters, and only include letters, digits, and _'
+      ]
+    }
+
+    if (!password.match(authRegex)) {
+      return [
+        false,
+        'Password must start with a letter, contain at least three characters, and only include letters, digits, and _'
+      ]
+    }
+
+    return [true, null, username, password]
+  }
+
   async function register() {
     setError("")
     setSuccess("")
     setClickable(false)
 
+    const [status, error, username, password] = validateAuthDetails()
+    if (!status) {
+      setError(error)
+      setClickable(true)
+      return
+    }
+
     await createUser(
-      usernameRef.current.value,
-      passwordRef.current.value,
+      username,
+      password,
       'USER',
       user => setSuccess(`Welcome ${user.username}. Please login to proceed!`),
       message => setError(message),
@@ -44,12 +73,19 @@ export default function Login() {
     setSuccess('')
     setClickable(false)
 
+    const [status, error, username, password] = validateAuthDetails()
+    if (!status) {
+      setError(error)
+      setClickable(true)
+      return
+    }
+
     await new HermesRequest()
       .POST()
       .endpoint('login')
       .body({
-        'username': usernameRef.current.value,
-        'password': passwordRef.current.value
+        'username': username,
+        'password': password
       })
       .onSuccess((r: { token: string }) => {
         setSuccess('Welcome back!')
@@ -80,10 +116,12 @@ export default function Login() {
 
           <div className="field">
             <p>Username</p>
+            <span className="italic">No spaces, $, #, !</span>
             <input type="text" name="username" id="username" ref={usernameRef}/>
           </div>
           <div className="field">
             <p>Password</p>
+            <span className="italic">No spaces, $, #, !</span>
             <input type="password" name="password" id="password" ref={passwordRef}/>
           </div>
 
