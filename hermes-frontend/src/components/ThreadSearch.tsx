@@ -9,8 +9,8 @@ export default function ThreadSearch({setSearchTerm}: ThreadSearchProps) {
   const searchRef = useRef<HTMLInputElement>()
   const [toggled, setToggled] = useState(false)
 
-  const toggledStyles = `p-2 border border-primary rounded-br`
-  const untoggledStyles = `w-0`
+  const toggledStyles = `p-2 border border-primary rounded-br scale-x-100`
+  const untoggledStyles = `scale-x-0 origin-right`
 
   function onChange() {
     const searchTerm = searchRef.current.value.trim()
@@ -19,10 +19,6 @@ export default function ThreadSearch({setSearchTerm}: ThreadSearchProps) {
 
   return (
     <div className="flex items-center">
-      <AiOutlineSearch size={30} className={`text-primary hover:cursor-pointer ${toggled ? 'hidden' : ''}`} onClick={() => {
-        document.getElementById("search").focus()
-        setToggled(!toggled)
-      }}/>
       <input
         type="text"
         id="search"
@@ -31,6 +27,10 @@ export default function ThreadSearch({setSearchTerm}: ThreadSearchProps) {
         ref={searchRef}
         placeholder="Search by title"
         onChange={onChange}/>
+      <AiOutlineSearch size={30} className={`text-primary hover:cursor-pointer ${toggled ? 'hidden' : ''}`} onClick={() => {
+        document.getElementById("search").focus()
+        setToggled(!toggled)
+      }}/>
     </div>
   )
 }
