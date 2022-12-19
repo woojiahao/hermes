@@ -7,12 +7,14 @@ import DisplayTag from "../components/DisplayTag"
 import Layout from "../components/Layout"
 import {AiOutlineSearch} from "react-icons/ai"
 import {Link} from "react-router-dom"
+import ThreadSearch from "../components/ThreadSearch"
 
 export default function Home() {
   const [threads, setThreads] = useState<Thread[]>([])
   const [message, setMessage] = useState("Loading...")
   const [tags, setTags] = useState<Tag[]>([])
   const [filteredTags, setFilteredTags] = useState<Tag[]>([])
+  const [searchTerm, setSearchTerm] = useState("")
 
   useEffect(() => {
     (async () => {
@@ -51,7 +53,7 @@ export default function Home() {
         <div className="title">
           <h1 className="heading">Threads</h1>
           <div className="flex items-center gap-x-4">
-            <AiOutlineSearch size={30} className="text-primary hover:cursor-pointer"/>
+            <ThreadSearch setSearchTerm={setSearchTerm}/>
             <Link to="/threads/new" className="button blue effect">New Thread</Link>
           </div>
         </div>
@@ -61,6 +63,9 @@ export default function Home() {
             {message && <p>{message}</p>}
             {threads.length > 0 ?
               <ThreadList threads={threads.filter(thread => {
+                if (!thread.title.includes(searchTerm))
+                  return false
+
                 for (const tag of filteredTags) {
                   if (!thread.tags.flatMap(t => t.content).includes(tag.content)) return false
                 }

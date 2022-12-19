@@ -921,6 +921,10 @@ a:hover{
   width: 30px !important;
 }
 
+.w-0{
+  width: 0px !important;
+}
+
 .flex-1{
   flex: 1 1 0% !important;
 }
@@ -1131,6 +1135,20 @@ a:hover{
 .filter{
   -webkit-filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow) !important;
           filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow) !important;
+}
+
+.transition-all{
+  transition-property: all !important;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition-duration: 150ms !important;
+}
+
+.duration-300{
+  transition-duration: 300ms !important;
+}
+
+.duration-500{
+  transition-duration: 500ms !important;
 }
 
 .last\:rounded-b-br:last-child{
