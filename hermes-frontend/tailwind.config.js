@@ -45,6 +45,9 @@ module.exports = {
       boxShadow: {
         'bs': '#e7e7e7 1px 1px 5px',
         'emp': '#d4d4d4 1px 1px 7px',
+      },
+      dropShadow: {
+        'ds': '#e7e7e7 1px 1px 5px',
       }
     },
   },
