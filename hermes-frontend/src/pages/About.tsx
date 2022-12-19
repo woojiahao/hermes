@@ -9,8 +9,8 @@ export default function About() {
         <div className="title">
           <h1 className="heading">About</h1>
         </div>
-        <div className="flex gap-x-8">
-          <img className="w-1/4 aspect-auto rounded-br shadow-bs drop-shadow-ds"
+        <div className="flex gap-8 phablet:flex-col">
+          <img className="w-1/4 aspect-auto rounded-br shadow-bs drop-shadow-ds phablet:w-full phablet:h-[250px] phablet:object-cover phablet:object-[0_15%]"
                src={hermes}
                alt="Hermes, messenger of the Greek Gods"/>
           <div className="flex flex-col gap-y-4 card">

@@ -50,9 +50,9 @@ export default function Home() {
   return (
     <Layout>
       <div className="split">
-        <div className="title">
+        <div className="title phone:flex-col">
           <h1 className="heading">Threads</h1>
-          <div className="flex items-center gap-x-4">
+          <div className="flex items-center gap-4 phone:justify-between phone:w-full">
             <ThreadSearch setSearchTerm={setSearchTerm}/>
             <Link to="/threads/new" className="button blue effect">New Thread</Link>
           </div>
@@ -74,18 +74,20 @@ export default function Home() {
               <p>No threads created yet.</p>
             }
           </main>
-          <aside className="flex flex-col gap-y-4">
+          <aside className="flex flex-col gap-y-4 phone:gap-y-1">
             <p><strong>Tags</strong> (click to filter)</p>
-            <div hidden={filteredTags.length === 0}>
-              {filteredTags.length > 0 && <p><em>Filtered tags</em></p>}
-              {filteredTags
-                .map((tag, i) => <DisplayTag key={i}
-                                             tag={tag}
-                                             onClick={() => setFilteredTags(prevState => prevState.filter(t => t !== tag))}
-                                             style={{fontWeight: "bold"}}/>)}
+            <div hidden={filteredTags.length === 0} className="phone:flex phone:flex-row">
+              {filteredTags.length > 0 && <p className="mr-4"><em>Filtered tags</em></p>}
+              <div className="phone:flex phone:flex-row phone:gap-4">
+                {filteredTags
+                  .map((tag, i) => <DisplayTag key={i}
+                                               tag={tag}
+                                               onClick={() => setFilteredTags(prevState => prevState.filter(t => t !== tag))}
+                                               style={{fontWeight: "bold"}}/>)}
+              </div>
             </div>
-            <div>
-              {filteredTags.length > 0 && <p><em>Other tags</em></p>}
+            <div className="phone:flex phone:flex-row phone:gap-4">
+              {filteredTags.length > 0 && <p className="mr-4"><em>Other tags</em></p>}
               {tags
                 .filter(tag => !(filteredTags.includes(tag)))
                 .map((tag, i) => <DisplayTag key={i}

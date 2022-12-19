@@ -125,12 +125,12 @@ export default function ExpandedThread() {
   return (
     <Layout>
       <div className="single">
-        <div className="title">
-          <div className="group">
+        <div className="title tiny:flex tiny:flex-col tiny:gap-y-4">
+          <div className="group tiny:w-full tiny:flex tiny:justify-start">
             <IoArrowBackSharp onClick={() => navigate(-1)} size={25} color={`var(--primary-color)`}/>
             <h1 className="heading">Thread</h1>
           </div>
-          <div className="group">
+          <div className="group tiny:w-full tiny:flex tiny:justify-between">
             {user && (thread.createdBy === user.id || user.role === 'ADMIN') &&
               <button type="button" onClick={deleteThread} className='button red'>Delete</button>}
             {user && (thread.createdBy === user.id || user.role === 'ADMIN') &&
@@ -141,7 +141,7 @@ export default function ExpandedThread() {
         <div>
           {error && <p className="error">{error}</p>}
           <div className="mb-8 flex flex-col gap-y-2">
-            <div className="flex justify-between">
+            <div className="flex justify-between items-center">
               <h2>{thread.title}</h2>
               {thread.isPinned ?
                 <BsPinAngleFill className={`${user && user.role === 'ADMIN' ? 'clickable' : ''} hover:cursor-pointer`} color="#ebc81a"

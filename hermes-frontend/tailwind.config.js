@@ -5,14 +5,12 @@ module.exports = {
     "./src/**/*.{js,jsx, ts,tsx}",
   ],
   theme: {
-    container: {
-      center: true,
-      width: '90%',
-    },
+    container: false,
     screens: {
-      sm: '480px',
-      md: '768px',
-      lg: '1024px',
+      'tablet': {'max': '1180px'},
+      'phablet': {'max': '980px'},
+      'phone': {'max': '670px'},
+      'tiny': {'max': '450px'},
     },
     colors: {
       'background': '#f4faff',
@@ -37,6 +35,8 @@ module.exports = {
       'xl': '1.563rem',
       '2xl': '1.953rem',
       '3xl': '2.441rem',
+      phablet: '16px',
+      phone: '14px',
     },
     extend: {
       borderRadius: {
@@ -51,5 +51,6 @@ module.exports = {
       }
     },
   },
-  plugins: [],
+  plugins: [
+  ],
 }

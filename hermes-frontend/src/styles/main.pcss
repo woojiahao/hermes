@@ -168,5 +168,40 @@
       @apply border border-primary rounded-br;
     }
   }
+
+  @screen phablet {
+    * {
+      @apply text-phablet;
+    }
+
+    .split {
+      .content {
+
+        main {
+          @apply w-[70%];
+        }
+
+        aside {
+          @apply w-[25%];
+        }
+      }
+    }
+  }
+
+  @screen phone {
+    * {
+      @apply text-phone;
+    }
+
+    .split {
+      .content {
+        @apply flex-col-reverse gap-y-8;
+
+        main, aside {
+          @apply w-full;
+        }
+      }
+    }
+  }
 }
 

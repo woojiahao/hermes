@@ -18,11 +18,11 @@ export default function ThreadSearch({setSearchTerm}: ThreadSearchProps) {
   }
 
   return (
-    <div className="flex items-center">
+    <div className="flex items-center phone:flex-row-reverse">
       <input
         type="text"
         id="search"
-        className={`${toggled ? toggledStyles : untoggledStyles} transition-all duration-500`}
+        className={`${toggled ? toggledStyles : untoggledStyles} transition-all duration-500 phone:w-[100px]`}
         onBlur={() => setToggled(false)}
         ref={searchRef}
         placeholder="Search by title"
