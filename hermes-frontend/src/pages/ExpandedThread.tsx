@@ -142,7 +142,7 @@ export default function ExpandedThread() {
           {error && <p className="error">{error}</p>}
           <div className="mb-8 flex flex-col gap-y-2">
             <div className="flex justify-between items-center">
-              <h2>{thread.title}</h2>
+              <h2 className="break-words">{thread.title}</h2>
               {thread.isPinned ?
                 <BsPinAngleFill className={`${user && user.role === 'ADMIN' ? 'clickable' : ''} hover:cursor-pointer`} color="#ebc81a"
                                 size={25} onClick={async () => await pinThread()} /> :

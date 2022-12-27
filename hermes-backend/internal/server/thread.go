@@ -34,7 +34,7 @@ func pinThread(ctx *gin.Context, db *database.Database) {
 	}
 
 	var req PinThread
-	if err := ctx.ShouldBindJSON(&req); err != nil {
+	if err = ctx.ShouldBindJSON(&req); err != nil {
 		badRequestValidation(ctx, err)
 		return
 	}
@@ -57,7 +57,7 @@ func editThread(ctx *gin.Context, db *database.Database) {
 	}
 
 	var req EditThread
-	if err := ctx.ShouldBindJSON(&req); err != nil {
+	if err = ctx.ShouldBindJSON(&req); err != nil {
 		badRequestValidation(ctx, err)
 		return
 	}

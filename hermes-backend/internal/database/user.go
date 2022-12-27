@@ -2,9 +2,10 @@ package database
 
 import (
 	"database/sql"
+	"fmt"
+	"log"
 
 	"golang.org/x/crypto/bcrypt"
-	i "woojiahao.com/hermes/internal"
 )
 
 type (
@@ -39,10 +40,11 @@ func parseUserRows(rows *sql.Rows) (User, error) {
 func (d *Database) CreateUser(username string, password string, role Role) (User, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
 	if err != nil {
-		return dummyUser, &i.ServerError{Custom: "failed to generate hash for password", Base: err}
+		log.Printf("Failed to generate hash for password due to %s", err)
+		return dummyUser, InternalError
 	}
 
-	users, err := query(
+	user, err := singleQuery(
 		d,
 		`
 			INSERT INTO "user"(username, password_hash, role)
@@ -52,61 +54,37 @@ func (d *Database) CreateUser(username string, password string, role Role) (User
 		generateParams(username, string(hash), role),
 		parseUserRows,
 	)
-
-	if err != nil {
-		return dummyUser, &i.DatabaseError{
-			Custom: "failed to insert new user, reason: conflicting username or email",
-			Base:   err,
-			Short:  "Username is already taken",
-		}
-	}
-
-	return users[0], nil
-}
-
-// TODO: Add promote/demote user function
-
-// TODO: Refactor this
-func (d *Database) GetUserById(userId string) (User, error) {
-	users, err := query(
-		d,
-		`
-			SELECT *
-			FROM "user"
-			WHERE id = $1;
-		`,
-		generateParams(userId),
-		parseUserRows,
-	)
-
-	if err != nil {
-		return dummyUser, &i.DatabaseError{Custom: "failed to retrieve user by id", Base: err}
-	}
-
-	err = i.ExactlyOneResultError(users)
 	if err != nil {
 		return dummyUser, err
 	}
 
-	return users[0], nil
+	return user, nil
+}
+
+func (d *Database) GetUserById(userId string) (User, error) {
+	return d.getUser(userId, false)
 }
 
 func (d *Database) GetUser(username string) (User, error) {
-	users, err := query(
-		d,
-		`
-			SELECT *
-			FROM "user"
-			WHERE username = $1;
-		`,
-		generateParams(username),
-		parseUserRows,
-	)
-	if err != nil || len(users) == 0 {
-		return dummyUser, &i.DatabaseError{Custom: "failed to retrieve user by username", Base: err}
+	return d.getUser(username, true)
+}
+
+func (d *Database) getUser(str string, isUsername bool) (User, error) {
+	searchTerm := "username"
+	if !isUsername {
+		searchTerm = "id"
+	}
+	q := fmt.Sprintf(`
+		SELECT *
+		FROM "user"
+		WHERE %s = $1;
+	`, searchTerm)
+	user, err := singleQuery(d, q, generateParams(str), parseUserRows)
+	if err != nil {
+		return dummyUser, err
 	}
 
-	return users[0], nil
+	return user, nil
 }
 
 func (d *Database) GetUsers() ([]User, error) {
@@ -116,9 +94,8 @@ func (d *Database) GetUsers() ([]User, error) {
 		generateParams(),
 		parseUserRows,
 	)
-
 	if err != nil {
-		return make([]User, 0), &i.DatabaseError{Custom: "failed to retrieve all users", Base: err}
+		return nil, err
 	}
 
 	return users, nil
