@@ -2,8 +2,8 @@ package database
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
+	"woojiahao.com/hermes/internal/database/query"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -46,11 +46,11 @@ func (d *Database) CreateUser(username string, password string, role Role) (User
 
 	user, err := singleQuery(
 		d,
-		`
-			INSERT INTO "user"(username, password_hash, role)
-			VALUES ($1, $2, $3::text::"role")
-			RETURNING *;
-		`,
+		database.Insert(`"user"`).
+			Columns("username", "password_hash", "role").
+			Values("$1", "$2", `$3::text::"role"`).
+			Returning("*").
+			Generate(),
 		generateParams(username, string(hash), role),
 		parseUserRows,
 	)
@@ -74,12 +74,15 @@ func (d *Database) getUser(str string, isUsername bool) (User, error) {
 	if !isUsername {
 		searchTerm = "id"
 	}
-	q := fmt.Sprintf(`
-		SELECT *
-		FROM "user"
-		WHERE %s = $1;
-	`, searchTerm)
-	user, err := singleQuery(d, q, generateParams(str), parseUserRows)
+	user, err := singleQuery(
+		d,
+		database.From(`"user"`).
+			Select("*").
+			Where(database.Eq(searchTerm, "$1")).
+			Generate(),
+		generateParams(str),
+		parseUserRows,
+	)
 	if err != nil {
 		return dummyUser, err
 	}
@@ -90,7 +93,7 @@ func (d *Database) getUser(str string, isUsername bool) (User, error) {
 func (d *Database) GetUsers() ([]User, error) {
 	users, err := query(
 		d,
-		`SELECT * FROM "user";`,
+		database.From(`"user"`).Select("*").Generate(),
 		generateParams(),
 		parseUserRows,
 	)

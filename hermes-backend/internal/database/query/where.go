@@ -13,3 +13,7 @@ func Or(left, right string) string {
 func IsNull(column string) string {
 	return fmt.Sprintf("%s IS NULL", column)
 }
+
+func Eq(column string, value any) string {
+	return fmt.Sprintf("%s = %v", column, value)
+}
