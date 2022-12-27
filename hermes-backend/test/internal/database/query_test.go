@@ -3,7 +3,7 @@ package database
 import (
 	"fmt"
 	"testing"
-	. "woojiahao.com/hermes/internal/database/query"
+	. "woojiahao.com/hermes/internal/database/q"
 )
 
 func TestShouldGenerateSelectQuery(t *testing.T) {

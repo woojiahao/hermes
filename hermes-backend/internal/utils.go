@@ -68,3 +68,11 @@ func IsUUID(u string) bool {
 	_, err := uuid.Parse(u)
 	return err == nil
 }
+
+func ThisOrThat[T any](this, that T, condition bool) T {
+	if condition {
+		return this
+	} else {
+		return that
+	}
+}

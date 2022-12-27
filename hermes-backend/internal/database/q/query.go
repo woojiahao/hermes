@@ -1,4 +1,4 @@
-package database
+package q
 
 type (
 	Join struct {
@@ -10,4 +10,8 @@ type (
 	QueryBuilder interface {
 		Generate() string
 	}
+)
+
+const (
+	ALL = "*"
 )
