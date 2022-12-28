@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"time"
+	. "woojiahao.com/hermes/internal/database/q"
 
 	i "woojiahao.com/hermes/internal"
 )
@@ -53,11 +54,10 @@ func (d *Database) CreateComment(userId, threadId, content string) (Comment, err
 	return transaction(d, func(tx *sql.Tx) (Comment, error) {
 		comments, err := transactionQuery(
 			tx,
-			`
-			INSERT INTO comment ("content", created_by, thread_id)
-			VALUES ($1, $2, $3)
-			RETURNING *;
-		`,
+			Insert("comment").
+				Values(P1, P2, P3).
+				Columns(`"comment"`, "created_by", "thread_id").
+				Returning(ALL),
 			generateParams(content, userId, threadId),
 			parseCommentRows,
 		)
@@ -67,9 +67,9 @@ func (d *Database) CreateComment(userId, threadId, content string) (Comment, err
 
 		usernames, err := transactionQuery(
 			tx,
-			`
-				SELECT username FROM "user" WHERE id = $1
-			`,
+			From(`"user"`).
+				Select("username").
+				Where(Eq("id", "$1")),
 			generateParams(userId),
 			func(rows *sql.Rows) (string, error) {
 				var username string
@@ -86,18 +86,17 @@ func (d *Database) CreateComment(userId, threadId, content string) (Comment, err
 }
 
 func (d *Database) DeleteComment(userId, commentId string) (Comment, error) {
+	isAdmin := From(`"user"`).Select(ALL).Where(And(Eq(`"user".id`, P1), Eq(`"user".role`, "ADMIN"))).Generate()
+	isValid := Or(Eq("comment.created_by", P1), Exists(isAdmin))
+	where := And(Eq("comment.id", P2), isValid)
+
 	comments, err := query(
 		d,
-		`
-			UPDATE comment
-			SET deleted_by = $1, deleted_at = NOW()
-			WHERE comment.id = $2
-				AND (
-					comment.created_by = $1 OR
-					EXISTS (SELECT * FROM "user" WHERE "user".id = $1 AND "user".role = 'ADMIN')
-				)
-			RETURNING *;
-		`,
+		Update("comment").
+			Set("deleted_by", P1).
+			Set("deleted_at", NOW).
+			Where(where).
+			Returning(ALL),
 		generateParams(userId, commentId),
 		parseCommentRows,
 	)
@@ -119,13 +118,11 @@ func (d *Database) DeleteComment(userId, commentId string) (Comment, error) {
 func (d *Database) GetThreadComments(threadId string) ([]Comment, error) {
 	comments, err := query(
 		d,
-		`
-			SELECT comment.*, "user".username 
-			FROM comment 
-				INNER JOIN "user" ON "user".id = comment.created_by
-			WHERE thread_id = $1 AND deleted_at IS NULL
-			ORDER BY created_at DESC;
-		`,
+		From("comment").
+			Select("comment.*", `"user".username`).
+			Join(`"user"`, "created_by", "id").
+			Where(And(Eq("thread_id", P1), IsNull("deleted_at"))).
+			Order("created_at", DESC),
 		generateParams(threadId),
 		parseCommentRowsWithCreator,
 	)

@@ -17,3 +17,7 @@ func IsNull(column string) string {
 func Eq(column string, value any) string {
 	return fmt.Sprintf("%s = %v", column, value)
 }
+
+func Exists(query string) string {
+	return fmt.Sprintf("EXISTS(%s)", query)
+}

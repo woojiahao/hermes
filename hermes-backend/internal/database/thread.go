@@ -5,6 +5,7 @@ import (
 	"time"
 
 	i "woojiahao.com/hermes/internal"
+	. "woojiahao.com/hermes/internal/database/q"
 )
 
 type Tag struct {
@@ -102,11 +103,10 @@ func (d *Database) CreateThread(userId, title, content string, tags []Tag) (Thre
 	return transaction(d, func(tx *sql.Tx) (Thread, error) {
 		threads, err := transactionQuery(
 			tx,
-			`
-				INSERT INTO thread (title, "content", created_by)
-				VALUES ($1, $2, $3)
-				RETURNING *;
-			`,
+			Insert("thread").
+				Columns("title", `"content"`, "created_by").
+				Values(P1, P2, P3).
+				Returning(ALL),
 			generateParams(title, content, userId),
 			parseThreadRows,
 		)
@@ -138,12 +138,10 @@ func (d *Database) GetThreadById(threadId string) (Thread, error) {
 	return transaction(d, func(tx *sql.Tx) (Thread, error) {
 		threads, err := transactionQuery(
 			tx,
-			`
-				SELECT thread.*, "user".username
-				FROM thread
-					INNER JOIN "user" ON thread.created_by = "user".id
-				WHERE thread.id = $1 AND deleted_at IS NULL
-			`,
+			From("thread").
+				Select("thread.*", `"user".username`).
+				Join(`"user"`, "created_by", "id").
+				Where(And(Eq("thread.id", P1), IsNull("deleted_at"))),
 			generateParams(threadId),
 			parseThreadRowsWithCreator,
 		)
@@ -156,13 +154,11 @@ func (d *Database) GetThreadById(threadId string) (Thread, error) {
 
 		threadTags, err := transactionQuery(
 			tx,
-			`
-				SELECT tag.*
-				FROM tag
-					INNER JOIN thread_tag tt on tag.id = tt.tag_id
-					INNER JOIN thread t on t.id = tt.thread_id
-				WHERE t.id = $1;
-			`,
+			From("tag").
+				Select("tag.*").
+				Join("thread_tag", "tag.id", "thread_tag.tag_id").
+				Join("thread", "thread.id", "thread_tag.thread_id").
+				Where(Eq("thread.id", P1)),
 			generateParams(thread.Id),
 			parseTagRows,
 		)
@@ -181,18 +177,17 @@ func (d *Database) GetThreads() ([]Thread, error) {
 }
 
 func (d *Database) DeleteThread(userId, threadId string) (Thread, error) {
+	isAdmin := From(`"user"`).Select(ALL).Where(And(Eq(`"user".id`, P1), Eq(`"user".role`, "ADMIN"))).Generate()
+	isValid := Or(Eq("thread.created_by", P1), Exists(isAdmin))
+	where := And(Eq("thread.id", P2), isValid)
+
 	threads, err := query(
 		d,
-		`
-			UPDATE thread
-			SET deleted_by = $1, deleted_at = NOW()
-			WHERE thread.id = $2
-				AND (
-					thread.created_by = $1 OR
-					EXISTS (SELECT * FROM "user" WHERE "user".id = $1 AND "user".role = 'ADMIN')
-				)
-			RETURNING *;
-		`,
+		Update("thread").
+			Set("deleted_by", P1).
+			Set("deleted_at", NOW).
+			Where(where).
+			Returning(ALL),
 		generateParams(userId, threadId),
 		parseThreadRows,
 	)
@@ -223,12 +218,14 @@ func (d *Database) EditThread(
 	return transaction(d, func(tx *sql.Tx) (Thread, error) {
 		threads, err := transactionQuery(
 			tx,
-			`
-				UPDATE thread
-				SET title = $1, "content" = $2, is_published = $3, is_open = $4, updated_at = NOW()
-				WHERE thread.id = $5 AND thread.created_by = $6
-				RETURNING *
-			`,
+			Update("thread").
+				Set("title", P1).
+				Set(`"content"`, P2).
+				Set("is_published", P3).
+				Set("is_open", P4).
+				Set("updated_at", NOW).
+				Where(And(Eq("thread.id", P5), Eq("thread.created_by", P6))).
+				Returning(ALL),
 			generateParams(title, content, isPublished, isOpen, threadId, userId),
 			parseThreadRows,
 		)
@@ -240,11 +237,9 @@ func (d *Database) EditThread(
 		// Delete all existing tags
 		_, err = transactionQuery(
 			tx,
-			`DELETE FROM thread_tag WHERE thread_id = $1`,
+			Delete("thread_tag").Where(Eq("thread_id", P1)),
 			generateParams(threadId),
-			func(r *sql.Rows) (string, error) {
-				return "", nil
-			},
+			doNothing,
 		)
 		if err != nil {
 			return dummyThread, &i.DatabaseError{Custom: "failed to delete all associated tags with given thread", Base: err}
@@ -262,7 +257,7 @@ func (d *Database) EditThread(
 func (d *Database) GetTags() ([]Tag, error) {
 	tags, err := query(
 		d,
-		`SELECT * FROM tag;`,
+		From("tag").Select(ALL),
 		generateParams(),
 		parseTagRows,
 	)
@@ -276,12 +271,7 @@ func (d *Database) GetTags() ([]Tag, error) {
 func (d *Database) PinThread(threadId string, isPinned bool) (Thread, error) {
 	threads, err := query(
 		d,
-		`
-			UPDATE thread
-			SET is_pinned = $1
-			WHERE thread.id = $2
-			RETURNING *;
-		`,
+		Update("thread").Set("is_pinned", P1).Where(Eq("id", P2)).Returning(ALL),
 		generateParams(isPinned, threadId),
 		parseThreadRows,
 	)
@@ -293,26 +283,22 @@ func (d *Database) PinThread(threadId string, isPinned bool) (Thread, error) {
 }
 
 func getThreadsWithFilter(d *Database, userId *string) ([]Thread, error) {
-	query := `
-		SELECT thread.*, "user".username
-		FROM thread
-			INNER JOIN "user" ON thread.created_by = "user".id
-		WHERE deleted_at IS NULL AND is_published
-	`
+	where := And(IsNull("deleted_at"), "is_published")
+	q := From("thread").
+		Select("thread.*", `"user".username`).
+		Join(`"user"`, "created_by", "id").
+		Order("is_pinned", DESC).
+		Order("created_at", DESC)
+
 	params := generateParams()
 	if userId != nil {
-		query += ` AND "user".id = $1`
+		where = And(where, Eq(`"user".id`, P1))
 		params = generateParams(userId)
 	}
-	query += "\nORDER BY is_pinned DESC, created_at DESC;"
+	q.Where(where)
 
 	return transaction(d, func(tx *sql.Tx) ([]Thread, error) {
-		threads, err := transactionQuery(
-			tx,
-			query,
-			params,
-			parseThreadRowsWithCreator,
-		)
+		threads, err := transactionQuery(tx, q, params, parseThreadRowsWithCreator)
 
 		if err != nil {
 			return nil, &i.DatabaseError{Custom: "failed to retrieve all threads", Base: err}
@@ -322,13 +308,11 @@ func getThreadsWithFilter(d *Database, userId *string) ([]Thread, error) {
 
 		_, err = transactionQuery(
 			tx,
-			`
-				SELECT t.id, tag.id, tag."content", tag.hex_code
-				FROM tag
-					INNER JOIN thread_tag tt on tag.id = tt.tag_id
-					INNER JOIN thread t on t.id = tt.thread_id
-				WHERE t.deleted_at IS NULL;
-			`,
+			From("tag").
+				Select("thread.id", "tag.id", `tag."content"`, "tag.hex_code").
+				Join("thread_tag", "tag.id", "thread_tag.tag_id").
+				Join("thread", "thread.id", "thread_tag.thread_id").
+				Where(IsNull("thread.deleted_at")),
 			generateParams(),
 			func(r *sql.Rows) (string, error) {
 				var threadId string
@@ -362,20 +346,21 @@ func attachTags(tx *sql.Tx, thread Thread, tags []Tag) (Thread, error) {
 	// Create or retrieve all the tags from the database
 	// Once retrieved, attach the tag to the thread
 	for _, tag := range tags {
+		// TODO: Consider splitting this into separate queries to simplify
 		ts, err := transactionQuery(
 			tx,
-			`
-					WITH q AS(
-						INSERT INTO tag ("content", hex_code)
-						VALUES ($1, $2)
-						ON CONFLICT("content")
-						DO NOTHING
-						RETURNING *
-					)
-					SELECT * FROM q
-					UNION
-					SELECT * FROM tag WHERE tag."content" = $1;
-				`,
+			Raw(`
+				WITH q AS(
+					INSERT INTO tag ("content", hex_code)
+					VALUES ($1, $2)
+					ON CONFLICT("content")
+					DO NOTHING
+					RETURNING *
+				)
+				SELECT * FROM q
+				UNION
+				SELECT * FROM tag WHERE tag."content" = $1;
+			`),
 			generateParams(tag.Content, tag.HexCode),
 			parseTagRows,
 		)
@@ -388,15 +373,9 @@ func attachTags(tx *sql.Tx, thread Thread, tags []Tag) (Thread, error) {
 
 		_, err = transactionQuery(
 			tx,
-			`
-					INSERT INTO thread_tag
-					VALUES ($1, $2)
-					RETURNING *;
-				`,
+			Insert("thread_tag").Values(P1, P2).Returning(ALL),
 			generateParams(thread.Id, ts[0].Id),
-			func(r *sql.Rows) (string, error) {
-				return "", nil // this perRow fn does not parse the results
-			},
+			doNothing,
 		)
 
 		if err != nil {

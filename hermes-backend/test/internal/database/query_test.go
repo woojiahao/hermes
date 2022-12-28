@@ -6,6 +6,13 @@ import (
 	. "woojiahao.com/hermes/internal/database/q"
 )
 
+func matchQuery(t *testing.T, builder QueryBuilder, query string) {
+	q := builder.Generate()
+	if q != query {
+		t.Errorf("Invalid query generated. Expected \n%s \n, got \n%s", query, q)
+	}
+}
+
 func TestShouldGenerateSelectQuery(t *testing.T) {
 	q := From("customer").
 		Select("id", "name").

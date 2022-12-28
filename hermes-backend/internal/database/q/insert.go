@@ -33,8 +33,12 @@ func (i *InsertQuery) Returning(columns ...string) *InsertQuery {
 }
 
 func (i *InsertQuery) Generate() string {
+	topLine := fmt.Sprintf("INSERT INTO %s", i.table)
+	if len(i.columns) > 0 {
+		topLine = fmt.Sprintf("INSERT INTO %s (%s)", i.table, strings.Join(i.columns, ", "))
+	}
 	insertLines := []string{
-		fmt.Sprintf("INSERT INTO %s (%s)", i.table, strings.Join(i.columns, ", ")),
+		topLine,
 		fmt.Sprintf("VALUES (%s)", strings.Join(internal.Map(i.values, func(a any) string {
 			return fmt.Sprintf("%v", a)
 		}), ", ")),

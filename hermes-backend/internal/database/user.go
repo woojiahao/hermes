@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"woojiahao.com/hermes/internal"
-	"woojiahao.com/hermes/internal/database/q"
+	. "woojiahao.com/hermes/internal/database/q"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -47,11 +47,10 @@ func (d *Database) CreateUser(username string, password string, role Role) (User
 
 	user, err := singleQuery(
 		d,
-		q.Insert(`"user"`).
+		Insert(`"user"`).
 			Columns("username", "password_hash", "role").
-			Values("$1", "$2", `$3::text::"role"`).
-			Returning(q.ALL).
-			Generate(),
+			Values(P1, P2, `$3::text::"role"`).
+			Returning(ALL),
 		generateParams(username, string(hash), role),
 		parseUserRows,
 	)
@@ -73,10 +72,9 @@ func (d *Database) GetUser(username string) (User, error) {
 func (d *Database) getUser(str string, isUsername bool) (User, error) {
 	user, err := singleQuery(
 		d,
-		q.From(`"user"`).
-			Select("*").
-			Where(q.Eq(internal.ThisOrThat("username", "id", !isUsername), "$1")).
-			Generate(),
+		From(`"user"`).
+			Select(ALL).
+			Where(Eq(internal.ThisOrThat("username", "id", !isUsername), P1)),
 		generateParams(str),
 		parseUserRows,
 	)
@@ -90,7 +88,7 @@ func (d *Database) getUser(str string, isUsername bool) (User, error) {
 func (d *Database) GetUsers() ([]User, error) {
 	users, err := query(
 		d,
-		q.From(`"user"`).Select(q.ALL).Generate(),
+		From(`"user"`).Select(ALL),
 		generateParams(),
 		parseUserRows,
 	)

@@ -4,9 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"log"
+	"woojiahao.com/hermes/internal/database/q"
 )
 
 type perRow[T any] func(*sql.Rows) (T, error)
+
+func doNothing(_ *sql.Rows) (string, error) {
+	return "", nil
+}
 
 func parseResults[T any](rows *sql.Rows, fn perRow[T]) ([]T, error) {
 	var items []T
@@ -26,7 +31,7 @@ func parseResults[T any](rows *sql.Rows, fn perRow[T]) ([]T, error) {
 	return items, nil
 }
 
-func singleQuery[T any](db *Database, q string, params []any, fn perRow[T]) (T, error) {
+func singleQuery[T any](db *Database, q q.QueryBuilder, params []any, fn perRow[T]) (T, error) {
 	results, err := query(db, q, params, fn)
 	if err != nil {
 		// The error is internal error, so just propagate it
@@ -40,8 +45,8 @@ func singleQuery[T any](db *Database, q string, params []any, fn perRow[T]) (T, 
 	return results[0], nil
 }
 
-func query[T any](db *Database, query string, params []any, fn perRow[T]) ([]T, error) {
-	rows, err := db.db.QueryContext(context.TODO(), query, params...)
+func query[T any](db *Database, query q.QueryBuilder, params []any, fn perRow[T]) ([]T, error) {
+	rows, err := db.db.QueryContext(context.TODO(), query.Generate(), params...)
 	if err != nil {
 		log.Printf("Internal database error occurred when querying for data due to %s", err)
 		return nil, InternalError
@@ -71,7 +76,7 @@ func transaction[T any](db *Database, fn func(*sql.Tx) (T, error)) (T, error) {
 	return result, nil
 }
 
-func transactionSingleQuery[T any](tx *sql.Tx, q string, params []any, fn perRow[T]) (T, error) {
+func transactionSingleQuery[T any](tx *sql.Tx, q q.QueryBuilder, params []any, fn perRow[T]) (T, error) {
 	results, err := transactionQuery(tx, q, params, fn)
 	if err != nil {
 		// Error will be InternalError
@@ -85,8 +90,8 @@ func transactionSingleQuery[T any](tx *sql.Tx, q string, params []any, fn perRow
 	return results[0], nil
 }
 
-func transactionQuery[T any](tx *sql.Tx, query string, params []any, fn perRow[T]) ([]T, error) {
-	rows, err := tx.QueryContext(context.TODO(), query, params...)
+func transactionQuery[T any](tx *sql.Tx, query q.QueryBuilder, params []any, fn perRow[T]) ([]T, error) {
+	rows, err := tx.QueryContext(context.TODO(), query.Generate(), params...)
 	if err != nil {
 		log.Printf("Internal database error occurred when querying for data in transaction due to %s", err)
 		return nil, InternalError
