@@ -204,7 +204,7 @@ export default function ExpandedThread() {
           <div className="mb-8 flex flex-col gap-y-2">
             <div className="flex justify-between items-center">
               <h2 className="break-words">{thread.title}</h2>
-              <div className="group">
+              <div className="group tiny:flex-col-reverse tiny:gap-y-4 items-center justify-center">
                 <div className="flex gap-x-2 items-center">
                   <BsFillHandThumbsUpFill size={20}
                                           className="hover:cursor-pointer"

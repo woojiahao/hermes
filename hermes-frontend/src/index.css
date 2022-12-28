@@ -1324,6 +1324,10 @@ a:hover{
     flex-direction: column !important;
   }
 
+  .tiny\:flex-col-reverse{
+    flex-direction: column-reverse !important;
+  }
+
   .tiny\:justify-start{
     justify-content: flex-start !important;
   }
