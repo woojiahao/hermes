@@ -84,7 +84,7 @@ func deleteThread(ctx *gin.Context, db *database.Database) {
 	id := ctx.Param("id")
 	user, err := getPayloadUser(ctx, db)
 	if err != nil {
-		notFound(ctx, err.Error())
+		badRequest(ctx, err.Error())
 		return
 	}
 
@@ -143,7 +143,7 @@ func getThreadById(ctx *gin.Context, db *database.Database) {
 func createThread(ctx *gin.Context, db *database.Database) {
 	user, err := getPayloadUser(ctx, db)
 	if err != nil {
-		notFound(ctx, err.Error())
+		badRequest(ctx, err.Error())
 		return
 	}
 

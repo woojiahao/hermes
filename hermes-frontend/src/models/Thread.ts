@@ -41,7 +41,21 @@ export default class Thread {
 
   @JsonProperty("creator", String)
   creator: string
+
+  @JsonProperty("upvoters", [String])
+  upvoters: string[]
+
+  @JsonProperty("downvoters", [String])
+  downvoters: string[]
+
+  @JsonProperty("upvotes")
+  upvotes: number
+
+  @JsonProperty("downvotes")
+  downvotes: number
 }
+
+
 
 export function emptyThread(): Thread {
   return {
@@ -54,6 +68,10 @@ export function emptyThread(): Thread {
     tags: [],
     createdAt: new Date(),
     createdBy: "",
-    creator: ""
+    creator: "",
+    upvoters: [],
+    downvoters: [],
+    upvotes: 0,
+    downvotes: 0,
   }
 }

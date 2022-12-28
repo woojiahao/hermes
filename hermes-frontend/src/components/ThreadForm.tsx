@@ -77,7 +77,7 @@ export default function ThreadForm({threadId, action, error, setError}: ThreadFo
     }
 
     if (content.length < 30) {
-      return [false, "Thread title must be at least 30 characters long"]
+      return [false, "Thread content must be at least 30 characters long"]
     }
 
     return [true, null, title, content]
@@ -110,7 +110,7 @@ export default function ThreadForm({threadId, action, error, setError}: ThreadFo
   }
 
   return (
-    <div className="form thick-card">
+    <div className="form card thick">
       {error && <p className="error">{error}</p>}
 
       <div className="field">

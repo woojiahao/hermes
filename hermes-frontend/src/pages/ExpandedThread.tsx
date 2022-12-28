@@ -11,13 +11,17 @@ import CommentCard from "../components/CommentCard"
 import {asyncGetThread} from "../services/thread"
 import DisplayTag from "../components/DisplayTag"
 import Layout from "../components/Layout"
-import {BsPinAngle, BsPinAngleFill} from "react-icons/bs"
+import {BsFillHandThumbsDownFill, BsFillHandThumbsUpFill, BsPinAngle, BsPinAngleFill} from "react-icons/bs"
+
+type VoteType = "UPVOTE" | "DOWNVOTE" | "NONE"
 
 export default function ExpandedThread() {
   const {id} = useParams()
   const [thread, setThread] = useState<Thread>(emptyThread())
   const [comments, setComments] = useState<Comment[]>([])
   const [error, setError] = useState<string>()
+  const [vote, setVote] = useState<VoteType>("NONE")
+
   const navigate = useNavigate()
   const user = useAppSelector((state) => state.auth.user)
   const commentRef = useRef<HTMLTextAreaElement>()
@@ -33,6 +37,13 @@ export default function ExpandedThread() {
       await getComments()
     })()
   }, [])
+
+  useEffect(() => {
+    if (thread && user) {
+      if (thread.upvoters.includes(user.id)) setVote("UPVOTE")
+      else if (thread.downvoters.includes(user.id)) setVote("DOWNVOTE")
+    }
+  }, [thread, user])
 
   async function getComments() {
     await new HermesRequest()
@@ -122,6 +133,56 @@ export default function ExpandedThread() {
       .call()
   }
 
+  async function makeVote(voteType: VoteType) {
+    if (!user) {
+      setError("Login before voting")
+      return
+    }
+
+    if (vote === voteType) {
+      // Remove the existing vote
+      await new HermesRequest()
+        .endpoint(`threads/${id}/votes`)
+        .hasAuthorization()
+        .DELETE()
+        .onSuccess(_ => {
+          if (vote === "UPVOTE") {
+            thread.upvoters = thread.upvoters.filter(i => i !== user.id)
+            thread.upvotes -= 1
+          } else {
+            thread.downvoters = thread.downvoters.filter(i => i !== user.id)
+            thread.downvotes -= 1
+          }
+          setVote("NONE")
+        })
+        .onFailure((e: { message: string }) => setError(e.message))
+        .onError(e => setError(e.message))
+        .call()
+    } else {
+      // Change the vote to the other
+      await new HermesRequest()
+        .endpoint(`threads/${id}/votes`)
+        .hasAuthorization()
+        .PUT()
+        .body({
+          "is_upvote": voteType === "UPVOTE"
+        })
+        .onSuccess(_ => {
+          if (voteType === "UPVOTE") {
+            thread.upvoters.push(user.id)
+            thread.upvotes += 1
+          } else {
+            thread.downvoters.push(user.id)
+            thread.downvotes += 1
+          }
+          setVote(voteType)
+        })
+        .onFailure((e: { message: string }) => setError(e.message))
+        .onError(e => setError(e.message))
+        .call()
+    }
+  }
+
   return (
     <Layout>
       <div className="single">
@@ -139,16 +200,32 @@ export default function ExpandedThread() {
         </div>
 
         <div>
-          {error && <p className="error">{error}</p>}
+          {error && <p className="error mb-4">{error}</p>}
           <div className="mb-8 flex flex-col gap-y-2">
             <div className="flex justify-between items-center">
               <h2 className="break-words">{thread.title}</h2>
-              {thread.isPinned ?
-                <BsPinAngleFill className={`${user && user.role === 'ADMIN' ? 'clickable' : ''} hover:cursor-pointer`} color="#ebc81a"
-                                size={25} onClick={async () => await pinThread()} /> :
-                <BsPinAngle className={`${user && user.role === 'ADMIN' ? 'clickable' : ''} hover:cursor-pointer`} color="#ebc81a" size={25}
-                            onClick={async () => await pinThread()}/>
-              }
+              <div className="group">
+                <div className="flex gap-x-2 items-center">
+                  <BsFillHandThumbsUpFill size={20}
+                                          className="hover:cursor-pointer"
+                                          onClick={() => makeVote("UPVOTE")}
+                                          color={vote === "UPVOTE" ? "#eb6b1c" : "#191919"}/>
+                  <span className={vote === "UPVOTE" ? "text-[#eb6b1c]" : "text-dark"}>{thread.upvotes}</span>
+                  <BsFillHandThumbsDownFill size={20}
+                                            className="hover:cursor-pointer"
+                                            onClick={() => makeVote("DOWNVOTE")}
+                                            color={vote === "DOWNVOTE" ? "#77b2e6" : "#191919"}/>
+                  <span className={vote === "DOWNVOTE" ? "text-[#77b2e6]" : "text-dark"}>{thread.downvotes}</span>
+                </div>
+                {thread.isPinned ?
+                  <BsPinAngleFill className={`${user && user.role === 'ADMIN' ? 'clickable' : ''} hover:cursor-pointer`}
+                                  color="#ebc81a"
+                                  size={25} onClick={async () => await pinThread()}/> :
+                  <BsPinAngle className={`${user && user.role === 'ADMIN' ? 'clickable' : ''} hover:cursor-pointer`}
+                              color="#ebc81a" size={25}
+                              onClick={async () => await pinThread()}/>
+                }
+              </div>
             </div>
             <div className="flex gap-3">
               {thread.tags.map((tag, i) => <DisplayTag tag={tag} key={i}/>)}

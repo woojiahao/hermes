@@ -120,7 +120,7 @@ func (d *Database) GetThreadComments(threadId string) ([]Comment, error) {
 		d,
 		From("comment").
 			Select("comment.*", `"user".username`).
-			InnerJoin(`"user"`, "created_by", "id").
+			InnerJoin(`"user"`, "comment.created_by", `"user".id`).
 			Where(And(Eq("thread_id", P1), IsNull("deleted_at"))).
 			Order("created_at", DESC),
 		generateParams(threadId),

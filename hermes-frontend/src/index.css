@@ -1016,6 +1016,16 @@ a:hover{
   row-gap: 0.5rem !important;
 }
 
+.gap-x-4{
+  -webkit-column-gap: 1rem !important;
+          column-gap: 1rem !important;
+}
+
+.gap-x-2{
+  -webkit-column-gap: 0.5rem !important;
+          column-gap: 0.5rem !important;
+}
+
 .gap-y-4{
   row-gap: 1rem !important;
 }
@@ -1148,6 +1158,16 @@ a:hover{
 .text-dark-highlight{
   --tw-text-opacity: 1 !important;
   color: rgb(79 101 111 / var(--tw-text-opacity)) !important;
+}
+
+.text-\[\#eb6b1c\]{
+  --tw-text-opacity: 1 !important;
+  color: rgb(235 107 28 / var(--tw-text-opacity)) !important;
+}
+
+.text-\[\#77b2e6\]{
+  --tw-text-opacity: 1 !important;
+  color: rgb(119 178 230 / var(--tw-text-opacity)) !important;
 }
 
 .shadow-bs{

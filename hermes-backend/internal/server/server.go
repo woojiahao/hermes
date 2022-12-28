@@ -152,6 +152,7 @@ func (s *Server) loadRoutes() {
 			userRoutes,
 			threadRoutes,
 			commentRoutes,
+			voteRoutes,
 		})
 }
 

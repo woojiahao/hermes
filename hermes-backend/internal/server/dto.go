@@ -92,4 +92,8 @@ type (
 		CreatedBy string     `json:"created_by"`
 		Creator   string     `json:"creator"`
 	}
+
+	MakeVote struct {
+		IsUpvote bool `json:"is_upvote"`
+	}
 )
