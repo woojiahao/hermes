@@ -197,5 +197,9 @@ func threadToDTO(thread database.Thread) Thread {
 		thread.CreatedAt,
 		thread.CreatedBy,
 		thread.Creator,
+		thread.Upvoters,
+		thread.Downvoters,
+		thread.Upvotes,
+		thread.Downvotes,
 	}
 }

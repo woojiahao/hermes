@@ -198,6 +198,8 @@ func (d *Database) GetThreadById(threadId string) (Thread, error) {
 			},
 			transform,
 		)
+		thread.Upvotes = len(thread.Upvoters)
+		thread.Downvotes = len(thread.Downvoters)
 
 		return thread, nil
 	})

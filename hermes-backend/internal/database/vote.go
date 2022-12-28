@@ -24,7 +24,7 @@ const (
 
 func parseVoteRows(rows *sql.Rows) (Vote, error) {
 	var vote Vote
-	err := rows.Scan(&vote.UserId, &vote.ThreadId)
+	err := rows.Scan(&vote.UserId, &vote.IsUpvote)
 	return vote, err
 }
 

@@ -74,6 +74,10 @@ type (
 		CreatedAt   *time.Time `json:"created_at"`
 		CreatedBy   string     `json:"created_by"`
 		Creator     string     `json:"creator"`
+		Upvoters    []string   `json:"upvoters"`
+		Downvoters  []string   `json:"downvoters"`
+		Upvotes     int        `json:"upvotes"`
+		Downvotes   int        `json:"downvotes"`
 	}
 
 	CreateComment struct {
