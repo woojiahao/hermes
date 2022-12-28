@@ -48,6 +48,10 @@ func Map[T any, R any](input []T, transform func(T) R) []R {
 	return mapped
 }
 
+func FilterMap[T any, R any](input []T, predicate func(T) bool, transform func(T) R) []R {
+	return Map(Filter(input, predicate), transform)
+}
+
 func ForEach[T any](input []T, fn func(T)) {
 	for _, el := range input {
 		fn(el)

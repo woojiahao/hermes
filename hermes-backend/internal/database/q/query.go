@@ -1,5 +1,7 @@
 package q
 
+import "fmt"
+
 type (
 	Join struct {
 		other   string
@@ -23,3 +25,11 @@ const (
 	P6  = "$6"
 	P7  = "$7"
 )
+
+func Sub(subQuery QueryBuilder, name string) string {
+	return fmt.Sprintf("(%s) %s", subQuery.Generate(), name)
+}
+
+func Coalaesce(intended string, other any) string {
+	return fmt.Sprintf("COALESCE(%s, %v)", intended, other)
+}

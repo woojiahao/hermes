@@ -49,6 +49,10 @@ type Thread struct {
 	DeletedBy   sql.NullString
 	Tags        []Tag
 	Creator     string
+	Upvoters    []string
+	Downvoters  []string
+	Upvotes     int
+	Downvotes   int
 }
 
 var dummyThread Thread
@@ -101,7 +105,7 @@ func (d *Database) CreateThread(userId, title, content string, tags []Tag) (Thre
 	}
 
 	return transaction(d, func(tx *sql.Tx) (Thread, error) {
-		threads, err := transactionQuery(
+		thread, err := transactionSingleQuery(
 			tx,
 			Insert("thread").
 				Columns("title", `"content"`, "created_by").
@@ -119,7 +123,7 @@ func (d *Database) CreateThread(userId, title, content string, tags []Tag) (Thre
 			return dummyThread, &i.DatabaseError{Custom: "failed to retrieve user", Short: "Invalid user_id", Base: err}
 		}
 
-		thread, err := attachTags(tx, threads[0], tags)
+		thread, err = attachTags(tx, thread, tags)
 		if err != nil {
 			return dummyThread, err
 		}
@@ -136,11 +140,12 @@ func (d *Database) GetUserThreads(userId string) ([]Thread, error) {
 
 func (d *Database) GetThreadById(threadId string) (Thread, error) {
 	return transaction(d, func(tx *sql.Tx) (Thread, error) {
-		threads, err := transactionQuery(
+		// Retrieve the thread
+		thread, err := transactionSingleQuery(
 			tx,
 			From("thread").
 				Select("thread.*", `"user".username`).
-				Join(`"user"`, "created_by", "id").
+				InnerJoin(`"user"`, "thread.created_by", `"user".id`).
 				Where(And(Eq("thread.id", P1), IsNull("deleted_at"))),
 			generateParams(threadId),
 			parseThreadRowsWithCreator,
@@ -150,14 +155,13 @@ func (d *Database) GetThreadById(threadId string) (Thread, error) {
 			return dummyThread, &i.DatabaseError{Custom: "failed to retrieve thread by id", Base: err}
 		}
 
-		thread := threads[0]
-
+		// Retrieve all of its tags
 		threadTags, err := transactionQuery(
 			tx,
 			From("tag").
 				Select("tag.*").
-				Join("thread_tag", "tag.id", "thread_tag.tag_id").
-				Join("thread", "thread.id", "thread_tag.thread_id").
+				InnerJoin("thread_tag", "tag.id", "thread_tag.tag_id").
+				InnerJoin("thread", "thread.id", "thread_tag.thread_id").
 				Where(Eq("thread.id", P1)),
 			generateParams(thread.Id),
 			parseTagRows,
@@ -167,6 +171,33 @@ func (d *Database) GetThreadById(threadId string) (Thread, error) {
 		}
 
 		thread.Tags = threadTags
+
+		// Retrieve all the votes
+		transform := func(v Vote) string {
+			return v.UserId
+		}
+		votes, err := transactionQuery(
+			tx,
+			From("vote").
+				Select("user_id", "is_upvote").
+				Where(Eq("thread_id", P1)),
+			generateParams(thread.Id),
+			parseVoteRows,
+		)
+		thread.Upvoters = i.FilterMap(
+			votes,
+			func(v Vote) bool {
+				return v.IsUpvote
+			},
+			transform,
+		)
+		thread.Downvoters = i.FilterMap(
+			votes,
+			func(v Vote) bool {
+				return !v.IsUpvote
+			},
+			transform,
+		)
 
 		return thread, nil
 	})
@@ -283,10 +314,20 @@ func (d *Database) PinThread(threadId string, isPinned bool) (Thread, error) {
 }
 
 func getThreadsWithFilter(d *Database, userId *string) ([]Thread, error) {
+	// We don't need to retrieve all of the specific voters so we just collect the total of each
 	where := And(IsNull("deleted_at"), "is_published")
+	sub := From("vote").
+		Select("thread_id", "COUNT(is_upvote) FILTER (WHERE is_upvote) upvotes", "COUNT(is_upvote) FILTER (WHERE not is_upvote) downvotes").
+		Group("thread_id")
 	q := From("thread").
-		Select("thread.*", `"user".username`).
-		Join(`"user"`, "created_by", "id").
+		Select(
+			"thread.*",
+			`"user".username`,
+			Coalaesce("sub.upvotes", 0),
+			Coalaesce("sub.downvotes", 0),
+		).
+		InnerJoin(`"user"`, "thread.created_by", `"user".id`).
+		LeftJoin(Sub(sub, "sub"), "thread.id", "sub.thread_id").
 		Order("is_pinned", DESC).
 		Order("created_at", DESC)
 
@@ -298,20 +339,40 @@ func getThreadsWithFilter(d *Database, userId *string) ([]Thread, error) {
 	q.Where(where)
 
 	return transaction(d, func(tx *sql.Tx) ([]Thread, error) {
-		threads, err := transactionQuery(tx, q, params, parseThreadRowsWithCreator)
+		// Get the threads
+		threads, err := transactionQuery(tx, q, params, func(rows *sql.Rows) (Thread, error) {
+			var thread Thread
+			err := rows.Scan(
+				&thread.Id,
+				&thread.IsPublished,
+				&thread.IsOpen,
+				&thread.IsPinned,
+				&thread.Title,
+				&thread.Content,
+				&thread.CreatedAt,
+				&thread.CreatedBy,
+				&thread.UpdatedAt,
+				&thread.DeletedAt,
+				&thread.DeletedBy,
+				&thread.Creator,
+				&thread.Upvotes,
+				&thread.Downvotes,
+			)
 
+			return thread, err
+		})
 		if err != nil {
 			return nil, &i.DatabaseError{Custom: "failed to retrieve all threads", Base: err}
 		}
 
+		// Attach the tags to the threads
 		threadTags := make(map[string][]Tag)
-
 		_, err = transactionQuery(
 			tx,
 			From("tag").
 				Select("thread.id", "tag.id", `tag."content"`, "tag.hex_code").
-				Join("thread_tag", "tag.id", "thread_tag.tag_id").
-				Join("thread", "thread.id", "thread_tag.thread_id").
+				InnerJoin("thread_tag", "tag.id", "thread_tag.tag_id").
+				InnerJoin("thread", "thread.id", "thread_tag.thread_id").
 				Where(IsNull("thread.deleted_at")),
 			generateParams(),
 			func(r *sql.Rows) (string, error) {
@@ -324,7 +385,6 @@ func getThreadsWithFilter(d *Database, userId *string) ([]Thread, error) {
 				return "", err
 			},
 		)
-
 		if err != nil {
 			return nil, &i.DatabaseError{Custom: "failed to retrieve all tags related to all threads", Base: err}
 		}

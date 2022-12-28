@@ -74,7 +74,7 @@ func (d *Database) getUser(str string, isUsername bool) (User, error) {
 		d,
 		From(`"user"`).
 			Select(ALL).
-			Where(Eq(internal.ThisOrThat("username", "id", !isUsername), P1)),
+			Where(Eq(internal.ThisOrThat("username", "id", isUsername), P1)),
 		generateParams(str),
 		parseUserRows,
 	)

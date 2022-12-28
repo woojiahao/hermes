@@ -39,8 +39,9 @@ CREATE TABLE vote
     user_id   UUID NOT NULL,
     thread_id UUID NOT NULL,
     is_upvote BOOL NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES "user" (id),
-    FOREIGN KEY (thread_id) REFERENCES "thread" (id)
+    FOREIGN KEY (user_id) REFERENCES "user" (id) ON DELETE CASCADE,
+    FOREIGN KEY (thread_id) REFERENCES "thread" (id) ON DELETE CASCADE,
+    UNIQUE (user_id, thread_id)
 );
 
 CREATE TABLE thread_tag

@@ -16,7 +16,7 @@ func matchQuery(t *testing.T, builder QueryBuilder, query string) {
 func TestShouldGenerateSelectQuery(t *testing.T) {
 	q := From("customer").
 		Select("id", "name").
-		Join("order", "order_id", "id").
+		InnerJoin("order", "order_id", "id").
 		Where("quantity > 15").
 		Order("is_pinned", DESC).
 		Order("created_at", ASC).

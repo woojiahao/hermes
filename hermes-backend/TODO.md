@@ -6,6 +6,7 @@
 - [ ] Implement pagination
 - [ ] Auto-create ADMIN user in create script
 - [ ] Clean up error message system
+- [ ] Show deleted users as "Anonymous" when retrieving
 
 ### Sanitisation
 - [ ] Username sanitisation (disallow spaces in between, specific names, etc.)
