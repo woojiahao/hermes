@@ -171,9 +171,15 @@ export default function ExpandedThread() {
           if (voteType === "UPVOTE") {
             thread.upvoters.push(user.id)
             thread.upvotes += 1
+            if (vote !== 'NONE') {
+              thread.downvotes -= 1
+            }
           } else {
             thread.downvoters.push(user.id)
             thread.downvotes += 1
+            if (vote !== 'NONE') {
+              thread.upvotes -= 1
+            }
           }
           setVote(voteType)
         })
