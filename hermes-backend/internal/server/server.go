@@ -1,28 +1,16 @@
 package server
 
 import (
-	"errors"
 	"log"
-	"net/http"
-	"os"
 	"time"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"golang.org/x/crypto/bcrypt"
 	"woojiahao.com/hermes/internal"
 	"woojiahao.com/hermes/internal/database"
 )
-
-type ServerConfiguration struct {
-	JWTKey string
-}
-
-func LoadConfiguration() *ServerConfiguration {
-	return &ServerConfiguration{os.Getenv("JWT_KEY")}
-}
 
 type (
 	httpAction string
@@ -34,9 +22,8 @@ type (
 		authorizationRequired bool
 	}
 
-	// TODO: Reassess if this struct is necessary
 	Server struct {
-		configuration  *ServerConfiguration
+		configuration  *Configuration
 		db             *database.Database
 		router         *gin.Engine
 		routes         []route
@@ -52,7 +39,7 @@ const (
 	IdentityKey            = "id"
 )
 
-func Start(c *ServerConfiguration, db *database.Database) {
+func Start(c *Configuration, db *database.Database) {
 	router := gin.Default()
 	server := &Server{c, db, router, make([]route, 0), nil}
 	server.setupCORS()
@@ -115,12 +102,10 @@ func (s *Server) setupAuth() {
 			}, nil
 		},
 		Authorizator: func(data interface{}, c *gin.Context) bool {
-			// TODO: Check roles
 			if v, ok := data.(*User); ok {
 				if _, err := s.db.GetUser(v.Username); err != nil {
 					return false
 				}
-
 				return true
 			}
 
@@ -161,11 +146,13 @@ func (s *Server) addRoutes() {
 	s.router.POST("/logout", s.authMiddleware.LogoutHandler)
 	s.router.GET("/refresh", s.authMiddleware.RefreshHandler)
 
+	// Must load routes that do not use the JWT authentication middleware
 	internal.ForEach(
 		internal.Filter(s.routes, func(r route) bool { return !r.authorizationRequired }),
 		s.addRoute,
 	)
 
+	// Load routes that use JWT authentication
 	internal.ForEach(
 		internal.Filter(s.routes, func(r route) bool { return r.authorizationRequired }),
 		func(r route) {
@@ -194,57 +181,4 @@ func ginBody(route route, db *database.Database) func(*gin.Context) {
 	return func(ctx *gin.Context) {
 		route.body(ctx, db)
 	}
-}
-
-// TODO: Log the errors for production
-func ginError(ctx *gin.Context, errorCode int, message any) {
-	ctx.JSON(errorCode, errorBody{errorCode, message})
-}
-
-func internalSeverError(ctx *gin.Context) {
-	ginError(ctx, http.StatusInternalServerError, "Internal server error")
-}
-
-func notFound(ctx *gin.Context, message string) {
-	ginError(ctx, http.StatusNotFound, message)
-}
-
-func badRequestValidation(ctx *gin.Context, bindingError error) {
-	var ve validator.ValidationErrors
-	if errors.As(bindingError, &ve) {
-		out := internal.Map(ve, func(field validator.FieldError) errorField {
-			message := ""
-			switch field.Tag() {
-			case "required":
-				message = "This field is required"
-			case "min":
-				message = "This field has a minimum necessary length/size"
-			case "email":
-				message = "This field must be an email"
-			default:
-				message = field.Tag()
-			}
-			return errorField{field.Field(), message}
-		})
-
-		ginError(ctx, http.StatusBadRequest, out)
-	}
-}
-
-func badRequest(ctx *gin.Context, message string) {
-	ginError(ctx, http.StatusBadRequest, message)
-}
-
-func getPayloadUser(ctx *gin.Context, db *database.Database) (User, error) {
-	if u, ok := ctx.Get(IdentityKey); ok {
-		username := u.(*User).Username
-		user, err := db.GetUser(username)
-		if err != nil {
-			return User{}, err
-		}
-
-		return userToDTO(user), nil
-	}
-
-	return User{}, errors.New("invalid payload")
 }
