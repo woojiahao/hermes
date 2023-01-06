@@ -46,7 +46,10 @@ func Start(c *Configuration, db *database.Database) {
 	server.setupAuth()
 	server.loadRoutes()
 	server.addRoutes()
-	server.router.Run()
+	err := server.router.Run()
+	if err != nil {
+		log.Fatalf("Unable to start server due to %s", err)
+	}
 }
 
 func (s *Server) setupCORS() {
@@ -80,7 +83,7 @@ func (s *Server) setupAuth() {
 		Authenticator: func(c *gin.Context) (interface{}, error) {
 			var login Login
 			if err := c.ShouldBind(&login); err != nil {
-				return "", jwt.ErrMissingLoginValues
+				return nil, jwt.ErrMissingLoginValues
 			}
 			username := login.Username
 			password := login.Password
