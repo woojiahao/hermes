@@ -46,7 +46,6 @@ func singleQuery[T any](db *Database, q q.QueryBuilder, params []any, fn perRow[
 }
 
 func query[T any](db *Database, query q.QueryBuilder, params []any, fn perRow[T]) ([]T, error) {
-	log.Printf("Query: \n%s", query.Generate())
 	rows, err := db.db.QueryContext(context.TODO(), query.Generate(), params...)
 	if err != nil {
 		log.Printf("Internal database error occurred when querying for data due to %s", err)
@@ -92,7 +91,6 @@ func transactionSingleQuery[T any](tx *sql.Tx, q q.QueryBuilder, params []any, f
 }
 
 func transactionQuery[T any](tx *sql.Tx, query q.QueryBuilder, params []any, fn perRow[T]) ([]T, error) {
-	log.Printf("Query: \n%s", query.Generate())
 	rows, err := tx.QueryContext(context.TODO(), query.Generate(), params...)
 	if err != nil {
 		log.Printf("Internal database error occurred when querying for data in transaction due to %s", err)

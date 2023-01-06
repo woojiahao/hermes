@@ -1,6 +1,9 @@
 package internal
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	"os"
+)
 
 func Contains[T comparable](arr []T, target T) bool {
 	for _, el := range arr {
@@ -79,4 +82,9 @@ func ThisOrThat[T any](this, that T, condition bool) T {
 	} else {
 		return that
 	}
+}
+
+func IsProduction() bool {
+	mode := os.Getenv("GIN_MODE")
+	return mode == "release"
 }

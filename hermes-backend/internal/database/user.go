@@ -25,8 +25,6 @@ const (
 	USER  Role = "USER"
 )
 
-var dummyUser User
-
 func parseUserRows(rows *sql.Rows) (User, error) {
 	var user User
 	err := rows.Scan(
@@ -42,7 +40,7 @@ func (d *Database) CreateUser(username string, password string, role Role) (User
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
 	if err != nil {
 		log.Printf("Failed to generate hash for password due to %s", err)
-		return dummyUser, InternalError
+		return User{}, InternalError
 	}
 
 	user, err := singleQuery(
@@ -55,7 +53,7 @@ func (d *Database) CreateUser(username string, password string, role Role) (User
 		parseUserRows,
 	)
 	if err != nil {
-		return dummyUser, err
+		return User{}, err
 	}
 
 	return user, nil
@@ -79,7 +77,7 @@ func (d *Database) getUser(str string, isUsername bool) (User, error) {
 		parseUserRows,
 	)
 	if err != nil {
-		return dummyUser, err
+		return User{}, err
 	}
 
 	return user, nil

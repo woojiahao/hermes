@@ -2,11 +2,9 @@ package server
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"woojiahao.com/hermes/internal"
 	"woojiahao.com/hermes/internal/database"
 )
 
@@ -16,15 +14,14 @@ var authRoutes = []route{
 }
 
 func check(ctx *gin.Context, db *database.Database) {
-	if user, ok := ctx.Get(IdentityKey); ok {
-		u := user.(*User)
-		ctx.JSON(http.StatusOK, gin.H{
-			"message": fmt.Sprintf("Hello %s %s", u.Role, u.Username),
-		})
+	user, err := getPayloadUser(ctx, db)
+	if err != nil {
+		badRequest(ctx, "Failed to check")
 		return
 	}
-
-	badRequest(ctx, "Failed to check")
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": fmt.Sprintf("Hello %s %s", user.Role, user.Username),
+	})
 }
 
 func register(ctx *gin.Context, db *database.Database) {
@@ -34,17 +31,9 @@ func register(ctx *gin.Context, db *database.Database) {
 		return
 	}
 
-	user, err := db.CreateUser(req.Username, req.Password, database.Role(req.Role))
+	user, err := db.CreateUser(req.Username, req.Password, req.Role)
 	if err != nil {
-		if dbe, ok := err.(*internal.DatabaseError); ok {
-			log.Println(dbe.Error())
-			badRequest(ctx, dbe.Short)
-			return
-		} else {
-			// Hash function failed
-			internalSeverError(ctx)
-			return
-		}
+		internalSeverError(ctx)
 	}
 
 	ctx.JSON(http.StatusCreated, userToDTO(user))
