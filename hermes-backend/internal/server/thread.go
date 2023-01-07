@@ -24,7 +24,7 @@ func pinThread(ctx *gin.Context, db *database.Database) {
 	id := ctx.Param("id")
 	user, err := getPayloadUser(ctx, db)
 	if err != nil {
-		notFound(ctx, err.Error())
+		badRequest(ctx, err.Error())
 		return
 	}
 
@@ -52,7 +52,7 @@ func editThread(ctx *gin.Context, db *database.Database) {
 	id := ctx.Param("id")
 	user, err := getPayloadUser(ctx, db)
 	if err != nil {
-		notFound(ctx, err.Error())
+		badRequest(ctx, err.Error())
 		return
 	}
 
@@ -62,7 +62,6 @@ func editThread(ctx *gin.Context, db *database.Database) {
 		return
 	}
 
-	// TODO: Check if user can edit thread
 	thread, err := db.EditThread(
 		user.Id,
 		id,
@@ -73,7 +72,11 @@ func editThread(ctx *gin.Context, db *database.Database) {
 		internal.Map(req.Tags, tagToDatabaseObj),
 	)
 	if err != nil {
-		internalSeverError(ctx)
+		if err == database.DataError {
+			badRequest(ctx, "Tags must be unique")
+		} else {
+			internalSeverError(ctx)
+		}
 		return
 	}
 
@@ -98,24 +101,18 @@ func deleteThread(ctx *gin.Context, db *database.Database) {
 }
 
 func getCurrentUserThreads(ctx *gin.Context, db *database.Database) {
-	if u, ok := ctx.Get(IdentityKey); ok {
-		username := u.(*User).Username
-		user, err := db.GetUser(username)
-		if err != nil {
-			notFound(ctx, "Unable to find user")
-			return
-		}
-
-		threads, err := db.GetUserThreads(user.Id)
-		if err != nil {
-			notFound(ctx, "Unable to find user threads")
-		}
-
-		ctx.JSON(http.StatusOK, internal.Map(threads, threadToDTO))
+	u, err := getPayloadUser(ctx, db)
+	if err != nil {
+		badRequest(ctx, err.Error())
 		return
 	}
 
-	badRequest(ctx, "Failed to retrieve current user's threads")
+	threads, err := db.GetUserThreads(u.Id)
+	if err != nil {
+		notFound(ctx, "Unable to find user threads")
+	}
+
+	ctx.JSON(http.StatusOK, internal.Map(threads, threadToDTO))
 }
 
 func getThreads(ctx *gin.Context, db *database.Database) {
@@ -132,8 +129,11 @@ func getThreadById(ctx *gin.Context, db *database.Database) {
 	id := ctx.Param("id")
 	thread, err := db.GetThreadById(id)
 	if err != nil {
-		// TODO: Have more specific control over internal server error or not found
-		notFound(ctx, fmt.Sprintf("Unable to find thread given id: %s", id))
+		if err == database.NotFoundError {
+			notFound(ctx, fmt.Sprintf("Unable to find thread given id: %s", id))
+		} else {
+			internalSeverError(ctx)
+		}
 		return
 	}
 

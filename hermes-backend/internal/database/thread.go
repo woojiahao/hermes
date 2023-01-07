@@ -2,6 +2,8 @@ package database
 
 import (
 	"database/sql"
+	"fmt"
+	"log"
 	"time"
 
 	i "woojiahao.com/hermes/internal"
@@ -101,7 +103,8 @@ func parseThreadRows(rows *sql.Rows) (Thread, error) {
 // Performs three different SQL queries: 1) INSERT INTO thread, 2) SELECT * "user", 3) INSERT INTO tag
 func (d *Database) CreateThread(userId, title, content string, tags []Tag) (Thread, error) {
 	if !tagsAreUnique(tags) {
-		return dummyThread, &i.ServerError{Custom: "tags cannot have same name", Base: nil}
+		log.Printf("Given tags is not unique")
+		return Thread{}, DataError
 	}
 
 	return transaction(d, func(tx *sql.Tx) (Thread, error) {
@@ -115,17 +118,17 @@ func (d *Database) CreateThread(userId, title, content string, tags []Tag) (Thre
 			parseThreadRows,
 		)
 		if err != nil {
-			return dummyThread, &i.DatabaseError{Custom: "failed to create new thread", Base: err}
+			return Thread{}, err
 		}
 
 		user, err := d.GetUserById(userId)
 		if err != nil {
-			return dummyThread, &i.DatabaseError{Custom: "failed to retrieve user", Short: "Invalid user_id", Base: err}
+			return Thread{}, err
 		}
 
 		thread, err = attachTags(tx, thread, tags)
 		if err != nil {
-			return dummyThread, err
+			return Thread{}, err
 		}
 
 		thread.Creator = user.Username
@@ -152,7 +155,7 @@ func (d *Database) GetThreadById(threadId string) (Thread, error) {
 		)
 
 		if err != nil {
-			return dummyThread, &i.DatabaseError{Custom: "failed to retrieve thread by id", Base: err}
+			return Thread{}, err
 		}
 
 		// Retrieve all of its tags
@@ -167,7 +170,7 @@ func (d *Database) GetThreadById(threadId string) (Thread, error) {
 			parseTagRows,
 		)
 		if err != nil {
-			return dummyThread, &i.DatabaseError{Custom: "failed to retrieve thread tags", Base: err}
+			return Thread{}, err
 		}
 
 		thread.Tags = threadTags
@@ -224,12 +227,8 @@ func (d *Database) DeleteThread(userId, threadId string) (Thread, error) {
 		generateParams(userId, threadId),
 		parseThreadRows,
 	)
-
 	if err != nil {
-		return dummyThread, &i.DatabaseError{
-			Custom: "failed to delete thread, reasons: user not original poster or user not admin",
-			Base:   err,
-		}
+		return Thread{}, err
 	}
 
 	return threads[0], nil
@@ -245,11 +244,12 @@ func (d *Database) EditThread(
 	tags []Tag,
 ) (Thread, error) {
 	if !tagsAreUnique(tags) {
-		return dummyThread, &i.ServerError{Custom: "tags cannot have same name", Base: nil}
+		log.Printf("Given tags is not unique")
+		return Thread{}, DataError
 	}
 
 	return transaction(d, func(tx *sql.Tx) (Thread, error) {
-		threads, err := transactionQuery(
+		thread, err := transactionSingleQuery(
 			tx,
 			Update("thread").
 				Set("title", P1).
@@ -262,25 +262,24 @@ func (d *Database) EditThread(
 			generateParams(title, content, isPublished, isOpen, threadId, userId),
 			parseThreadRows,
 		)
-
 		if err != nil {
-			return dummyThread, &i.DatabaseError{Custom: "failed to edit a thread", Base: err}
+			return Thread{}, err
 		}
 
 		// Delete all existing tags
-		_, err = transactionQuery(
+		_, err = transactionSingleQuery(
 			tx,
 			Delete("thread_tag").Where(Eq("thread_id", P1)),
 			generateParams(threadId),
 			doNothing,
 		)
 		if err != nil {
-			return dummyThread, &i.DatabaseError{Custom: "failed to delete all associated tags with given thread", Base: err}
+			return Thread{}, err
 		}
 
-		thread, err := attachTags(tx, threads[0], tags)
+		thread, err = attachTags(tx, thread, tags)
 		if err != nil {
-			return dummyThread, err
+			return Thread{}, err
 		}
 
 		return thread, err
@@ -295,24 +294,24 @@ func (d *Database) GetTags() ([]Tag, error) {
 		parseTagRows,
 	)
 	if err != nil {
-		return nil, &i.DatabaseError{Custom: "failed to retrieve all tags", Short: "Cannot retrieve tags", Base: err}
+		return nil, err
 	}
 
 	return tags, nil
 }
 
 func (d *Database) PinThread(threadId string, isPinned bool) (Thread, error) {
-	threads, err := query(
+	thread, err := singleQuery(
 		d,
 		Update("thread").Set("is_pinned", P1).Where(Eq("id", P2)).Returning(ALL),
 		generateParams(isPinned, threadId),
 		parseThreadRows,
 	)
 	if err != nil {
-		return dummyThread, &i.DatabaseError{Custom: "failed to pin thread", Short: "Cannot pin thread", Base: err}
+		return Thread{}, err
 	}
 
-	return threads[0], nil
+	return thread, nil
 }
 
 func getThreadsWithFilter(d *Database, userId *string) ([]Thread, error) {
@@ -364,7 +363,7 @@ func getThreadsWithFilter(d *Database, userId *string) ([]Thread, error) {
 			return thread, err
 		})
 		if err != nil {
-			return nil, &i.DatabaseError{Custom: "failed to retrieve all threads", Base: err}
+			return nil, err
 		}
 
 		// Attach the tags to the threads
@@ -388,7 +387,7 @@ func getThreadsWithFilter(d *Database, userId *string) ([]Thread, error) {
 			},
 		)
 		if err != nil {
-			return nil, &i.DatabaseError{Custom: "failed to retrieve all tags related to all threads", Base: err}
+			return nil, err
 		}
 
 		var finalThreads []Thread
