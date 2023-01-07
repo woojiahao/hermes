@@ -17,7 +17,7 @@ func deleteComment(ctx *gin.Context, db *database.Database) {
 	commentId := ctx.Param("commentId")
 	user, err := getPayloadUser(ctx, db)
 	if err != nil {
-		notFound(ctx, err.Error())
+		badRequest(ctx, err.Error())
 		return
 	}
 

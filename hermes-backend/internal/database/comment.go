@@ -4,8 +4,6 @@ import (
 	"database/sql"
 	"time"
 	. "woojiahao.com/hermes/internal/database/q"
-
-	i "woojiahao.com/hermes/internal"
 )
 
 type Comment struct {
@@ -18,8 +16,6 @@ type Comment struct {
 	DeletedBy sql.NullString
 	Creator   string
 }
-
-var dummyComment Comment
 
 func parseCommentRowsWithCreator(rows *sql.Rows) (Comment, error) {
 	var comment Comment
@@ -52,7 +48,7 @@ func parseCommentRows(rows *sql.Rows) (Comment, error) {
 
 func (d *Database) CreateComment(userId, threadId, content string) (Comment, error) {
 	return transaction(d, func(tx *sql.Tx) (Comment, error) {
-		comments, err := transactionQuery(
+		comment, err := transactionSingleQuery(
 			tx,
 			Insert("comment").
 				Values(P1, P2, P3).
@@ -62,10 +58,10 @@ func (d *Database) CreateComment(userId, threadId, content string) (Comment, err
 			parseCommentRows,
 		)
 		if err != nil {
-			return dummyComment, &i.DatabaseError{Custom: "failed to insert new comment", Base: err}
+			return Comment{}, InternalError
 		}
 
-		usernames, err := transactionQuery(
+		username, err := transactionSingleQuery(
 			tx,
 			From(`"user"`).
 				Select("username").
@@ -78,8 +74,7 @@ func (d *Database) CreateComment(userId, threadId, content string) (Comment, err
 			},
 		)
 
-		comment := comments[0]
-		comment.Creator = usernames[0]
+		comment.Creator = username
 
 		return comment, nil
 	})
@@ -90,7 +85,7 @@ func (d *Database) DeleteComment(userId, commentId string) (Comment, error) {
 	isValid := Or(Eq("comment.created_by", P1), Exists(isAdmin))
 	where := And(Eq("comment.id", P2), isValid)
 
-	comments, err := query(
+	comment, err := singleQuery(
 		d,
 		Update("comment").
 			Set("deleted_by", P1).
@@ -101,18 +96,10 @@ func (d *Database) DeleteComment(userId, commentId string) (Comment, error) {
 		parseCommentRows,
 	)
 	if err != nil {
-		return dummyComment, &i.DatabaseError{
-			Custom: "failed to delete comment, reasons: user not original poster or user not admin",
-			Base:   err,
-		}
+		return Comment{}, InternalError
 	}
 
-	err = i.ExactlyOneResultError(comments)
-	if err != nil {
-		return dummyComment, err
-	}
-
-	return comments[0], nil
+	return comment, nil
 }
 
 func (d *Database) GetThreadComments(threadId string) ([]Comment, error) {
@@ -127,7 +114,7 @@ func (d *Database) GetThreadComments(threadId string) ([]Comment, error) {
 		parseCommentRowsWithCreator,
 	)
 	if err != nil {
-		return nil, &i.DatabaseError{Custom: "failed to retrieve comments for given thread", Base: err}
+		return nil, InternalError
 	}
 
 	return comments, nil
