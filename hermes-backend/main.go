@@ -22,6 +22,7 @@ func main() {
 	// Setup the database connection
 	databaseConfiguration := database.LoadConfiguration()
 	db := database.Initialize(databaseConfiguration)
+	db.CreateTablesIfNotExists()
 
 	// Setup the original admin user for testing purposes
 	if _, err := db.GetUser("admin"); err != nil {

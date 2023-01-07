@@ -1,22 +1,27 @@
-CREATE TABLE tag
+CREATE TABLE IF NOT EXISTS tag
 (
     id        UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     "content" TEXT UNIQUE NOT NULL CHECK (TRIM("content") != ''),
-    hex_code  CHAR(7)     NOT NULL CHECK (hex_code SIMILAR TO '^#[A-Fa-f0-9]{6}$')
+    hex_code  CHAR(7)     NOT NULL CHECK (hex_code ~ '^#[A-Fa-f0-9]{6}$')
 );
 
-CREATE TYPE "role" AS ENUM ('ADMIN', 'USER');
+-- Create user type enum only if it does not exist yet
+DO $$ BEGIN
+    CREATE TYPE "role" AS ENUM ('ADMIN', 'USER');
+EXCEPTION
+      WHEN duplicate_object THEN null;
+END $$;
 
-CREATE TABLE "user"
+CREATE TABLE IF NOT EXISTS "user"
 (
     id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    username      TEXT UNIQUE NOT NULL CHECK (TRIM(username) SIMILAR TO '^[a-zA-Z]\w{2,}$'),
+    username      TEXT UNIQUE NOT NULL CHECK (TRIM(username) ~ '^[a-zA-Z]\w{2,}$'),
     password_hash TEXT        NOT NULL,
     "role"        "role"      NOT NULL
 );
 
 -- No updated_by as only the user who posted the thread can edit it
-CREATE TABLE thread
+CREATE TABLE IF NOT EXISTS thread
 (
     id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     is_published BOOL NOT NULL    DEFAULT TRUE,
@@ -33,7 +38,7 @@ CREATE TABLE thread
     FOREIGN KEY (deleted_by) REFERENCES "user" (id)
 );
 
-CREATE TABLE vote
+CREATE TABLE IF NOT EXISTS vote
 (
     id        UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id   UUID NOT NULL,
@@ -44,7 +49,7 @@ CREATE TABLE vote
     UNIQUE (user_id, thread_id)
 );
 
-CREATE TABLE thread_tag
+CREATE TABLE IF NOT EXISTS thread_tag
 (
     thread_id UUID NOT NULL,
     tag_id    UUID NOT NULL,
@@ -53,7 +58,7 @@ CREATE TABLE thread_tag
     UNIQUE (thread_id, tag_id)
 );
 
-CREATE TABLE comment
+CREATE TABLE IF NOT EXISTS comment
 (
     id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     "content"  TEXT NOT NULL CHECK(LENGTH(TRIM("content")) >= 5),
