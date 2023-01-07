@@ -403,49 +403,45 @@ func getThreadsWithFilter(d *Database, userId *string) ([]Thread, error) {
 }
 
 func attachTags(tx *sql.Tx, thread Thread, tags []Tag) (Thread, error) {
-	var dbTags []Tag
-
-	// Create or retrieve all the tags from the database
-	// Once retrieved, attach the tag to the thread
-	for _, tag := range tags {
-		// TODO: Consider splitting this into separate queries to simplify
-		ts, err := transactionQuery(
-			tx,
-			Raw(`
-				WITH q AS(
-					INSERT INTO tag ("content", hex_code)
-					VALUES ($1, $2)
-					ON CONFLICT("content")
-					DO NOTHING
-					RETURNING *
-				)
-				SELECT * FROM q
-				UNION
-				SELECT * FROM tag WHERE tag."content" = $1;
-			`),
-			generateParams(tag.Content, tag.HexCode),
-			parseTagRows,
-		)
-
-		if err != nil {
-			return dummyThread, &i.DatabaseError{Custom: "failed to create/retrieve new tag", Base: err}
-		}
-
-		dbTags = append(dbTags, ts[0])
-
-		_, err = transactionQuery(
-			tx,
-			Insert("thread_tag").Values(P1, P2).Returning(ALL),
-			generateParams(thread.Id, ts[0].Id),
-			doNothing,
-		)
-
-		if err != nil {
-			return dummyThread, &i.DatabaseError{Custom: "failed to link thread with tag", Base: err}
-		}
+	var parameters []string
+	var tagValues []any
+	// Dynamically generating the parameters and its values
+	for k, j := 1, 0; k < 2*len(tags); k, j = k+2, j+1 {
+		parameters = append(parameters, fmt.Sprintf("$%d", k), fmt.Sprintf("$%d", k+1))
+		tagValues = append(tagValues, tags[j].Content, tags[j].HexCode)
 	}
 
-	thread.Tags = dbTags
+	insertTagsQuery := Insert("tag").
+		Columns(`"content"`, "hex_code").
+		OnConflict(`"content"`).
+		DoUpdate(map[string]any{`"content"`: `EXCLUDED."content"`}).
+		Returning(ALL)
+
+	for k := 0; k < 2*len(tags); k += 2 {
+		insertTagsQuery.Values(parameters[k], parameters[k+1])
+	}
+
+	ts, err := transactionQuery(tx, insertTagsQuery, tagValues, parseTagRows)
+	if err != nil {
+		return Thread{}, err
+	}
+
+	var joiningValues []any
+	// Dynamically generate the joining table values
+	for _, t := range ts {
+		joiningValues = append(joiningValues, thread.Id, t.Id)
+	}
+
+	insertJoiningQuery := Insert("thread_tag").Returning(ALL)
+	for k := 0; k < 2*len(tags); k += 2 {
+		insertJoiningQuery.Values(parameters[k], parameters[k+1])
+	}
+	_, err = transactionQuery(tx, insertJoiningQuery, joiningValues, doNothing)
+	if err != nil {
+		return Thread{}, err
+	}
+
+	thread.Tags = ts
 
 	return thread, nil
 }
