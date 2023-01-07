@@ -60,6 +60,11 @@ export default function ExpandedThread() {
 
   async function submitComment() {
     setError('')
+    if (commentRef.current.value.trim().length < 5) {
+      setError('Comment length must be at least 5 characters long')
+      return
+    }
+
     await new HermesRequest()
       .POST()
       .endpoint(`/threads/${id}/comments`)
@@ -67,7 +72,7 @@ export default function ExpandedThread() {
       .body({
         'user_id': user.id,
         'thread_id': id,
-        'content': commentRef.current.value
+        'content': commentRef.current.value.trim()
       })
       .onSuccess(_ => {
         getComments()
