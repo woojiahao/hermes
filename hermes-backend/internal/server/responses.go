@@ -8,7 +8,6 @@ import (
 	"woojiahao.com/hermes/internal"
 )
 
-// TODO: Log the errors for production
 func ginError(ctx *gin.Context, errorCode int, message any) {
 	ctx.JSON(errorCode, errorBody{errorCode, message})
 }

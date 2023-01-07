@@ -1,4 +1,3 @@
-// DTOs to be used for the server
 package server
 
 import (

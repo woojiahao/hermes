@@ -20,7 +20,7 @@ func makeVote(ctx *gin.Context, db *database.Database) {
 	}
 
 	var req MakeVote
-	if err := ctx.ShouldBindJSON(&req); err != nil {
+	if err = ctx.ShouldBindJSON(&req); err != nil {
 		badRequestValidation(ctx, err)
 		return
 	}

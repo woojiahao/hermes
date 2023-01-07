@@ -11,7 +11,7 @@ var healthRoutes = []route{
 	{GET, "/ping", ping, false},
 }
 
-func ping(c *gin.Context, db *database.Database) {
+func ping(c *gin.Context, _ *database.Database) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "pong",
 	})
