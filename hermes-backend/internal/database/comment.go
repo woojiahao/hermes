@@ -52,7 +52,7 @@ func (d *Database) CreateComment(userId, threadId, content string) (Comment, err
 			tx,
 			Insert("comment").
 				Values(P1, P2, P3).
-				Columns(`"comment"`, "created_by", "thread_id").
+				Columns(`"content"`, "created_by", "thread_id").
 				Returning(ALL),
 			generateParams(content, userId, threadId),
 			parseCommentRows,
@@ -81,7 +81,7 @@ func (d *Database) CreateComment(userId, threadId, content string) (Comment, err
 }
 
 func (d *Database) DeleteComment(userId, commentId string) (Comment, error) {
-	isAdmin := From(`"user"`).Select(ALL).Where(And(Eq(`"user".id`, P1), Eq(`"user".role`, "ADMIN"))).Generate()
+	isAdmin := From(`"user"`).Select(ALL).Where(And(Eq(`"user".id`, P1), Eq(`"user".role`, "'ADMIN'"))).Generate()
 	isValid := Or(Eq("comment.created_by", P1), Exists(isAdmin))
 	where := And(Eq("comment.id", P2), isValid)
 

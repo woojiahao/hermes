@@ -52,6 +52,7 @@ func createComment(ctx *gin.Context, db *database.Database) {
 	comment, err := db.CreateComment(req.UserId, id, req.Content)
 	if err != nil {
 		internalSeverError(ctx)
+		return
 	}
 
 	ctx.JSON(http.StatusOK, commentToDTO(comment))

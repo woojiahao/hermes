@@ -211,7 +211,7 @@ func (d *Database) GetThreads() ([]Thread, error) {
 }
 
 func (d *Database) DeleteThread(userId, threadId string) (Thread, error) {
-	isAdmin := From(`"user"`).Select(ALL).Where(And(Eq(`"user".id`, P1), Eq(`"user".role`, "ADMIN"))).Generate()
+	isAdmin := From(`"user"`).Select(ALL).Where(And(Eq(`"user".id`, P1), Eq(`"user".role`, "'ADMIN'"))).Generate()
 	isValid := Or(Eq("thread.created_by", P1), Exists(isAdmin))
 	where := And(Eq("thread.id", P2), isValid)
 
