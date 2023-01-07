@@ -1,16 +1,9 @@
 # TODOs
 
 ## Pending
-- [ ] Implementing voting system
-- [ ] Disallow creation of user named "admin"
-- [ ] Implement pagination
-- [ ] Auto-create ADMIN user in create script
-- [ ] Clean up error message system
-- [ ] Show deleted users as "Anonymous" when retrieving
-
-### Sanitisation
-- [ ] Username sanitisation (disallow spaces in between, specific names, etc.)
-- [ ] Password minimum requirement enforcement
+- [X] Implementing voting system
+- [X] Disallow creation of user named "admin"
+- [X] Clean up error message system
 
 ## Completed
 - [X] Transactions support

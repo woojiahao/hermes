@@ -35,8 +35,11 @@ Create a database named `hermes` and set the `.env` file to have the appropriate
 Then, you can initialize the database.
 
 ```bash
-psql -U postgres -d hermes -a -f sql/create.sql
+psql -U postgres -d hermes -a -f hermes-backend/internal/database/sql/create.sql
 ```
+
+**Note:** This step is not necessary as the backend will automatically create the tables if they do not exist. The step
+is kept in case manual creation is needed.
 
 Once the database has been initialized, you can start each component.
 
@@ -68,8 +71,6 @@ Docker Compose handles the initialization and setup of the application.
 - Pinned threads
 - Markdown rendering
 - User authentication (admins/users)
-
-### To do
-
 - Upvotes
 - Search thread
+

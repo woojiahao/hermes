@@ -2,8 +2,6 @@
 
 ## Pending
 
-- [ ] Vote system
-
 ## Completed
 
 - [X] Sort CSS stylesheets
@@ -16,3 +14,5 @@
 - [X] Search threads
 - [X] Mobile responsiveness
 - [X] Input sanitisation
+- [X] Vote system
+
