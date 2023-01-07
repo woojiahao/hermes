@@ -36,7 +36,11 @@ func getUser(ctx *gin.Context, db *database.Database) {
 	}
 
 	if err != nil {
-		notFound(ctx, fmt.Sprintf("Unable to find user by given user id: %s", id))
+		if err == database.NotFoundError {
+			notFound(ctx, fmt.Sprintf("Unable to find user by given user id: %s", id))
+		} else {
+			internalSeverError(ctx)
+		}
 		return
 	}
 

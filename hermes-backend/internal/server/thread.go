@@ -160,7 +160,11 @@ func createThread(ctx *gin.Context, db *database.Database) {
 		internal.Map(req.Tags, tagToDatabaseObj),
 	)
 	if err != nil {
-		internalSeverError(ctx)
+		if err == database.DataError {
+			badRequest(ctx, "Tags must be unique")
+		} else {
+			internalSeverError(ctx)
+		}
 		return
 	}
 

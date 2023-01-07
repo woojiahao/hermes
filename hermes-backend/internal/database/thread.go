@@ -57,8 +57,6 @@ type Thread struct {
 	Downvotes   int
 }
 
-var dummyThread Thread
-
 // parseThreadRowsWithCreator will parse the results of a sql.Rows from a SELECT thread.*, "user".username query
 func parseThreadRowsWithCreator(rows *sql.Rows) (Thread, error) {
 	var thread Thread
