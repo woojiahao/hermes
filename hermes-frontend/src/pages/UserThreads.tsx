@@ -17,7 +17,6 @@ export default function UserThreads() {
   }, [])
 
   useEffect(() => {
-    // TODO: Finish implementation
     (async () => {
       await new HermesRequest()
         .GET()

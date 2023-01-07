@@ -79,7 +79,6 @@ export default function ExpandedThread() {
         commentRef.current.value = ""
       })
       .onFailure((e: errorMessage | errorFields) => {
-        // TODO: Abstract this
         if (typeof e.message === 'string') {
           setError(e.message)
         } else {
@@ -127,7 +126,10 @@ export default function ExpandedThread() {
       .onSuccess(json => {
         const t = jsonConvert.deserializeObject(json, Thread)
         setThread(prevState => {
-          // TODO: Implement proper returning of tags
+          t.upvotes = prevState.upvotes
+          t.upvoters = prevState.upvoters
+          t.downvotes = prevState.downvotes
+          t.downvoters = prevState.downvoters
           t.tags = prevState.tags
           t.creator = prevState.creator
           return t
