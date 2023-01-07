@@ -9,7 +9,7 @@ import (
 type InsertQuery struct {
 	table              string
 	columns            []string
-	values             []any
+	values             [][]any
 	onConflict         bool
 	onConflictColumns  []string
 	onConflictBehavior string
@@ -26,7 +26,7 @@ func (i *InsertQuery) Columns(columns ...string) *InsertQuery {
 }
 
 func (i *InsertQuery) Values(values ...any) *InsertQuery {
-	i.values = values
+	i.values = append(i.values, values)
 	return i
 }
 
@@ -36,12 +36,22 @@ func (i *InsertQuery) Returning(columns ...string) *InsertQuery {
 }
 
 func (i *InsertQuery) OnConflict(columns ...string) *InsertQuery {
+	i.onConflict = true
 	i.onConflictColumns = columns
 	return i
 }
 
 func (i *InsertQuery) DoNothing() *InsertQuery {
 	i.onConflictBehavior = "DO NOTHING"
+	return i
+}
+
+func (i *InsertQuery) DoUpdate(set map[string]any) *InsertQuery {
+	var setList []string
+	for k, v := range set {
+		setList = append(setList, fmt.Sprintf("%s = %v", k, v))
+	}
+	i.onConflictBehavior = fmt.Sprintf("DO UPDATE SET %s", strings.Join(setList, ", "))
 	return i
 }
 
@@ -52,10 +62,17 @@ func (i *InsertQuery) Generate() string {
 	}
 	insertLines := []string{
 		topLine,
-		fmt.Sprintf("VALUES (%s)", strings.Join(internal.Map(i.values, func(a any) string {
-			return fmt.Sprintf("%v", a)
-		}), ", ")),
+		"VALUES",
 	}
+
+	var values []string
+	for _, v := range i.values {
+		line := fmt.Sprintf("\t(%s)", strings.Join(internal.Map(v, func(a any) string {
+			return fmt.Sprintf("%v", a)
+		}), ", "))
+		values = append(values, line)
+	}
+	insertLines = append(insertLines, strings.Join(values, ",\n"))
 
 	if i.onConflict {
 		line := internal.ThisOrThat(
