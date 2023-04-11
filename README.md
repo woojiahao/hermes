@@ -2,12 +2,6 @@
 
 Simple web forum built to encourage users to start discussions.
 
-This project was built as part of the CVWO assignment.
-
-Name: Woo Jia Hao
-
-Matriculation Number: A0253334L
-
 ## Local Deployment
 
 There are to two ways to deploy hermes locally.
